@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"Libraries": "/Users/connorwilliams/Library/Arduino15/**"
+		}
+	],
+	"settings": {
+		"arduino.additionalUrls": [
+			"https://espressif.github.io/arduino-esp32/package_esp32_index.json"
+		],
+		"arduino.path": "/Users/connorwilliams/Library/Arduino15"
+	},
+}

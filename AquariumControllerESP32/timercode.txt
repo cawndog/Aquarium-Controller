@@ -1,0 +1,24 @@
+if (currentHour >= this->onHr) {
+            if (currentHour <= this->offHr) {
+                if (currentHour == this->onHr || currentHour == this->offHr) {
+                    if (currentMinute >= this->onMin) {
+                        if (currentMinute <= this->offMin) {
+
+                        }
+                    }
+                }
+                else {
+                    //device power on
+                    //calculate next off time
+                }
+                
+            }
+            else {
+                //device power off. Current hour is past device off hour
+                //calculate next on time
+            }
+        }
+        else {
+            //device power off. Current hour is less than device on hour
+            //calculate next on time
+        }

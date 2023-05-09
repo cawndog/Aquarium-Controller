@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct SettingsStateJSON: Codable {
-    var aquariumThermostat: UInt8
+    var aquariumThermostat: Int
     var timers: Timers
     init() {
         aquariumThermostat = 0
@@ -25,10 +25,10 @@ struct SettingsStateJSON: Codable {
             lights = Device.init()
         }
         struct Device: Codable {
-            var onHr: UInt8
-            var onMin: UInt8
-            var offHr: UInt8
-            var offMin: UInt8
+            var onHr: Int
+            var onMin: Int
+            var offHr: Int
+            var offMin: Int
             init() {
                 onHr = 0
                 onMin = 0
@@ -37,6 +37,33 @@ struct SettingsStateJSON: Codable {
             }
         }
     
+    }
+        
+}
+struct SettingsState {
+    var aquariumThermostat: Int
+    var timers: Timers
+    init() {
+        aquariumThermostat = 0
+        timers = Timers.init()
+    }
+    struct Timers {
+        var airPump: DeviceTimes
+        var co2: DeviceTimes
+        var lights: DeviceTimes
+        init() {
+            self.airPump = DeviceTimes.init()
+            self.co2 = DeviceTimes.init()
+            self.lights = DeviceTimes.init()
+        }
+        struct DeviceTimes {
+            var onTime: Date
+            var offTime: Date
+            init() {
+                self.onTime = Date()
+                self.offTime = Date()
+            }
+        }
     }
         
 }

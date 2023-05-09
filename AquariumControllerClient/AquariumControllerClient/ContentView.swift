@@ -25,6 +25,7 @@ struct ContentView: View {
                             .font(.headline)
                             .padding()*/
                         SettingsView()
+                            .environmentObject(network)
                     }
             }
             .padding(.top, 20.0)

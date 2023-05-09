@@ -61,11 +61,11 @@
 		D864CB5C2A0828F700E1C157 /* AquariumControllerClient */ = {
 			isa = PBXGroup;
 			children = (
+				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
 				D864CB6D2A082A1600E1C157 /* CurrentState.swift */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
 				D864CB6F2A082A1700E1C157 /* SettingsState.swift */,
 				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
-				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
 				D864CB612A0828F800E1C157 /* Assets.xcassets */,
 				D864CB632A0828F800E1C157 /* AquariumControllerClient.entitlements */,
 				D864CB642A0828F800E1C157 /* Preview Content */,

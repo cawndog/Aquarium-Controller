@@ -10,14 +10,89 @@ import SwiftUI
 
 class Network: ObservableObject {
     @Published var currentState: CurrentState
-    @Published var settingsState: SettingsStateJSON
+    @Published var settingsState: SettingsState
     //@State var currentState: CurrentState
     //var currentState: CurrentState
     var currentStateJSON: CurrentStateJSON
+    var settingsStateJSON: SettingsStateJSON
+    var comps: DateComponents
     init() {
         currentStateJSON = CurrentStateJSON.init()
         currentState = CurrentState.init()
-        settingsState = SettingsStateJSON.init()
+        settingsStateJSON = SettingsStateJSON.init()
+        settingsState = SettingsState.init()
+        comps = DateComponents()
+    }
+    func getSettingsState() {
+        guard let url = URL(string: "http://10.0.0.96/getSettingsState") else { fatalError("Missing URL") }
+        
+        let urlRequest = URLRequest(url: url)
+        
+        let dataTask = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+            if let error = error {
+                print("Request error: ", error)
+                return
+            }
+            
+            guard let response = response as? HTTPURLResponse else { return }
+            if response.statusCode == 200 {
+                guard let data = data else { return }
+                DispatchQueue.main.async {
+                    do {
+                        let decodedState = try JSONDecoder().decode(SettingsStateJSON.self, from: data)
+                        self.settingsStateJSON = decodedState
+                        self.settingsState.aquariumThermostat = self.settingsStateJSON.aquariumThermostat
+                        //------------airPump
+                        self.comps.hour = self.settingsStateJSON.timers.airPump.onHr
+                        self.comps.minute = self.settingsStateJSON.timers.airPump.onMin
+                        self.settingsState.timers.airPump.onTime = Calendar.current.date(from: self.comps)!
+                        self.comps.hour = self.settingsStateJSON.timers.airPump.offHr
+                        self.comps.minute = self.settingsStateJSON.timers.airPump.offMin
+                        self.settingsState.timers.airPump.offTime = Calendar.current.date(from: self.comps)!
+                        //----------------co2
+                        self.comps.hour = self.settingsStateJSON.timers.co2.onHr
+                        self.comps.minute = self.settingsStateJSON.timers.co2.onMin
+                        self.settingsState.timers.co2.onTime = Calendar.current.date(from: self.comps)!
+                        self.comps.hour = self.settingsStateJSON.timers.co2.offHr
+                        self.comps.minute = self.settingsStateJSON.timers.co2.offMin
+                        self.settingsState.timers.co2.offTime = Calendar.current.date(from: self.comps)!
+                        //-------------lights
+                        self.comps.hour = self.settingsStateJSON.timers.lights.onHr
+                        self.comps.minute = self.settingsStateJSON.timers.lights.onMin
+                        self.settingsState.timers.lights.onTime = Calendar.current.date(from: self.comps)!
+                        self.comps.hour = self.settingsStateJSON.timers.lights.offHr
+                        self.comps.minute = self.settingsStateJSON.timers.lights.offMin
+                        self.settingsState.timers.lights.offTime = Calendar.current.date(from: self.comps)!
+                        //print(self.settingsStateJSON)
+                        
+                    } catch let error {
+                        print("Error decoding: ", error)
+                    }
+                }
+            }
+        }
+        
+        dataTask.resume()
+         
+    }
+    func setSettingsState() async {
+        
+        guard let encoded = try? JSONEncoder().encode(self.settingsStateJSON) else {
+            print("Failed to encode JSON")
+            return
+        }
+        print(encoded)
+        var urlString: String = "http://10.0.0.96/setSettingsState"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            // handle the result
+        } catch {
+            print("Device state change failed.")
+        }
     }
     func getCurrentState() {
         /*self.currentState.temp = "83.4  F"

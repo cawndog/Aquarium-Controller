@@ -28,6 +28,7 @@
 		D864CB6D2A082A1600E1C157 /* CurrentState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentState.swift; sourceTree = "<group>"; };
 		D864CB6E2A082A1600E1C157 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		D864CB6F2A082A1700E1C157 /* SettingsState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsState.swift; sourceTree = "<group>"; };
+		D8E7294C2A0D8B5F00634E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +62,7 @@
 		D864CB5C2A0828F700E1C157 /* AquariumControllerClient */ = {
 			isa = PBXGroup;
 			children = (
+				D8E7294C2A0D8B5F00634E08 /* Info.plist */,
 				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
 				D864CB6D2A082A1600E1C157 /* CurrentState.swift */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
@@ -285,6 +287,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AquariumControllerClient/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "AQ Controller";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -325,6 +328,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = AquariumControllerClient/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "AQ Controller";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;

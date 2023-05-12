@@ -16,6 +16,8 @@ class Network: ObservableObject {
     var currentStateJSON: CurrentStateJSON
     var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
+    let bearerToken: String = "31f18cfbab58825aedebf9d0e14057dc"
+    var AqControllerIP: String = "AquariumController.freeddns.org"
     init() {
         currentStateJSON = CurrentStateJSON.init()
         currentState = CurrentState.init()
@@ -24,10 +26,10 @@ class Network: ObservableObject {
         comps = DateComponents()
     }
     func getSettingsState() {
-        guard let url = URL(string: "http://10.0.0.96/getSettingsState") else { fatalError("Missing URL") }
+        guard let url = URL(string: "http://\(AqControllerIP)/getSettingsState") else { fatalError("Missing URL") }
         
-        let urlRequest = URLRequest(url: url)
-        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         let dataTask = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
             if let error = error {
                 print("Request error: ", error)
@@ -82,11 +84,12 @@ class Network: ObservableObject {
             return
         }
         print(encoded)
-        var urlString: String = "http://10.0.0.96/setSettingsState"
+        var urlString: String = "http://\(AqControllerIP)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "POST"
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         do {
             let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
             // handle the result
@@ -102,10 +105,10 @@ class Network: ObservableObject {
         self.currentState.co2.deviceState = true
         self.currentState.co2.stateUpdatedByController = true
         */
-        guard let url = URL(string: "http://10.0.0.96/getCurrentState") else { fatalError("Missing URL") }
+        guard let url = URL(string: "http://\(AqControllerIP)/getCurrentState") else { fatalError("Missing URL") }
         
-        let urlRequest = URLRequest(url: url)
-        
+        var urlRequest = URLRequest(url: url)
+        urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         let dataTask = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
             if let error = error {
                 print("Request error: ", error)
@@ -169,7 +172,7 @@ class Network: ObservableObject {
             print("Failed to encode JSON")
             return
         }
-        var urlString: String = "http://10.0.0.96/" + device.name
+        var urlString: String = "http://\(AqControllerIP)/" + device.name
         if (device.deviceState == true) {
             urlString = urlString + "On"
             
@@ -178,6 +181,7 @@ class Network: ObservableObject {
         }
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "POST"
         do {
@@ -203,7 +207,7 @@ class Network: ObservableObject {
                         filter.disabled = true;
                         document.getElementById('heaterState').innerHTML = "OFF";
                     }
-                    fetch('http://10.0.0.96/'+device+'On', {
+                    fetch('http://\(AqControllerIP)/'+device+'On', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -215,7 +219,7 @@ class Network: ObservableObject {
                     });
                 }
                 else {
-                    fetch('http://10.0.0.96/'+device+'Off', {
+                    fetch('http://\(AqControllerIP)/'+device+'Off', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

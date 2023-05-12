@@ -1,0 +1,3 @@
+Firebase Auth User Info
+email: aquariumcontrollerclient@gmail.com
+password: f3stiveOw!769!

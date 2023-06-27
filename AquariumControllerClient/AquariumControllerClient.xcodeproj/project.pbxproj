@@ -15,6 +15,9 @@
 		D864CB712A082A1700E1C157 /* CurrentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6D2A082A1600E1C157 /* CurrentState.swift */; };
 		D864CB722A082A1700E1C157 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6E2A082A1600E1C157 /* Network.swift */; };
 		D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6F2A082A1700E1C157 /* SettingsState.swift */; };
+		D872199E2A3C0E3A008A9387 /* WebSocketMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D872199D2A3C0E3A008A9387 /* WebSocketMessage.swift */; };
+		D889B9422A4670820083FA0A /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D889B9412A4670820083FA0A /* DeviceView.swift */; };
+		D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD39382A4B2B940074B1FD /* SensorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,7 +31,10 @@
 		D864CB6D2A082A1600E1C157 /* CurrentState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentState.swift; sourceTree = "<group>"; };
 		D864CB6E2A082A1600E1C157 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		D864CB6F2A082A1700E1C157 /* SettingsState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsState.swift; sourceTree = "<group>"; };
+		D872199D2A3C0E3A008A9387 /* WebSocketMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketMessage.swift; sourceTree = "<group>"; };
+		D889B9412A4670820083FA0A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
 		D8E7294C2A0D8B5F00634E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D8FD39382A4B2B940074B1FD /* SensorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,11 +69,11 @@
 			isa = PBXGroup;
 			children = (
 				D8E7294C2A0D8B5F00634E08 /* Info.plist */,
-				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
-				D864CB6D2A082A1600E1C157 /* CurrentState.swift */,
+				D889B9432A4677070083FA0A /* Views */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
+				D872199D2A3C0E3A008A9387 /* WebSocketMessage.swift */,
+				D864CB6D2A082A1600E1C157 /* CurrentState.swift */,
 				D864CB6F2A082A1700E1C157 /* SettingsState.swift */,
-				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
 				D864CB612A0828F800E1C157 /* Assets.xcassets */,
 				D864CB632A0828F800E1C157 /* AquariumControllerClient.entitlements */,
 				D864CB642A0828F800E1C157 /* Preview Content */,
@@ -81,6 +87,17 @@
 				D864CB652A0828F800E1C157 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		D889B9432A4677070083FA0A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
+				D889B9412A4670820083FA0A /* DeviceView.swift */,
+				D8FD39382A4B2B940074B1FD /* SensorView.swift */,
+				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -154,10 +171,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */,
+				D872199E2A3C0E3A008A9387 /* WebSocketMessage.swift in Sources */,
+				D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */,
 				D864CB722A082A1700E1C157 /* Network.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
 				D864CB712A082A1700E1C157 /* CurrentState.swift in Sources */,
 				D864CB602A0828F700E1C157 /* ContentView.swift in Sources */,
+				D889B9422A4670820083FA0A /* DeviceView.swift in Sources */,
 				D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,7 +320,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
@@ -341,7 +361,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;

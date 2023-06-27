@@ -9,21 +9,86 @@ import Foundation
 import SwiftUI
 
 class Network: ObservableObject {
-    @Published var currentState: CurrentState
+    @Published var messages = [String]()
+    //@Published var currentState: CurrentState
+    var currentState: CurrentState
     @Published var settingsState: SettingsState
     //@State var currentState: CurrentState
     //var currentState: CurrentState
+    private var webSocketTask: URLSessionWebSocketTask?
     var currentStateJSON: CurrentStateJSON
     var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
     let bearerToken: String = "31f18cfbab58825aedebf9d0e14057dc"
     var AqControllerIP: String = "AquariumController.freeddns.org"
-    init() {
+    init(currentState: CurrentState) {
+        self.currentState = currentState
         currentStateJSON = CurrentStateJSON.init()
-        currentState = CurrentState.init()
         settingsStateJSON = SettingsStateJSON.init()
         settingsState = SettingsState.init()
         comps = DateComponents()
+    }
+
+    func connectWebSocket() {
+        guard let url = URL(string: "ws://\(AqControllerIP):8080/") else { return }
+        let request = URLRequest(url: url)
+        webSocketTask = URLSession.shared.webSocketTask(with: request)
+        webSocketTask?.resume()
+        receiveMessage()
+            
+    }
+    func receiveMessage() {
+        webSocketTask?.receive { result in
+            switch result {
+                case .failure(let error):
+                    print(error.localizedDescription)
+                case .success(let message):
+                    switch message {
+                        case .string(let text):
+                            //self.messages.append(text)
+                            self.processStringMessage(WebSocketMessage: text)
+                        case .data(let data):
+                            // Handle binary data
+                            break
+                        @unknown default:
+                            break
+                    }
+            }
+        }
+    }
+    func processStringMessage(WebSocketMessage:String) {
+        let jsonMessage = WebSocketMessage.data(using: .utf8)!
+        let decodedMessage = try! JSONDecoder().decode(WebSocketMessageJSON.self, from: jsonMessage)
+        if (decodedMessage.messageType == .StateUpdate) {
+            if let sensors = decodedMessage.sensors {
+                for sensor in sensors {
+                    var i = currentState.getSensorPosByName(sensor.name)
+                    if (i != -1) {
+                        currentState.sensors[i].value = sensor.value
+                    }
+                }
+            }
+            
+            if let devices = decodedMessage.devices {
+                for device in devices {
+                    var i = currentState.getSensorPosByName(device.name)
+                    if (i != -1) {
+                        currentState.devices[i].stateUpdatedByController = true
+                        currentState.devices[i].state = device.state
+                    }
+                }
+            }
+        }
+        
+        
+    }
+    func sendMessage(_ message: String) {
+        guard let data = message.data(using: .utf8) else { return }
+        webSocketTask?.send(.string(message)) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            }
+        }
     }
     func getSettingsState() {
         guard let url = URL(string: "http://\(AqControllerIP)/getSettingsState") else { fatalError("Missing URL") }
@@ -84,7 +149,7 @@ class Network: ObservableObject {
             return
         }
         print(encoded)
-        var urlString: String = "http://\(AqControllerIP)/setSettingsState"
+        let urlString: String = "http://\(AqControllerIP)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -97,7 +162,7 @@ class Network: ObservableObject {
             print("Device state change failed.")
         }
     }
-    func getCurrentState() {
+    func getCurrentState(currentState: CurrentState) {
         /*self.currentState.temp = "83.4  F"
         self.currentState.tds = "234 PPM"
         self.currentState.lights.deviceState = true
@@ -105,7 +170,7 @@ class Network: ObservableObject {
         self.currentState.co2.deviceState = true
         self.currentState.co2.stateUpdatedByController = true
         */
-        guard let url = URL(string: "http://\(AqControllerIP)/getCurrentState") else { fatalError("Missing URL") }
+        /*guard let url = URL(string: "http://\(AqControllerIP)/getCurrentState") else { fatalError("Missing URL") }
         
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
@@ -125,34 +190,34 @@ class Network: ObservableObject {
                         print(self.currentStateJSON)
                         self.currentState.temp = self.currentStateJSON.temp
                         self.currentState.tds = self.currentStateJSON.tds
-                        if (self.currentState.lights.deviceState != self.currentStateJSON.lights) {
+                        if (self.currentState.lights.state != self.currentStateJSON.lights) {
                             self.currentState.lights.stateUpdatedByController = true;
-                            self.currentState.lights.deviceState = self.currentStateJSON.lights
+                            self.currentState.lights.state = self.currentStateJSON.lights
                             
                         }
-                        if (self.currentState.filter.deviceState != self.currentStateJSON.filter) {
+                        if (self.currentState.filter.state != self.currentStateJSON.filter) {
                             self.currentState.filter.stateUpdatedByController = true;
-                            self.currentState.filter.deviceState = self.currentStateJSON.filter
+                            self.currentState.filter.state = self.currentStateJSON.filter
                             
                         }
-                        if (self.currentState.co2.deviceState != self.currentStateJSON.co2) {
+                        if (self.currentState.co2.state != self.currentStateJSON.co2) {
                             self.currentState.co2.stateUpdatedByController = true;
-                            self.currentState.co2.deviceState = self.currentStateJSON.co2
+                            self.currentState.co2.state = self.currentStateJSON.co2
                             
                         }
-                        if (self.currentState.air.deviceState != self.currentStateJSON.air) {
+                        if (self.currentState.air.state != self.currentStateJSON.air) {
                             self.currentState.air.stateUpdatedByController = true;
-                            self.currentState.air.deviceState = self.currentStateJSON.air
+                            self.currentState.air.state = self.currentStateJSON.air
                             
                         }
-                        if (self.currentState.heater.deviceState != self.currentStateJSON.heater) {
+                        if (self.currentState.heater.state != self.currentStateJSON.heater) {
                             self.currentState.heater.stateUpdatedByController = true;
-                            self.currentState.heater.deviceState = self.currentStateJSON.heater
+                            self.currentState.heater.state = self.currentStateJSON.heater
                             
                         }
-                        if (self.currentState.maint.deviceState != self.currentStateJSON.maint) {
+                        if (self.currentState.maint.state != self.currentStateJSON.maint) {
                             self.currentState.maint.stateUpdatedByController = true;
-                            self.currentState.maint.deviceState = self.currentStateJSON.maint
+                            self.currentState.maint.state = self.currentStateJSON.maint
                             
                         }
                     } catch let error {
@@ -163,9 +228,9 @@ class Network: ObservableObject {
         }
         
         dataTask.resume()
-         
+     */
     }
-    func checkToggleChange(device: CurrentState.Device) async {
+    func checkToggleChange(device: Device) async {
         print("checkToggleChange() called for " + device.name)
         //guard (!device.stateUpdatedByController) else {device.stateUpdatedByController = false; return}
         guard let encoded = try? JSONEncoder().encode("") else {
@@ -173,7 +238,7 @@ class Network: ObservableObject {
             return
         }
         var urlString: String = "http://\(AqControllerIP)/" + device.name
-        if (device.deviceState == true) {
+        if (device.state == true) {
             urlString = urlString + "On"
             
         } else {

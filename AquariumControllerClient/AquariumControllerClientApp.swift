@@ -9,11 +9,17 @@ import SwiftUI
 
 @main
 struct Aquarium_ControllerApp: App {
-    var network = Network()
+    var currentState: CurrentState
+    var network: Network
+    init() {
+        currentState = CurrentState()
+        network = Network(currentState: currentState)
+    }
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(network)
+                .environmentObject(currentState)
         }
     }
 }

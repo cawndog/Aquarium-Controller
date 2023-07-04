@@ -1,56 +1,98 @@
-#include "PowerControl.h"
+#include "HardwareInterface.h"
 
-PowerControl::PowerControl() {
-  this->airState = OFF;
-  this->lightState = OFF;
-  this->heaterState = OFF;
-  this->filterState = OFF;
+
+HardwareInterface::HardwareInterface() {
+
+}
+uint8_t Switch::SwitchStateToInt() {
+  switch (this->state) {
+    case OFF:
+      return 0;
+    case ON: 
+      return 1;
+    case AUXON:
+      return 2;
+  }
+  return 0;
+}
+SwitchState Switch::IntToSwitchState (uint8_t state) {
+  switch (state) {
+    case 0:
+      return OFF;
+    case 1: 
+      return ON;
+    case 2:
+      return AUXON;
+  }
+  return OFF;
+}
+void Switch::init(SavedState* savedState) {
+  this->savedState = savedState
+  this->state = this->IntToSwitchState(savedState->getValue());
+  
+}
+void Switch::setSwitchState(SwitchState state) {
+  this->state = state;
+  this->savedState->saveValue(this->SwitchStateToInt());
 }
 void PowerControl::init() {
-  this->airState = IntToPowerState(EEPROM.read(airStateLoc));
-  this->lightState = IntToPowerState(EEPROM.read(lightStateLoc));
-  this->heaterState = IntToPowerState(EEPROM.read(heaterStateLoc));
-  this->filterState = IntToPowerState(EEPROM.read(filterStateLoc));
+  this->switch1State = IntToSwitchState(EEPROM.read(airStateLoc));
+  this->lightState = IntToSwitchState(EEPROM.read(lightStateLoc));
+  this->heaterState = IntToSwitchState(EEPROM.read(heaterStateLoc));
+  this->filterState = IntToSwitchState(EEPROM.read(filterStateLoc));
 }
-void PowerControl::setAirState(PowerState state) {
+void PowerControl::setswitch1State(SwitchState state) {
   this->airState = state;
-  EEPROM.write(airStateLoc, PowerStateToInt(state));
+  EEPROM.write(airStateLoc, SwitchStateToInt(state));
   EEPROM.commit();
 }
-void PowerControl::setLightState(PowerState state) {
+void PowerControl::setLightState(SwitchState state) {
   this->lightState = state;
-  EEPROM.write(lightStateLoc, PowerStateToInt(state));
+  EEPROM.write(lightStateLoc, SwitchStateToInt(state));
   EEPROM.commit();
 }
-void PowerControl::setHeaterState(PowerState state) {
+void PowerControl::setHeaterState(SwitchState state) {
   this->heaterState = state;
-  EEPROM.write(heaterStateLoc, PowerStateToInt(state));
+  EEPROM.write(heaterStateLoc, SwitchStateToInt(state));
   EEPROM.commit();
 }
-void PowerControl::setFilterState(PowerState state) {
+void PowerControl::setFilterState(SwitchState state) {
   this->filterState = state;
-  EEPROM.write(filterStateLoc, PowerStateToInt(state));
+  EEPROM.write(filterStateLoc, SwitchStateToInt(state));
   EEPROM.commit();
 } 
-PowerState PowerControl::getAirState() {
+SwitchState PowerControl::getAirState() {
   return this->airState;
   //return EEPROM.read(airStateLoc);
 }
-PowerState PowerControl::getLightState() {
+SwitchState PowerControl::getLightState() {
   return this->lightState;
   //return EEPROM.read(lightStateLoc);
 }
-PowerState PowerControl::getHeaterState() {
+SwitchState PowerControl::getHeaterState() {
   return this->heaterState;
   //return EEPROM.read(heaterStateLoc);
 }
-PowerState PowerControl::getFilterState() {
+SwitchState PowerControl::getFilterState() {
   return this->filterState;
   //return EEPROM.read(filterStateLoc);
 }
-bool PowerControl::airControl(PowerState powerOption) { //servo 1
+SwitchState PowerControl::getDeviceStateByName(String name) {
+  if (name == "Lights")
+    return this->getLightState();
+  if (name == "Air")
+    return this->getAirState();
+  if (name == "Heater")
+    return this->getHeaterState();
+  if (name == "Filter")
+    return this->getFilterState();
+  return OFF;
+}
+bool PowerControl::airControl(SwitchState powerOption) { //servo 1, switch 1
   //ON POS is 70 (POS1)
   //AUXON POS is 110 (POS2)
+  //ON POS = Air Pump on
+  //AUXON POS = CO2 on
   #define OFF_OFFSET_1 -8
   #define ON_OFFSET_1 0
   #define AUXON_OFFSET_1 -9
@@ -81,9 +123,11 @@ bool PowerControl::airControl(PowerState powerOption) { //servo 1
   return false;
 }
 
-bool PowerControl::lightControl(PowerState powerOption) { //servo 2
+bool PowerControl::lightControl(SwitchState powerOption) { //servo 2, switch 2
   //ON POS is 110 (POS2) 
   //AUXON POS is 70 (POS1)
+  //On POS = Lights on
+  //AUXON POS = Not Configured
   #define OFF_OFFSET_2 1
   #define ON_OFFSET_2 -2
   #define AUXON_OFFSET_2 3
@@ -113,9 +157,11 @@ bool PowerControl::lightControl(PowerState powerOption) { //servo 2
   }
   return false;
 }
-bool PowerControl::heaterControl(PowerState powerOption) { //servo 3
+bool PowerControl::heaterControl(SwitchState powerOption) { //servo 3
   //ON POS is 70 (POS1)
   //AUXON POS is 110 (POS2)
+  //On POS = Heater on
+  //AUXON POS = Not Configured
   #define OFF_OFFSET_3 0
   #define ON_OFFSET_3 0
   #define AUXON_OFFSET_3 -2
@@ -145,9 +191,11 @@ bool PowerControl::heaterControl(PowerState powerOption) { //servo 3
   }
   return false;
 }
-bool PowerControl::filterControl(PowerState powerOption) { //servo 4
+bool PowerControl::filterControl(SwitchState powerOption) { //servo 4
   //ON POS is 110 (POS2) 
   //AUXON POS is 70 (POS1)
+  //On POS = Filter on
+  //AUXON POS = Not Configured
   #define OFF_OFFSET_4 10
   #define ON_OFFSET_4 10
   #define AUXON_OFFSET_4 10
@@ -177,7 +225,7 @@ bool PowerControl::filterControl(PowerState powerOption) { //servo 4
   }
   return false;
 }
-uint8_t PowerStateToInt(PowerState state) {
+uint8_t Switch::SwitchStateToInt(SwitchState state) {
   switch (state) {
     case OFF:
       return 0;
@@ -188,7 +236,7 @@ uint8_t PowerStateToInt(PowerState state) {
   }
   return 0;
 }
-PowerState IntToPowerState (uint8_t state) {
+SwitchState Switch::IntToSwitchState (uint8_t state) {
   switch (state) {
     case 0:
       return OFF;

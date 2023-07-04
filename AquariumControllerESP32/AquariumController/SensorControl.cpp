@@ -2,8 +2,8 @@
 
 
 SensorControl::SensorControl() {
-  this->tdsVal = 0.00;
-  this->aquariumTemp = 0.00;
+  //this->tdsVal = 0.00;
+  //this->aquariumTemp = 0.00;
 }
 void SensorControl::init() {
   this->oneWire = new OneWire(TEMP_SENSOR_PIN);
@@ -16,27 +16,34 @@ void SensorControl::init() {
   return;
 }
 float SensorControl::getAquariumTemp() {
-  return this->aquariumTemp;
+  return this->aquariumTemp.value;
 }
 float SensorControl::getAquariumTempC() {
-  float temp = this->aquariumTemp;
+  float temp = this->aquariumTemp.value;
   temp = (temp - 32.0)*(5.0/9.0);  
   return temp;
 }
 float SensorControl::getTdsValFloat() {
-  return this->tdsVal;
+  return this->tdsSensor.value;
 }
 int SensorControl::getTdsVal() {
-  return int(this->tdsVal);
+  return int(this->tdsSensor.value);
 }
-void SensorControl::readAquariumTemp() {
+void SensorControl::readAquariumTemp() { 
+  char previousAquariumTemp[5];
+  snprintf(previousAquariumTemp, 5, "%.1f", sensorControl.getAquariumTemp());
   #ifdef useSerial
     Serial.println("Reading temperature.");
     SerialBT.println("Reading temperature.");
   #endif
   this->tempSensors->requestTemperaturesByIndex(0);
   float Temp = this->tempSensors->getTempFByIndex(0);
-  this->aquariumTemp = this->round(Temp);
+  this->aquariumTemp.value = this->round(Temp);
+  char newAquariumTemp[5];
+  snprintf(newAquariumTemp, 5, "%.1f", sensorControl.getAquariumTemp());
+  if (strcmp(previousAquariumTemp, newAquariumTemp) != 0) { 
+    this->aquariumTemp.valueUpdated = true;
+  }
   return;
 }
 float SensorControl::round (float var) {
@@ -80,6 +87,7 @@ void SensorControl::readTds(float temperature){
     SerialBT.print("Reading TDS. Temp passed in: ");
     SerialBT.println(temperature);
   #endif
+  int previousTDSval = this->getTdsVal();
   int analogBuffer[SCOUNT];     // store the analog value in the array, read from ADC
   //int analogBufferTemp[SCOUNT];
   int analogBufferIndex = 0;
@@ -105,6 +113,17 @@ void SensorControl::readTds(float temperature){
   //temperature compensation
   float compensationVoltage=averageVoltage/compensationCoefficient;
   //convert voltage value to tds value
-  this->tdsVal = ((133.42*compensationVoltage*compensationVoltage*compensationVoltage - 255.86*compensationVoltage*compensationVoltage + 857.39*compensationVoltage)*0.5);
+  this->tdsSensor.value = ((133.42*compensationVoltage*compensationVoltage*compensationVoltage - 255.86*compensationVoltage*compensationVoltage + 857.39*compensationVoltage)*0.5);
+  if (previousTDSval != this->getTdsVal()) {
+    this->tdsSensor.valueUpdated = true;
+  }
   return; 
 }
+bool SensorControl::valuesUpdated() {
+  if (this->tdsSensor.valueUpdated == true || this->aquariumTemp.valueUpdated == true) {
+    return true;
+  } else {
+    return false;
+  }
+}
+

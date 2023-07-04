@@ -26,6 +26,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   switch (type) {
     case WS_EVT_CONNECT:
       Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+      ws.text(client->id(), )
       break;
     case WS_EVT_DISCONNECT:
       Serial.printf("WebSocket client #%u disconnected\n", client->id());
@@ -166,19 +167,36 @@ void webServerSetup() {
     if (authFailed) {
       return;
     }
+    struct WebSocketMessageJSON: Decodable {
+    enum MessageType: String, Decodable {
+        case Alert, Information, StateUpdate, Unknown
+        init () {
+            self = .Unknown
+        }
+    }
+    struct Sensor: Decodable {
+        var name: String
+        var value: String
+    }
+    struct Device: Decodable {
+        var name: String
+        var state: Bool
+    }
     DynamicJsonDocument body(1024);
     char tempBuf[9];
     snprintf(tempBuf, 9, "%.1f °F", sensorControl.getAquariumTemp());
     char tdsBuf[8];
     snprintf(tdsBuf, 8, "%d PPM", sensorControl.getTdsVal());
-    body["temp"] = tempBuf;
-    body["tds"] = tdsBuf;
-    body["lights"] = (powerControl.getLightState()==1) ? true : false;
-    body["filter"] = (powerControl.getFilterState()==1) ? true : false;
-    body["heater"] = (powerControl.getHeaterState()==1) ? true : false;
-    body["maint"] = maintMode;
-    body["co2"] = (powerControl.getAirState()==2) ? true : false;
-    body["air"] = (powerControl.getAirState()==1) ? true : false;
+    body["messageType"] = "StateUpdate";
+
+    body["sensors"]["Temperature"] = tempBuf;
+    body["sensors"]["TDS"] = tdsBuf;
+    body["devices"]["Lights"] = (powerControl.getDeviceStateByName("Lights")==1) ? true : false;
+    body["devices"]["Air Pump"] = (powerControl.getDeviceStateByName("Air")==1) ? true : false;
+    body["devices"]["CO2"] = (powerControl.getDeviceStateByName("Air")==1) ? true : false;
+    body["devices"]["Filter"] = (powerControl.getDeviceStateByName("Filter")==1) ? true : false;
+    body["devices"]["Heater"] = (powerControl.getDeviceStateByName("Heater")==1) ? true : false;
+    body["devices"]["Maintenance Mode"] = maintMode;
     String response;
     serializeJson(body, response);
     
@@ -291,4 +309,7 @@ void updateDDNS() {
   http.begin("http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller");
   http.GET();
   http.end();
+}
+void updateSensorValsOnClients() {
+
 }

@@ -26,5 +26,6 @@ void webServerSetup();
 bool checkAuthorization(AsyncWebServerRequest *request);
 void notFound(AsyncWebServerRequest *request);
 void updateDDNS();
-
+void updateSensorValsOnClients(Sensor* sensors[]);
+void updateDeviceStatesOnClients(TimedDevice* devices[]);
 #endif

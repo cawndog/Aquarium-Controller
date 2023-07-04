@@ -183,7 +183,9 @@ void loop() {
     portENTER_CRITICAL(&timerMux);
       readSensorsInterruptCounter--;
     portEXIT_CRITICAL(&timerMux);
+    previousAquariumTemp = sensorControl.getAquariumTemp();
     sensorControl.readAquariumTemp();
+
     if (sensorControl.getAquariumTemp() > sensorControl.getAquariumThermostat() + .5) { 
       if (powerControl.getHeaterState() != OFF) {
         powerControl.heaterControl(OFF);
@@ -197,9 +199,13 @@ void loop() {
       }
     }
     if (tdsCounter > 119) {
+      previousTDSval = sensorControl.getTdsVal();
       sensorControl.readTds(sensorControl.getAquariumTempC());
       updateDDNS();
       tdsCounter = 0;
+    }
+    if (sensorControl.valuesUpdated() == true) {
+      void updateSensorValsOnClients();
     }
     #ifdef useSerial
       Serial.print("Temp: ");

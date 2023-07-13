@@ -23,23 +23,23 @@ SavedStateController::SavedStateController() {
     this->location = 0;
 }
 SavedStateController::init() {
-    SavedState airState.init(&location);
-    SavedState lightState.init(&location);
-    SavedState heaterState.init(&location);
-    SavedState filterState.init(&location);
-    SavedState AirOnHr.init(&location);
-    SavedState AirOnMin.init(&location);
-    SavedState AirOffHr.init(&location);
-    SavedState AirOffMin.init(&location);
-    SavedState Co2OnHr.init(&location);
-    SavedState Co2OnMin.init(&location);
-    SavedState Co2OffHr.init(&location);
-    SavedState Co2OffMin.init(&location);
-    SavedState LightsOnHr.init(&location);
-    SavedState LightsOnMin.init(&location);
-    SavedState LightsOffHr.init(&location);
-    SavedState LightsOffMin.init(&location);
-    SavedState aquariumThermostat.init(&location);
+    switch1State.init(&location);
+    switch2State.init(&location);
+    switch3State.init(&location);
+    switch4State.init(&location);
+    AirOnHr.init(&location);
+    AirOnMin.init(&location);
+    AirOffHr.init(&location);
+    AirOffMin.init(&location);
+    Co2OnHr.init(&location);
+    Co2OnMin.init(&location);
+    Co2OffHr.init(&location);
+    Co2OffMin.init(&location);
+    LightsOnHr.init(&location);
+    LightsOnMin.init(&location);
+    LightsOffHr.init(&location);
+    LightsOffMin.init(&location);
+    aquariumThermostat.init(&location);
 }
 uint8_t SavedStateController::getSavedStateValue(SavedState* savedState) {
     return savedState->getValue();

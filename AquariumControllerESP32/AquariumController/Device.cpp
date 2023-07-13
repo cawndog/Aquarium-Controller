@@ -9,6 +9,7 @@ Device::Device(String name) {
 }
 void Device::init(HardwareInterface* hardwareInterface) {
     this->hardwareInterface = hardwareInterface;
+    this->state = hardwareInterface->initDeviceState(*this);
 }
 void Device::attachConnectedDevice(Device* device) {
     this->connectedDevice = device;
@@ -22,17 +23,20 @@ void Device::setStateOn() {
                 this->connectedDevice->stateUpdatedByConnectedDevice = true;
             }     
         }
+        this->hardwareInterface->powerControl(*this);
     }
     
 }
 void Device::setStateOff() {
     if (this->state != OFF) {
         this->state = OFF; 
-        if (this->connectedDevice) {
+        
+        /*if (this->connectedDevice) {
             if(this->connectedDevice->state == ON) {
                 this->connectedDevice->state = OFF;
                 this->connectedDevice->stateUpdatedByConnectedDevice = true;
             }     
-        }
+        }*/
+        this->hardwareInterface->powerControl(*this);
     }
 }

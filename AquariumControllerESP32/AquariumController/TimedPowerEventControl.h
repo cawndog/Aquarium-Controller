@@ -10,6 +10,7 @@
 #endif
 class TimedDevice {
   public:
+
     String deviceName;
     uint8_t onHr;
     uint8_t onMin;

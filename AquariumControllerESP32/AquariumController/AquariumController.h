@@ -11,6 +11,7 @@
 #define LIGHT_SRVO_PIN 27 //Servo #2
 #define HEATER_SRVO_PIN 33//Servo #3
 #define FILTER_SRVO_PIN 26 //Servo #4
+
 //EEPROM Memory Locations
 #define airStateLoc 1
 #define lightStateLoc 2

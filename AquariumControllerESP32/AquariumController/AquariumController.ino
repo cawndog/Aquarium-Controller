@@ -7,6 +7,9 @@
 #include <ESP32Time.h>
 #include "SensorControl.h"
 #include "TimedPowerEventControl.h"
+#include "HardwareInterface/HardwareInterface.h"
+#include "SavedStateController.h"
+#include "Device.h"
 
 #ifdef useSerial
   #include <BluetoothSerial.h>
@@ -40,6 +43,15 @@ bool maintMode = false;
 volatile uint8_t readSensorsInterruptCounter = 0;
 volatile uint8_t powerEventInterruptCounter = 0;
 volatile uint8_t tdsCounter = 0; //For timing TDS sensor readings, in seconds. This number is multiplied by 10.
+
+SavedStateController savedStateController;
+HardwareInterface hardwareInterface;
+Device Heater("Heater");
+Device Lights("Lights");
+Device CO2("CO2");
+Device AirPump("Air Pump");
+Device Filter("Filter");
+
 PowerControl powerControl;
 SensorControl sensorControl;
 TimedPowerEventControl timedPowerEventControl;
@@ -99,6 +111,14 @@ void setup() {
   rtc.setTimeStruct(timeinfo); 
   printLocalTime();
 
+  savedStateController.init();
+  hardwareInterface.init(&savedStateController);
+  Heater.init(&hardwareInterface);
+  Lights.init(&hardwareInterface);
+  CO2.init(&hardwareInterface);
+  AirPump.init(&hardwareInterface);
+  Filter.init(&hardwareInterface);
+  
   powerControl.init();
   sensorControl.init();
   timedPowerEventControl.init(&rtc, &powerControl);

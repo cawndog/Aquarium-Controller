@@ -9,11 +9,11 @@ HardwareInterface::~HardwareInterface() {
   delete this->tempSensors;
 }
 
-void HardwareInterface::init(SavedStateController* savedStateController) {
-  this->switch1.init(&(savedStateController->switch1State));
-  this->switch2.init(&(savedStateController->switch2State));
-  this->switch3.init(&(savedStateController->switch3State));
-  this->switch4.init(&(savedStateController->switch4State));
+void HardwareInterface::init(Preferences* savedState) {
+  this->switch1.init("1", savedState);
+  this->switch2.init("2", savedState);
+  this->switch3.init("3", savedState);
+  this->switch4.init("4", savedState);
 
   this->oneWire = new OneWire(TEMP_SENSOR_PIN);
   this->tempSensors = new DallasTemperature(this->oneWire);
@@ -22,57 +22,41 @@ void HardwareInterface::init(SavedStateController* savedStateController) {
 
 }
 DeviceState HardwareInterface::initDeviceState(Device* device) {
-  switch(device->name) {
-    case "Heater": {
-      switch3.getSwitchState() = ON ? return ON : return OFF;
-    }
-    case "Lights": {
-      switch2.getSwitchState() = ON ? return ON : return OFF;
-    }
-    case "CO2": {
-      switch1.getSwitchState() = AUXON ? return ON : return OFF;
-      return;
-    }
-    case "Air Pump:" {
-      switch1.getSwitchState() = ON ? return ON : return OFF;
-      return;
-    }
-    case "Filter": {
-      switch4.getSwitchState() = ON ? return ON : return OFF;
-      return;
-    }
-    case default: {
-      return;
-    } 
-  };
+  if (device->name == "Heater") {
+    switch3.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+  }
+  if (device->name == "Lights") {
+    switch2.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+  }
+  if (device->name == "CO2") {
+    switch1.getSwitchState() = AUXON ? return DEVICE_ON : return DEVICE_OFF;
+  }
+  if (device->name == "Air Pump") {
+    switch1.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+  }
+  if (device->name == "Filter") {
+    switch4.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+  }
+  return DEVICE_OFF;
+
 }
-SwitchState HardwareInterface::powerControl(Device* device) {
-  switch(device->name) {
-    case "Heater": {
-      device->state = ON ? switch3.powerControl(ON) : switch3.powerControl(OFF);
-      return;
-    }
-    case "Lights": {
-      device->state = ON ? switch2.powerControl(ON) : switch2.powerControl(OFF);
-      return;
-    }
-    case "CO2": {
-      device->state = ON ? switch1.powerControl(AUXON) : switch1.powerControl(OFF);
-      return;
-    }
-    case "Air Pump:" {
-      device->state = ON ? switch1.powerControl(ON) : switch1.powerControl(OFF);
-      return;
-    }
-    case "Filter": {
-      device->state = ON ? switch4.powerControl(ON) : switch4.powerControl(OFF);
-      return;
-    }
-    case default: {
-      return;
-    } 
-  };
-  
+void HardwareInterface::powerControl(Device* device) {
+  if (device->name == "Heater") {
+    device->state = DEVICE_ON ? switch3.powerControl(ON) : switch3.powerControl(OFF);
+  }
+  else if (device->name == "Lights") {
+    device->state = DEVICE_ON ? switch2.powerControl(ON) : switch2.powerControl(OFF);
+  }
+  else if (device->name == "CO2") {
+    sdevice->state = DEVICE_ON ? switch1.powerControl(AUXON) : switch1.powerControl(OFF);
+  }
+  else if (device->name == "Air Pump") {
+    device->state = DEVICE_ON ? switch1.powerControl(ON) : switch1.powerControl(OFF);
+  }
+  else if (device->name == "Filter") {
+    device->state = DEVICE_ON ? switch4.powerControl(ON) : switch4.powerControl(OFF);
+  }
+ 
 }
 
 float HardwareInterface::readTdsSensor(float temperature) {
@@ -109,11 +93,9 @@ float HardwareInterface::readTdsSensor(float temperature) {
   //temperature compensation
   float compensationVoltage=averageVoltage/compensationCoefficient;
   //convert voltage value to tds value
-  this->tdsSensor.value = ((133.42*compensationVoltage*compensationVoltage*compensationVoltage - 255.86*compensationVoltage*compensationVoltage + 857.39*compensationVoltage)*0.5);
-  if (previousTDSval != this->getTdsVal()) {
-    this->tdsSensor.valueUpdated = true;
-  }
-  return; 
+  this->tdsSensor.value = 
+
+  return ((133.42*compensationVoltage*compensationVoltage*compensationVoltage - 255.86*compensationVoltage*compensationVoltage + 857.39*compensationVoltage)*0.5); 
 }
 // median filtering algorithm
 int HardwareInterface::getMedianNum(int bArray[], int iFilterLen){

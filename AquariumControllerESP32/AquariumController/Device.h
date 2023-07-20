@@ -1,11 +1,12 @@
+
 #ifndef DEVICE_H
 #define DEVICE_H
-//#include <string>
+#include <Arduino.h>
 #include "HardwareInterface.h"
-
+class HardwareInterface;
 enum DeviceState {
-    OFF = 0,
-    ON = 1
+    DEVICE_OFF,
+    DEVICE_ON
 };
 class Device {
     public:

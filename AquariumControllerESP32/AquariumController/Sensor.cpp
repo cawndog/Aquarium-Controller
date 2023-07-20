@@ -1,6 +1,15 @@
 #include "Sensor.h"
-
-Sensor::Sensor(String name) {
+/*Sensor::Sensor(String name) {
+  this->name = name;
+  this->value = "0.0";
+  this->valueUpdated = false;
+}*/
+TdsSensor::TdsSensor(String name) {
+    this->name = name;
+    this->value = "0.0";
+    this->valueUpdated = false;
+}
+AquariumTemperatureSensor::AquariumTemperatureSensor(String name) {
     this->name = name;
     this->value = "0.0";
     this->valueUpdated = false;

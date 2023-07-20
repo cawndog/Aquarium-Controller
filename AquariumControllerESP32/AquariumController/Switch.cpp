@@ -1,8 +1,12 @@
 #include "Switch.h"
 
-void Switch::init(SavedState* savedState) {
+void Switch(String name) {
+  //this->name = name;
+}
+void Switch::init(String name, Preferences* savedState) {
+  name.toCharArray(this->name, 2);
   this->savedState = savedState;
-  this->state = this->IntToSwitchState(savedState->getValue());
+  this->state = this->IntToSwitchState(savedState->getUChar(this->name, 0));
   
 }
 SwitchState Switch::getSwitchState() {
@@ -27,13 +31,13 @@ SwitchState Switch::IntToSwitchState (uint8_t state) {
       return ON;
     case 2:
       return AUXON;
-    case default: 
+    default: 
       return OFF;
   };
 }
 void Switch::setSwitchState(SwitchState state) {
   this->state = state;
-  this->savedState->saveValue(this->SwitchStateToInt());
+  this->savedState->putUChar(this->name, this->SwitchStateToInt());
   return;
 }
 void Switch1::powerControl(SwitchState state) { //air control switch

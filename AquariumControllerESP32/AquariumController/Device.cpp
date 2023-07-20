@@ -2,7 +2,7 @@
 
 Device::Device(String name) {
     this->name = name;
-    this->state = OFF;
+    this->state = DEVICE_OFF;
     this->connectedDevice = NULL;
     this->stateUpdatedByConnectedDevice = false;
     this->hardwareInterface = NULL;
@@ -15,11 +15,11 @@ void Device::attachConnectedDevice(Device* device) {
     this->connectedDevice = device;
 }
 void Device::setStateOn() {
-    if (this->state != ON) {
-        this->state = ON; 
+    if (this->state != DEVICE_ON) {
+        this->state = DEVICE_ON; 
         if (this->connectedDevice) {
-            if(this->connectedDevice->state == ON) {
-                this->connectedDevice->state = OFF;
+            if(this->connectedDevice->state == DEVICE_ON) {
+                this->connectedDevice->state = DEVICE_OFF;
                 this->connectedDevice->stateUpdatedByConnectedDevice = true;
             }     
         }
@@ -28,12 +28,12 @@ void Device::setStateOn() {
     
 }
 void Device::setStateOff() {
-    if (this->state != OFF) {
-        this->state = OFF; 
+    if (this->state != DEVICE_OFF) {
+        this->state = DEVICE_OFF; 
         
         /*if (this->connectedDevice) {
-            if(this->connectedDevice->state == ON) {
-                this->connectedDevice->state = OFF;
+            if(this->connectedDevice->state == DEVICE_ON) {
+                this->connectedDevice->state = DEVICE_OFF;
                 this->connectedDevice->stateUpdatedByConnectedDevice = true;
             }     
         }*/

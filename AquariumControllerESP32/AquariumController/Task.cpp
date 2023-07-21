@@ -4,10 +4,10 @@ String Task::getName() {
   return this->name;
 }
 bool Task::getDisabled() {
-  return this->settings->disabled;
+  return this->settings.disabled;
 }
 unsigned long Task::getTime() { //gets task run time interval or scheduled run time
-  return this->settings->time;
+  return this->settings.time;
 }
 void Task::setPrivate() {
   this->privateTask = true; 
@@ -15,12 +15,13 @@ void Task::setPrivate() {
 
 ScheduledTask::ScheduledTask(String name, TaskType taskType, Device* device, Preferences* savedState, ESP32Time* rtc) {
   this->name = name;
-  char nameCstr[11];
-  name.toCharArray(nameCstr, 11);
+  //char nameCstr[11];
+  //name.toCharArray(nameCstr, 11);
   this->taskType = taskType;
   this->device = device;
   this->savedState = savedState;
-  if(savedState->getBytes(this-name, &(this->settings), sizeof(this->settings)) != sizeof(this->settings)) {
+  const char* namePtr = &(this->name[0]);
+  if(savedState->getBytes(namePtr, &(this->settings), sizeof(this->settings)) != sizeof(this->settings)) {
     this->settings.disabled = true;
     this->settings.time = 0;
     return;

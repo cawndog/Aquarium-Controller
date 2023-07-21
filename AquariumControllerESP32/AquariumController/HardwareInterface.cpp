@@ -21,40 +21,41 @@ void HardwareInterface::init(Preferences* savedState) {
   pinMode(TDS_SENSOR_PIN,INPUT);
 
 }
-DeviceState HardwareInterface::initDeviceState(Device* device) {
-  if (device->name == "Heater") {
-    switch3.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+uint8_t HardwareInterface::initDeviceState(String deviceName) {
+  //uint8_t returnVal;
+  if (deviceName == "Heater") {
+    return (switch3.getSwitchState() == ON) ? 1 : 0;
   }
-  if (device->name == "Lights") {
-    switch2.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+  if (deviceName == "Lights") {
+    return (switch2.getSwitchState() == ON) ? 1 : 0;
   }
-  if (device->name == "CO2") {
-    switch1.getSwitchState() = AUXON ? return DEVICE_ON : return DEVICE_OFF;
+  if (deviceName == "CO2") {
+    return (switch1.getSwitchState() == AUXON) ? 1 : 0;
   }
-  if (device->name == "Air Pump") {
-    switch1.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+  if (deviceName == "Air Pump") {
+    return (switch1.getSwitchState() == ON) ? 1 : 0;
   }
-  if (device->name == "Filter") {
-    switch4.getSwitchState() = ON ? return DEVICE_ON : return DEVICE_OFF;
+  if (deviceName == "Filter") {
+    return (switch4.getSwitchState() == ON) ? 1 : 0;
   }
-  return DEVICE_OFF;
+  return 0;
 
 }
-void HardwareInterface::powerControl(Device* device) {
-  if (device->name == "Heater") {
-    device->state = DEVICE_ON ? switch3.powerControl(ON) : switch3.powerControl(OFF);
+void HardwareInterface::powerControl(String deviceName, uint8_t state) {
+  if (deviceName == "Heater") {
+    state == 1 ? switch3.powerControl(ON) : switch3.powerControl(OFF);
   }
-  else if (device->name == "Lights") {
-    device->state = DEVICE_ON ? switch2.powerControl(ON) : switch2.powerControl(OFF);
+  else if (deviceName == "Lights") {
+    state == 1 ? switch2.powerControl(ON) : switch2.powerControl(OFF);
   }
-  else if (device->name == "CO2") {
-    sdevice->state = DEVICE_ON ? switch1.powerControl(AUXON) : switch1.powerControl(OFF);
+  else if (deviceName == "CO2") {
+    state == 1 ? switch1.powerControl(AUXON) : switch1.powerControl(OFF);
   }
-  else if (device->name == "Air Pump") {
-    device->state = DEVICE_ON ? switch1.powerControl(ON) : switch1.powerControl(OFF);
+  else if (deviceName == "Air Pump") {
+    state == 1 ? switch1.powerControl(ON) : switch1.powerControl(OFF);
   }
-  else if (device->name == "Filter") {
-    device->state = DEVICE_ON ? switch4.powerControl(ON) : switch4.powerControl(OFF);
+  else if (deviceName == "Filter") {
+    state == 1 ? switch4.powerControl(ON) : switch4.powerControl(OFF);
   }
  
 }
@@ -67,7 +68,6 @@ float HardwareInterface::readTdsSensor(float temperature) {
     SerialBT.print("Reading TDS. Temp passed in: ");
     SerialBT.println(temperature);
   #endif
-  int previousTDSval = this->getTdsVal();
   int analogBuffer[SCOUNT];     // store the analog value in the array, read from ADC
   //int analogBufferTemp[SCOUNT];
   int analogBufferIndex = 0;

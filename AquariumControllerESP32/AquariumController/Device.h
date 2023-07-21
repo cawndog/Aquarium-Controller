@@ -3,7 +3,7 @@
 #define DEVICE_H
 #include <Arduino.h>
 #include "HardwareInterface.h"
-class HardwareInterface;
+//class HardwareInterface;
 enum DeviceState {
     DEVICE_OFF,
     DEVICE_ON
@@ -22,6 +22,8 @@ class Device {
         void attachConnectedDevice(Device* device);
         void setStateOn();
         void setStateOff();
+        static uint8_t deviceStateToInt(DeviceState state);
+        static DeviceState intToDeviceState(uint8_t stateInt);
 };
 
 

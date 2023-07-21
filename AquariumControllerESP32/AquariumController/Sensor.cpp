@@ -25,7 +25,7 @@ String TdsSensor::getValue() {
     return this->value;
 }
 void TdsSensor::readSensor() {
-    this->value = String(this->hardwareInterface->readTdsSensor(this->aqTempSensor->getValue()), 0);
+    this->value = String(this->hardwareInterface->readTdsSensor(this->aqTempSensor->getValue().toFloat()), 0);
 }
 void AquariumTemperatureSensor::readSensor() {
     this->value = String(this->hardwareInterface->readAquariumTemperatureSensor(), 1);

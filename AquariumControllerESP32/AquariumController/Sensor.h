@@ -7,7 +7,7 @@ class Sensor {
     String name;
     String value;
     bool valueUpdated;
- 
+    HardwareInterface* hardwareInterface;
     //Sensor(String name);
     void init(HardwareInterface* hardwareInterface);
     virtual String getValue() = 0;
@@ -20,6 +20,7 @@ class AquariumTemperatureSensor : public Sensor { //Stores value in Fahrenheit
   public:
     AquariumTemperatureSensor(String name);
     void readSensor();
+    String getValue();
 };
 class TdsSensor : public Sensor {
   public:
@@ -27,5 +28,6 @@ class TdsSensor : public Sensor {
     AquariumTemperatureSensor *aqTempSensor;
     void init(HardwareInterface* hardwareInterface, AquariumTemperatureSensor* aqTempSensor);
     void readSensor();
+    String getValue();
 };
 #endif

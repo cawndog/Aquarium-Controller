@@ -2,7 +2,7 @@
 #define HARDWAREINTERFACE_H
 
 #include "AquariumController.h"
-#include "Device.h"
+
 #include "Switch.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -13,7 +13,7 @@
   extern BluetoothSerial SerialBT;
 #endif
 
-class Device;
+
 class Sensor;
 
 class HardwareInterface {
@@ -32,8 +32,8 @@ class HardwareInterface {
     HardwareInterface(); //Constructor
     ~HardwareInterface();
     void init(Preferences* savedState); //Constructor used in setup() after EEPROM is initialized
-    DeviceState initDeviceState(Device* device);
-    void powerControl(Device* device); //power control interface for a device. Turns a device's corresponding switch on/off depending on the state of the device. 
+    uint8_t initDeviceState(String deviceName);
+    void powerControl(String deviceName, uint8_t state); //power control interface for a device. Turns a device's corresponding switch on/off depending on the state of the device. 
     float readTdsSensor(float temperature);
     float readAquariumTemperatureSensor();
 

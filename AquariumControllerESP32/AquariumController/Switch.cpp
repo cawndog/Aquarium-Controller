@@ -84,7 +84,7 @@ void Switch2::powerControl(SwitchState state) { //light control switch
   this->setSwitchState(state);
   this->controllerServo.attach(AIR_SRVO_PIN);
   if (state == OFF) {
-    this->controllerServo.write(OFF_POS + OFF_OFFSET_2;
+    this->controllerServo.write(OFF_POS + OFF_OFFSET_2);
     delay(200);
     this->controllerServo.detach();
     return;

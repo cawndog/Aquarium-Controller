@@ -20,31 +20,32 @@
 #endif
 
 class AqController {
-  static const char* ssid = "Pepper";
-  static const char* password = "unlawfulOwl69!";
-  static const char* ntpServer = "pool.ntp.org";
-  static const long  gmtOffset_sec = -25200;
-  static const int   daylightOffset_sec = 3600;
-  static ESP32Time rtc; //Real time clock
-  static struct tm timeinfo;
-  static bool maintMode = false;
-  static Preferences savedState;
-  static HardwareInterface hardwareInterface;
+  public: 
+    static constexpr char* ssid = "Pepper";
+    static constexpr char* password = "unlawfulOwl69!";
+    static constexpr char* ntpServer = "pool.ntp.org";
+    static const long  gmtOffset_sec = -25200;
+    static const int   daylightOffset_sec = 3600;
+    ESP32Time rtc; //Real time clock
+    tm timeinfo;
+    static bool maintMode;
+    Preferences savedState;
+    HardwareInterface hardwareInterface;
 
-  static Device Heater("Heater");
-  static Device Lights("Lights");
-  static Device CO2("CO2");
-  static Device AirPump("Air Pump");
-  static Device Filter("Filter");
-  
-  static TdsSensor tds("TDS");
-  static AquariumTemperatureSensor aqTemperature("Aquarium Temperature");
-  static Task* tasks[NUM_TASKS];
-  static void init();
+    Device Heater;
+    Device Lights;
+    Device CO2;
+    Device AirPump;
+    Device Filter;
+    
+    TdsSensor tds;
+    AquariumTemperatureSensor aqTemperature;
+    Task* tasks[NUM_TASKS];
+    void init();
 
-};
+  };
 
-static AquariumController aqController;
+  static AqController aqController;
 
 
 #endif

@@ -8,6 +8,8 @@
 #include <DallasTemperature.h>
 #include <Preferences.h>
 #include <Arduino.h>
+#define VREF 3.3              // analog reference voltage(Volt) of the ADC
+#define SCOUNT  30            // sum of sample point
 #ifdef useSerial
   #include <BluetoothSerial.h>
   extern BluetoothSerial SerialBT;

@@ -9,7 +9,7 @@ class Sensor {
     bool valueUpdated;
     HardwareInterface* hardwareInterface;
     //Sensor(String name);
-    void init(HardwareInterface* hardwareInterface);
+    void init(String name, HardwareInterface* hardwareInterface);
     virtual String getValue() = 0;
     virtual void readSensor() = 0;
 };
@@ -18,15 +18,15 @@ class Sensor {
 
 class AquariumTemperatureSensor : public Sensor { //Stores value in Fahrenheit
   public:
-    AquariumTemperatureSensor(String name);
+    AquariumTemperatureSensor();
     void readSensor();
     String getValue();
 };
 class TdsSensor : public Sensor {
   public:
-    TdsSensor(String name);
+    TdsSensor();
     AquariumTemperatureSensor *aqTempSensor;
-    void init(HardwareInterface* hardwareInterface, AquariumTemperatureSensor* aqTempSensor);
+    void init(String name, HardwareInterface* hardwareInterface, AquariumTemperatureSensor* aqTempSensor);
     void readSensor();
     String getValue();
 };

@@ -93,7 +93,6 @@ float HardwareInterface::readTdsSensor(float temperature) {
   //temperature compensation
   float compensationVoltage=averageVoltage/compensationCoefficient;
   //convert voltage value to tds value
-  this->tdsSensor.value = 
 
   return ((133.42*compensationVoltage*compensationVoltage*compensationVoltage - 255.86*compensationVoltage*compensationVoltage + 857.39*compensationVoltage)*0.5); 
 }

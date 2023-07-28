@@ -14,7 +14,7 @@ enum SwitchState {
 };
 class Switch {
   public: 
-    char name[2];
+    String name;
     SwitchState state;
     Preferences* savedState;
     Servo controllerServo;

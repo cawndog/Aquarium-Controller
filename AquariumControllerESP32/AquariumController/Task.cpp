@@ -13,12 +13,11 @@ void Task::setPrivate() {
   this->privateTask = true; 
 }
 
-ScheduledTask::ScheduledTask(String name, TaskType taskType, Device* device, Preferences* savedState, ESP32Time* rtc) {
+ScheduledTask::ScheduledTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, void (*Taskfunc), Device* device) {
   this->name = name;
-  //char nameCstr[11];
-  //name.toCharArray(nameCstr, 11);
   this->taskType = taskType;
   this->device = device;
+  //this->deviceFunc = deviceFunc;
   this->savedState = savedState;
   const char* namePtr = &(this->name[0]);
   if(savedState->getBytes(namePtr, &(this->settings), sizeof(this->settings)) != sizeof(this->settings)) {
@@ -26,20 +25,19 @@ ScheduledTask::ScheduledTask(String name, TaskType taskType, Device* device, Pre
     this->settings.time = 0;
     return;
   }
-  this->determineNextRunTime;
+  this->determineNextRunTime();
 }
-TimedTask::TimedTask(String name, TaskType taskType, Device* device, Sensor* sensor, Preferences* savedState, ESP32Time* rtc) {
+TimedTask::TimedTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, void (*Taskfunc), Device* device, Sensor* sensor) {
   this->name = name;
-  char nameCstr[11];
-  name.toCharArray(nameCstr, 11);
   this->taskType = taskType;
   this->savedState = savedState;
-  if(savedState->getBytes(this-name, &(this->settings), sizeof(this->settings)) != sizeof(this->settings)) {
+  const char* namePtr = &(this->name[0]);
+  if(savedState->getBytes(namePtr, &(this->settings), sizeof(this->settings)) != sizeof(this->settings)) {
     this->settings.disabled = true;
     this->settings.time = 100;
     return;
   }
-  this->determineNextRunTime;
+  this->determineNextRunTime();
 }
 void ScheduledTask::doTask() {
   if (!this->settings.disabled) {
@@ -52,7 +50,7 @@ void ScheduledTask::doTask() {
         this->device->setStateOff();
         break;
       }
-      case default: 
+      default: 
         return;
     };
     this->determineNextRunTime();
@@ -74,7 +72,7 @@ void TimedTask::doTask() {
         this->device->setStateOff();
         break;
       }
-      case default: 
+      default: 
         return;
     };
     this->determineNextRunTime();
@@ -103,15 +101,13 @@ void TimedTask::determineNextRunTime() {
 void ScheduledTask::updateSettings(bool disabled, unsigned long time) {
   this->settings.disabled = disabled; 
   this->settings.time = static_cast<uint16_t>(time);
-  char nameCstr[11];
-  this->name.toCharArray(nameCstr, 11);
-  this->savedState->putBytes(nameCStr, &(this->settings), sizeof(this->settings));
+  const char* namePtr = &(this->name[0]);
+  this->savedState->putBytes(namePtr, &(this->settings), sizeof(this->settings));
 }
 void TimedTask::updateSettings(bool disabled, unsigned long time) {
   this->settings.disabled = disabled; 
   this->settings.time = time;
-  char nameCstr[11];
-  this->name.toCharArray(nameCstr, 11);
-  this->savedState->putBytes(nameCStr, &(this->settings), sizeof(this->settings));
+  const char* namePtr = &(this->name[0]);
+  this->savedState->putBytes(namePtr, &(this->settings), sizeof(this->settings));
 
 }

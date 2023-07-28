@@ -17,8 +17,8 @@ class Device {
         HardwareInterface* hardwareInterface;
 
         //function declarations
-        Device(String name);
-        void init(HardwareInterface* hardwareInterface);
+        Device();
+        void init(String name, HardwareInterface* hardwareInterface);
         void attachConnectedDevice(Device* device);
         void setStateOn();
         void setStateOff();

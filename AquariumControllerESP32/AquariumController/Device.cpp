@@ -1,13 +1,13 @@
 #include "Device.h"
 
-Device::Device(String name) {
-    this->name = name;
+Device::Device() {
     this->state = DEVICE_OFF;
     this->connectedDevice = NULL;
     this->stateUpdatedByConnectedDevice = false;
     this->hardwareInterface = NULL;
 }
-void Device::init(HardwareInterface* hardwareInterface) {
+void Device::init(String name, HardwareInterface* hardwareInterface) {
+    this->name = name;
     this->hardwareInterface = hardwareInterface;
     this->state = intToDeviceState(hardwareInterface->initDeviceState(this->name));
 }

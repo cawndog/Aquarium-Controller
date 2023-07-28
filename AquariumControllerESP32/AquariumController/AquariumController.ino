@@ -1,6 +1,5 @@
 #include "AquariumController.h"
-
-#include "ServerCode.h"
+#include "AqController.h"
 
 #ifdef useSerial
   #include <BluetoothSerial.h>
@@ -55,7 +54,7 @@ void setup() {
   #endif
 
   aqController.init();
-
+  //AqController::init();
   //printLocalTime();
   
 
@@ -83,8 +82,9 @@ void setup() {
     timerAlarmWrite(powerEventTimer, secondsUntilNextEvent * 2000, true);
   }
   timerAlarmEnable(powerEventTimer); 
+  */
 }
-*/
+
 void loop() {
   /*
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
@@ -136,7 +136,7 @@ void IRAM_ATTR powerEventTimerInterrupt() {
 void printLocalTime()
 {
   
-  if(!getLocalTime(&AquariumController::timeinfo)){
+  if(!getLocalTime(&aqController.timeinfo)){
     #ifdef useSerial
       Serial.println("Failed to obtain time");
       SerialBT.println("Failed to obtain time");

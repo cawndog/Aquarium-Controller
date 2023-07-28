@@ -4,20 +4,20 @@
   this->value = "0.0";
   this->valueUpdated = false;
 }*/
-TdsSensor::TdsSensor(String name) {
-    this->name = name;
+TdsSensor::TdsSensor() {
     this->value = "0.0";
     this->valueUpdated = false;
 }
-AquariumTemperatureSensor::AquariumTemperatureSensor(String name) {
-    this->name = name;
+AquariumTemperatureSensor::AquariumTemperatureSensor() {
     this->value = "0.0";
     this->valueUpdated = false;
 }
-void Sensor::init(HardwareInterface* hardwareInterface) {
+void Sensor::init(String name, HardwareInterface* hardwareInterface) {
+    this->name = name;
     this->hardwareInterface = hardwareInterface;
 }
-void TdsSensor::init(HardwareInterface* hardwareInterface, AquariumTemperatureSensor* aqTempSensor) {
+void TdsSensor::init(String name, HardwareInterface* hardwareInterface, AquariumTemperatureSensor* aqTempSensor) {
+    this->name = name;
     this->hardwareInterface = hardwareInterface;
     this->aqTempSensor = aqTempSensor;
 }

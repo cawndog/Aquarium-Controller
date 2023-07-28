@@ -1,12 +1,10 @@
 #include "Switch.h"
 
-void Switch(String name) {
-  //this->name = name;
-}
 void Switch::init(String name, Preferences* savedState) {
-  name.toCharArray(this->name, 2);
+  this->name = name;
   this->savedState = savedState;
-  this->state = this->IntToSwitchState(savedState->getUChar(this->name, 0));
+  const char* namePtr = &(this->name[0]);
+  this->state = this->IntToSwitchState(savedState->getUChar(namePtr, 0));
   
 }
 SwitchState Switch::getSwitchState() {
@@ -37,7 +35,8 @@ SwitchState Switch::IntToSwitchState (uint8_t state) {
 }
 void Switch::setSwitchState(SwitchState state) {
   this->state = state;
-  this->savedState->putUChar(this->name, this->SwitchStateToInt());
+  const char* namePtr = &(this->name[0]);
+  this->savedState->putUChar(namePtr, this->SwitchStateToInt());
   return;
 }
 void Switch1::powerControl(SwitchState state) { //air control switch

@@ -10,7 +10,7 @@
 #include "HardwareInterface.h"
 #include "Device.h"
 #include "Task.h"
-#include "ServerCode.h"
+#include "AqWebServerInterface.h"
 
 
 #define NUM_TASKS 20
@@ -28,20 +28,21 @@ class AqController {
     static const int   daylightOffset_sec = 3600;
     ESP32Time rtc; //Real time clock
     tm timeinfo;
-    static bool maintMode;
+    AqWebServerInterface* aqWebServerInterface;
+    bool maintMode;
     Preferences savedState;
     HardwareInterface hardwareInterface;
 
-    Device Heater;
-    Device Lights;
-    Device CO2;
-    Device AirPump;
-    Device Filter;
+    Device heater;
+    Device lights;
+    Device co2;
+    Device airPump;
+    Device filter;
     
     TdsSensor tds;
     AquariumTemperatureSensor aqTemperature;
     Task* tasks[NUM_TASKS];
-    void init();
+    void init(AqWebServerInterface* aqWebServerInterface);
 
   };
 

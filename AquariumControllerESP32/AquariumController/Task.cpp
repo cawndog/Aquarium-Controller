@@ -39,6 +39,33 @@ TimedTask::TimedTask(String name, TaskType taskType, Preferences* savedState, ES
   }
   this->determineNextRunTime();
 }
+void ScheduledTask::initTaskState() { 
+  int currentHour = rtc->getHour(true);
+  int currentMinute = rtc->getMinute();
+  int currentSecond = rtc->getSecond();
+  unsigned long secondsSinceStartOfDay = ((currentHour*3600)+(currentMinute*60)+currentSecond); //Seconds since 12:00AM
+  if (this->connectedTask != NULL) {
+    if (this->settings.time < this->connectedTask->settings.time) {
+      if (secondsSinceStartOfDay >= (this->settings.time*60) && secondsSinceStartOfDay < (this->connectedTask->settings.time*60)) {
+        this->doTask();
+      }
+      else {
+        this->connectedTask->doTask();
+      }
+    }
+    else {
+      if (secondsSinceStartOfDay >= (this->settings.time*60) || secondsSinceStartOfDay < this->connectedTask->settings.time ) {
+        this->doTask();
+      } 
+      else {
+        this->connectedTask->doTask();
+      }
+    }
+  }
+}
+void TimedTask::initTaskState() {
+
+}
 void ScheduledTask::doTask() {
   if (!this->settings.disabled) {
     switch(this->taskType) {

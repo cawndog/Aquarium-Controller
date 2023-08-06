@@ -40,6 +40,14 @@ void Device::setStateOff() {
         this->hardwareInterface->powerControl(this->name, deviceStateToInt(this->state));
     }
 }
+bool Device::getStateBool() {
+    if (this->state == DEVICE_ON) {
+        return true;
+    }
+    else {
+        return false; 
+    }
+}
 uint8_t Device::deviceStateToInt(DeviceState state) {
     switch(state) {
         case DEVICE_OFF: {

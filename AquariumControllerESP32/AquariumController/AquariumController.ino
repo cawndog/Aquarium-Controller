@@ -1,6 +1,7 @@
 #include "AquariumController.h"
-#include "AqController.h"
 
+#include "AqController.h"
+#include "AqWebServer.h"
 #ifdef useSerial
   #include <BluetoothSerial.h>
   BluetoothSerial SerialBT;
@@ -52,8 +53,8 @@ void setup() {
     Serial.println(" CONNECTED");
     Serial.println(WiFi.localIP());
   #endif
-
-  aqController.init();
+  
+  aqController.init(&aqWebServer);
   //AqController::init();
   //printLocalTime();
   

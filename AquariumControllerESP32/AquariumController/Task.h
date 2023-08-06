@@ -69,6 +69,7 @@ class TimedTask : public Task {
     void doTask();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);
+    void initTaskState();
 };
 
 

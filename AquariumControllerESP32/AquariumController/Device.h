@@ -22,6 +22,7 @@ class Device {
         void attachConnectedDevice(Device* device);
         void setStateOn();
         void setStateOff();
+        bool getStateBool();
         static uint8_t deviceStateToInt(DeviceState state);
         static DeviceState intToDeviceState(uint8_t stateInt);
 };

@@ -11,7 +11,7 @@ enum DeviceState {
 };
 class Device {
     public:
-        typedef std::function<void(Device* device)> AqWebServerFunction;
+        typedef std::function<void(Device** devices, int numDevices)> AqWebServerFunction;
         AqWebServerFunction webSocketUpdateState;
         String name;
         DeviceState state;

@@ -17,20 +17,20 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   savedState.begin("aqController", false);
   this->aqThermostat = savedState.getShort("aqThermostat", 82);
   hardwareInterface.init(&savedState);
-  heater.init("Heater", &hardwareInterface, [&](Device* device) {
-    this->aqWebServerInterface->deviceStateUpdate(device);
+  heater.init("Heater", &hardwareInterface, [&](Device** devices, int numDevices) {
+    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  lights.init("Lights", &hardwareInterface, [&](Device* device) {
-    this->aqWebServerInterface->deviceStateUpdate(device);
+  lights.init("Lights", &hardwareInterface, [&](Device** devices, int numDevices) {
+    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  co2.init("CO2", &hardwareInterface, [&](Device* device) {
-    this->aqWebServerInterface->deviceStateUpdate(device);
+  co2.init("CO2", &hardwareInterface, [&](Device** devices, int numDevices) {
+    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  airPump.init("Air Pump", &hardwareInterface, [&](Device* device) {
-    this->aqWebServerInterface->deviceStateUpdate(device);
+  airPump.init("Air Pump", &hardwareInterface, [&](Device** devices, int numDevices) {
+    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  filter.init("Filter", &hardwareInterface, [&](Device* device) {
-    this->aqWebServerInterface->deviceStateUpdate(device);
+  filter.init("Filter", &hardwareInterface, [&](Device** devices, int numDevices) {
+    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
   co2.attachConnectedDevice(&airPump);
   airPump.attachConnectedDevice(&co2);

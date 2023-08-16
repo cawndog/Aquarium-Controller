@@ -292,12 +292,13 @@ void AqWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 void AqWebServer::updateDDNS() {
 
 }
-void AqWebServer::deviceStateUpdate(Device* device) {
+void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
   DynamicJsonDocument body(1024);
   body["messageType"] = "StateUpdate";
-  body["device"]["name"] = device->name;
-  body["device"]["state"] = device->getStateBool();
-
+  for (int i = 0; i < numDevices; i++) {
+    body["devices"][i]["name"] = devices[i]->name;
+    body["devices"][i]["state"] = devices[i]->getStateBool();
+  }
   String message;
   serializeJson(body, message);
   
@@ -310,8 +311,8 @@ void AqWebServer::deviceStateUpdate(Device* device) {
 void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
   DynamicJsonDocument body(1024);
   body["messageType"] = "StateUpdate";
-  body["sensor"]["name"] = sensor->name;
-  body["sensor"]["value"] = sensor->getValue();
+  body["sensors"][1]["name"] = sensor->name;
+  body["sensors"][1]["value"] = sensor->getValue();
 
   String message;
   serializeJson(body, message);

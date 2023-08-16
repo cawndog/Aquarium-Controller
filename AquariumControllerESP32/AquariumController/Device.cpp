@@ -19,12 +19,19 @@ void Device::attachConnectedDevice(Device* device) {
 void Device::setStateOn() {
     if (this->state != DEVICE_ON) {
         this->state = DEVICE_ON; 
-        this->webSocketUpdateState(this);
-        if (this->connectedDevice) {
+        Device* devicesUpdated[2];
+        devicesUpdated[0] = this;
+        if (this->connectedDevice != NULL) {
             if(this->connectedDevice->state == DEVICE_ON) {
                 this->connectedDevice->state = DEVICE_OFF;
-                this->connectedDevice->webSocketUpdateState(this->connectedDevice);
+                devicesUpdated[1] = this->connectedDevice;
+                this->webSocketUpdateState(devicesUpdated, 2);
+            }
+            else {
+                this->webSocketUpdateState(devicesUpdated, 1);
             }     
+        }else {
+            this->webSocketUpdateState(devicesUpdated, 1);
         }
         this->hardwareInterface->powerControl(this->name, deviceStateToInt(this->state));
     }
@@ -32,8 +39,10 @@ void Device::setStateOn() {
 }
 void Device::setStateOff() {
     if (this->state != DEVICE_OFF) {
-        this->state = DEVICE_OFF; 
-        this->webSocketUpdateState(this);
+        this->state = DEVICE_OFF;
+        Device* devicesUpdated[2];
+        devicesUpdated[0] = this; 
+        this->webSocketUpdateState(devicesUpdated, 1);
         /*if (this->connectedDevice) {
             if(this->connectedDevice->state == DEVICE_ON) {
                 this->connectedDevice->state = DEVICE_OFF;

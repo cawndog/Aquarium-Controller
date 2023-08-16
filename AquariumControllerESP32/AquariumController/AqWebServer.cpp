@@ -147,7 +147,7 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
 
     DynamicJsonDocument body(1024);
     body["messageType"] = "StateUpdate";
-    body["sensors"]["Temperature"] = aqController.aqTemperature.getValue();
+    body["sensors"]["Aquarium Temperature"] = aqController.aqTemperature.getValue();
     body["sensors"]["TDS"] = aqController.tds.getValue();
     body["devices"]["Lights"] = aqController.lights.getStateBool();
     body["devices"]["Air Pump"] = aqController.airPump.getStateBool();
@@ -172,14 +172,16 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
     }
 
     DynamicJsonDocument body(1024);
-    body["aquariumThermostat"] = sensorControl.getAquariumThermostat();
-    String deviceName = "";
-    for (int i = 0; i < timedPowerEventControl.getNumDevices(); i++) {
-      deviceName = timedPowerEventControl.getDeviceByNumber(i)->deviceName;
-      body["timers"][deviceName]["onHr"] = timedPowerEventControl.getDeviceByNumber(i)->getOnHr();
-      body["timers"][deviceName]["onMin"] = timedPowerEventControl.getDeviceByNumber(i)->getOnMin();
-      body["timers"][deviceName]["offHr"] = timedPowerEventControl.getDeviceByNumber(i)->getOffHr();
-      body["timers"][deviceName]["offMin"] = timedPowerEventControl.getDeviceByNumber(i)->getOffMin();
+    body["aqThermostat"] = aqController.aqThermostat;
+  
+    for (int i = 0; aqController.tasks[i] != NULL; i++) {
+      if (aqController.tasks[i]->privateTask != true) {
+        body["tasks"][i]["name"] = aqController.tasks[i]->getName();
+        body["tasks"][i]["taskType"] = aqController.tasks[i]->taskTypeToString();
+        body["tasks"][i]["time"] = aqController.tasks[i]->getTime();
+        body["tasks"][i]["isDisabled"] = aqController.tasks[i]->getDisabled();
+      }
+
     }
 
     String response; 
@@ -192,25 +194,31 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
     if (authFailed) {
       return;
     }
-    /*JsonObject body = json.as<JsonObject>();
-    sensorControl.setAquariumThermostat(body["aquariumThermostat"]);
-    String deviceName = "";
-    for (int i = 0; i < timedPowerEventControl.getNumDevices(); i++) {
-      deviceName = timedPowerEventControl.getDeviceByNumber(i)->deviceName;
-      timedPowerEventControl.getDeviceByNumber(i)->setOnHr(body["timers"][deviceName]["onHr"]);
-      timedPowerEventControl.getDeviceByNumber(i)->setOnMin(body["timers"][deviceName]["onMin"]);
-      timedPowerEventControl.getDeviceByNumber(i)->setOffHr(body["timers"][deviceName]["offHr"]);
-      timedPowerEventControl.getDeviceByNumber(i)->setOffMin(body["timers"][deviceName]["offMin"]);
-      timedPowerEventControl.initNewSettings();
+    JsonObject body = json.as<JsonObject>();
+    if (body.containsKey("aqThermostat")) {
+      aqController.aqThermostat = short(body["aqThermostat"]);
+      aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
     }
+    const int numTasks = body["tasks"].size();
+    for (int i = 0; i < numTasks; i++) {
+      Task* task = aqController.getTaskByName(body["tasks"][i]["name"]);
+      if (task != NULL) {
+        task->updateSettings(body["tasks"][i]["isDisabled"], body["tasks"][i]["time"]);
+      } 
+    }
+    aqController.aqTemperature.readSensor();
+    aqController.initScheduledDeviceTaskStates();
+    aqController.scheduleNextTask();
+
     String response = "";
     serializeJson(body, response);
     #ifdef useSerial
       Serial.println(response);
       SerialBT.println(response);
     #endif
+
     request->send(200, "application/json", response);
-    */
+    
   });
   server.addHandler(setSettingsHandler);
 
@@ -282,10 +290,59 @@ void AqWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 
 }
 void AqWebServer::updateDDNS() {
+
+}
+void AqWebServer::deviceStateUpdate(Device* device) {
+  DynamicJsonDocument body(1024);
+  body["messageType"] = "StateUpdate";
+  body["device"]["name"] = device->name;
+  body["device"]["state"] = device->getStateBool();
+
+  String message;
+  serializeJson(body, message);
+  
+  #ifdef useSerial
+    Serial.println(message);
+    SerialBT.println(message);
+  #endif
+  ws.textAll(message);
+}
+void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
+  DynamicJsonDocument body(1024);
+  body["messageType"] = "StateUpdate";
+  body["sensor"]["name"] = sensor->name;
+  body["sensor"]["value"] = sensor->getValue();
+
+  String message;
+  serializeJson(body, message);
+  
+  #ifdef useSerial
+    Serial.println(message);
+    SerialBT.println(message);
+  #endif
+  ws.textAll(message);
+}
+void AqWebServer::updateDynamicIP() {
   HTTPClient http;
   http.begin("http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller");
   http.GET();
   http.end();
 }
 
+/*struct WebSocketMessageJSON: Decodable {
+  enum MessageType: String, Decodable {
+    case Alert, Information, StateUpdate, Unknown
+    init () {
+        self = .Unknown
+    };
+  };
+  struct Sensor: Decodable {
+    var name: String
+    var value: String
+  };
+  struct Device: Decodable {
+    var name: String
+    var state: Bool
+  };
+};*/
 

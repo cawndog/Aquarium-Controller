@@ -1,15 +1,17 @@
 #include "Device.h"
 
 Device::Device() {
+    this->name = "";
     this->state = DEVICE_OFF;
     this->connectedDevice = NULL;
-    this->stateUpdatedByConnectedDevice = false;
     this->hardwareInterface = NULL;
+    webSocketUpdateState = {};
 }
-void Device::init(String name, HardwareInterface* hardwareInterface) {
+void Device::init(String name, HardwareInterface* hardwareInterface, AqWebServerFunction webSocketUpdateState) {
     this->name = name;
     this->hardwareInterface = hardwareInterface;
     this->state = intToDeviceState(hardwareInterface->initDeviceState(this->name));
+    this->webSocketUpdateState = webSocketUpdateState;
 }
 void Device::attachConnectedDevice(Device* device) {
     this->connectedDevice = device;
@@ -17,10 +19,11 @@ void Device::attachConnectedDevice(Device* device) {
 void Device::setStateOn() {
     if (this->state != DEVICE_ON) {
         this->state = DEVICE_ON; 
+        this->webSocketUpdateState(this);
         if (this->connectedDevice) {
             if(this->connectedDevice->state == DEVICE_ON) {
                 this->connectedDevice->state = DEVICE_OFF;
-                this->connectedDevice->stateUpdatedByConnectedDevice = true;
+                this->connectedDevice->webSocketUpdateState(this->connectedDevice);
             }     
         }
         this->hardwareInterface->powerControl(this->name, deviceStateToInt(this->state));
@@ -30,7 +33,7 @@ void Device::setStateOn() {
 void Device::setStateOff() {
     if (this->state != DEVICE_OFF) {
         this->state = DEVICE_OFF; 
-        
+        this->webSocketUpdateState(this);
         /*if (this->connectedDevice) {
             if(this->connectedDevice->state == DEVICE_ON) {
                 this->connectedDevice->state = DEVICE_OFF;

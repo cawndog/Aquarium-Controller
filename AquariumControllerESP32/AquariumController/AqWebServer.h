@@ -24,29 +24,16 @@ static class AqWebServer: public AqWebServerInterface {
 
     AqWebServer();
     void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
-    void webServerSetup();
+    //void webServerSetup();
     bool checkAuthorization(AsyncWebServerRequest *request);
     void updateDDNS();
+    void deviceStateUpdate(Device* device);
+    void sensorReadingUpdate(Sensor* sensor);
     //void updateSensorValsOnClients(Sensor* sensors[]);
     //void updateDeviceStatesOnClients(TimedDevice* devices[]);
 } aqWebServer;
 
-/*struct WebSocketMessageJSON: Decodable {
-  enum MessageType: String, Decodable {
-    case Alert, Information, StateUpdate, Unknown
-    init () {
-        self = .Unknown
-    };
-  };
-  struct Sensor: Decodable {
-    var name: String
-    var value: String
-  };
-  struct Device: Decodable {
-    var name: String
-    var state: Bool
-  };
-};*/
+
 /*
 
 AsyncWebServer server(80);

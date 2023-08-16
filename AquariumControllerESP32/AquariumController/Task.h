@@ -7,15 +7,15 @@
 #include <Preferences.h>
 
 enum TaskType {
-  TDEVICE_ON,
-  TDEVICE_OFF,
-  SENSOR_READ,
-  MAINTENANCE_OFF
+  SCHEDULED_TASK,
+  SCHEDULED_DEVICE_TASK,
+  TIMED_TASK,
 };
 struct TaskSettings {
   bool disabled;
   unsigned long time;
 };
+typedef std::function<void()> AqTaskFunction;
 class Task {
   public: 
     String name;
@@ -33,9 +33,11 @@ class Task {
     virtual void updateSettings(bool disabled, unsigned long time) = 0;
     virtual void initTaskState() = 0;
     void setPrivate();
+    String taskTypeToString();
     String getName();
     bool getDisabled(); 
-    unsigned long getTime();
+    //returns the scheduled run time of this task (in seconds). For TimedTask, this would be the time interval that the task will run. 
+    unsigned long getTime(); 
 
     
 };
@@ -43,29 +45,31 @@ class Task {
 class ScheduledTask : public Task {
   public: 
     Device *device;
+    AqTaskFunction f;
     void (*Taskfunc);
     /*struct STSettings {
       bool disabled;
       uint16_t runTime;
     };
     STSettings settings;*/
-    ScheduledTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, void (*Taskfunc) = NULL, Device* device = NULL);
+    ScheduledTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, AqTaskFunction f = {});
     void doTask();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);
-    void initTaskState(); //For Scheduled Timer (On/Off) Tasks. Inits timer state. 
+    void initTaskState(); //For ScheduledTask with a connectedTask (On/Off timer tasks). Inits timer state. 
 };
 class TimedTask : public Task {
   public: 
     Device* device;
     Sensor* sensor;
+    AqTaskFunction f;
     /*struct TTSettings {
       bool disabled;
       unsigned long runTimeInterval;
     };
 
     TTSettings settings;*/
-    TimedTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, void (*Taskfunc) = NULL, Device* device = NULL, Sensor* sensor = NULL);
+    TimedTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, AqTaskFunction f = {});
     void doTask();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);

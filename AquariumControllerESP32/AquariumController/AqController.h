@@ -26,6 +26,7 @@ class AqController {
     static constexpr char* ntpServer = "pool.ntp.org";
     static const long  gmtOffset_sec = -25200;
     static const int   daylightOffset_sec = 3600;
+    hw_timer_t* taskTimer;
     ESP32Time rtc; //Real time clock
     tm timeinfo;
     AqWebServerInterface* aqWebServerInterface;
@@ -41,9 +42,15 @@ class AqController {
     
     TdsSensor tds;
     AquariumTemperatureSensor aqTemperature;
+    short aqThermostat;
     Task* tasks[NUM_TASKS];
+    Task* nextTaskWithEvent;
+    AqController();
     void init(AqWebServerInterface* aqWebServerInterface);
-
+    Task* getTaskByName(String name);
+    void initScheduledDeviceTaskStates();
+    void setNextTaskWithEvent();
+    void scheduleNextTask();
   };
 
   static AqController aqController;

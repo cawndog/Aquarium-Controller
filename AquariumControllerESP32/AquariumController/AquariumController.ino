@@ -11,23 +11,14 @@
 
 //-----------------------------Function Declarations-----------------------------
 void printLocalTime();
-void IRAM_ATTR sensorTimerInterrupt();
-void IRAM_ATTR powerEventTimerInterrupt();
+void IRAM_ATTR taskTimerInterrupt();
 
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
-hw_timer_t* sensorTimer;
-hw_timer_t* powerEventTimer;
+hw_timer_t* taskTimer;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
-
-volatile uint8_t readSensorsInterruptCounter = 0;
-volatile uint8_t powerEventInterruptCounter = 0;
-volatile uint8_t tdsCounter = 0; //For timing TDS sensor readings, in seconds. This number is multiplied by 10.
-
-
-
-
+volatile uint8_t taskInterruptCounter = 0;
 
 void setup() {
   //http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller
@@ -55,88 +46,38 @@ void setup() {
   #endif
   
   aqController.init(&aqWebServer);
-  //AqController::init();
-  //printLocalTime();
-  
+  aqWebServer.updateDynamicIP();
 
-  //webServerSetup();        -------------WEB SERVER CODE
-  //updateDDNS();
-  /*syncSemaphore = xSemaphoreCreateBinary();
-  sensorTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
-  timerAttachInterrupt(sensorTimer, &sensorTimerInterrupt, true);
-  timerAlarmWrite(sensorTimer, 20000, true);
-  timerAlarmEnable(sensorTimer);
-  powerEventTimer = timerBegin(1, 40000, true); //counter will increment 2,000 times/second
-  timerAttachInterrupt(powerEventTimer, &powerEventTimerInterrupt, true);
-  unsigned long currentLocalEpoch = rtc.getLocalEpoch();
-  #ifdef useSerial 
-    Serial.println("Setting up initial device power event timer.");
-    SerialBT.println("Setting up initial device power event timer.");
-  #endif
-  if (timedPowerEventControl.nextDeviceWithEvent->nextEventEpochTime <= currentLocalEpoch) {
-
-    timerAlarmWrite(powerEventTimer, 2000, true);
-  }
-  else {
-    unsigned long secondsUntilNextEvent = 0;
-
-    timerAlarmWrite(powerEventTimer, secondsUntilNextEvent * 2000, true);
-  }
-  timerAlarmEnable(powerEventTimer); 
-  */
+  syncSemaphore = xSemaphoreCreateBinary();
+  aqController.taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
+  timerAttachInterrupt(aqController.taskTimer, &taskTimerInterrupt, true);
+  aqController.scheduleNextTask();
 }
 
 void loop() {
-  /*
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
   //timeinfo = rtc.getTimeStruct();
-  while (powerEventInterruptCounter > 0) {
+  while (taskInterruptCounter > 0) {
     portENTER_CRITICAL(&timerMux);
-      powerEventInterruptCounter--;
+      taskInterruptCounter--;
     portEXIT_CRITICAL(&timerMux);
-
-
-    unsigned long currentLocalEpoch = rtc.getLocalEpoch();
-
-    if (timedPowerEventControl.nextDeviceWithEvent->nextEventEpochTime <= currentLocalEpoch) {
-
-      timerAlarmWrite(powerEventTimer, 2000, true);
-    }
-    else {
-      unsigned long secondsUntilNextEvent = timedPowerEventControl.nextDeviceWithEvent->nextEventEpochTime - currentLocalEpoch;
-
-      timerAlarmWrite(powerEventTimer, secondsUntilNextEvent * 2000, true);
-    }
-    timerAlarmEnable(powerEventTimer);
+    aqController.nextTaskWithEvent->doTask();
   }
-  while (readSensorsInterruptCounter > 0) {
-    portENTER_CRITICAL(&timerMux);
-      readSensorsInterruptCounter--;
-    portEXIT_CRITICAL(&timerMux);
-
-
-
-  }*/
-
+  aqController.scheduleNextTask();
 }
-void IRAM_ATTR sensorTimerInterrupt() {
-  tdsCounter++;
-  readSensorsInterruptCounter++;
-  xSemaphoreGiveFromISR(syncSemaphore, NULL);
-  return;
-}
-void IRAM_ATTR powerEventTimerInterrupt() {
-  powerEventInterruptCounter++;
+
+
+void IRAM_ATTR taskTimerInterrupt() {
+  taskInterruptCounter++;
   #ifdef useSerial
-    Serial.println("In powerEventTimerInterrupt(). Power event triggered.");
-    SerialBT.println("In powerEventTimerInterrupt(). Power event triggered.");
+    Serial.println("In taskTimerInterrupt(). Power event triggered.");
+    SerialBT.println("In taskTimerInterrupt(). Power event triggered.");
   #endif
   timerAlarmDisable(powerEventTimer);
   xSemaphoreGiveFromISR(syncSemaphore, NULL);
 }
 void printLocalTime()
-{
-  
+{ 
   if(!getLocalTime(&aqController.timeinfo)){
     #ifdef useSerial
       Serial.println("Failed to obtain time");

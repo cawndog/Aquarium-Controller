@@ -39,7 +39,8 @@ class AqController {
     Device co2;
     Device airPump;
     Device filter;
-    
+    //Device** allDevices;
+
     TdsSensor tds;
     AquariumTemperatureSensor aqTemperature;
     short aqThermostat;

@@ -147,14 +147,21 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
 
     DynamicJsonDocument body(1024);
     body["messageType"] = "StateUpdate";
-    body["sensors"]["Aquarium Temperature"] = aqController.aqTemperature.getValue();
-    body["sensors"]["TDS"] = aqController.tds.getValue();
-    body["devices"]["Lights"] = aqController.lights.getStateBool();
-    body["devices"]["Air Pump"] = aqController.airPump.getStateBool();
-    body["devices"]["CO2"] = aqController.co2.getStateBool();
-    body["devices"]["Filter"] = aqController.filter.getStateBool();
-    body["devices"]["Heater"] = aqController.heater.getStateBool();
-    body["devices"]["Maintenance Mode"] = aqController.maintMode;
+    body["maintenanceMode"] = aqController.maintMode;
+    body["sensors"][0]["name"] = aqController.aqTemperature.name;
+    body["sensors"][0]["value"] = aqController.aqTemperature.getValue();
+    body["sensors"][1]["name"] = aqController.tds.name;
+    body["sensors"][1]["value"] = aqController.tds.getValue();
+    body["devices"][0]["name"] = aqController.lights.name;
+    body["devices"][0]["state"] = aqController.lights.getStateBool();
+    body["devices"][1]["name"] = aqController.airPump.name;
+    body["devices"][1]["state"] = aqController.airPump.getStateBool();
+    body["devices"][2]["name"] = aqController.co2.name;
+    body["devices"][2]["state"] = aqController.co2.getStateBool();
+    body["devices"][3]["name"] = aqController.filter.name;
+    body["devices"][3]["state"] = aqController.filter.getStateBool();
+    body["devices"][4]["name"] = aqController.heater.name;
+    body["devices"][4]["state"] = aqController.heater.getStateBool();
     String response;
     serializeJson(body, response);
     

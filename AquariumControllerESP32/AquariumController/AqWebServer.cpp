@@ -187,6 +187,12 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
         body["tasks"][i]["taskType"] = aqController.tasks[i]->taskTypeToString();
         body["tasks"][i]["time"] = aqController.tasks[i]->getTime();
         body["tasks"][i]["isDisabled"] = aqController.tasks[i]->getDisabled();
+        if (aqController.tasks[i]->connectedTask != NULL) {
+          body["tasks"][i]["connectedTask"]["name"] = aqController.tasks[i]->connectedTask->getName();
+          body["tasks"][i]["connectedTask"]["taskType"] = aqController.tasks[i]->connectedTask->taskTypeToString();
+          body["tasks"][i]["connectedTask"]["time"] = aqController.tasks[i]->connectedTask->getTime();
+          body["tasks"][i]["connectedTask"]["isDisabled"] = aqController.tasks[i]->connectedTask->getDisabled();
+        }
       }
 
     }
@@ -211,6 +217,12 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
       Task* task = aqController.getTaskByName(body["tasks"][i]["name"]);
       if (task != NULL) {
         task->updateSettings(body["tasks"][i]["isDisabled"], body["tasks"][i]["time"]);
+        if (body["tasks"][i].containsKey("connectedTask")) {
+          task = aqController.getTaskByName(body["tasks"][i]["connectedTask"]["name"]);
+          if (task != NULL) {
+            task->updateSettings(body["tasks"][i]["connectedTask"]["isDisabled"], body["tasks"][i]["connectedTask"]["time"]);
+          }
+        }
       } 
     }
     aqController.aqTemperature.readSensor();

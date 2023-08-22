@@ -11,22 +11,26 @@ import SwiftUI
 class Network: ObservableObject {
     @Published var messages = [String]()
     //@Published var currentState: CurrentState
-    var currentState: CurrentState
-    @Published var settingsState: SettingsState
+    var controllerState: ControllerState?
+    //var settingsState: SettingsState
     //@State var currentState: CurrentState
     //var currentState: CurrentState
     private var webSocketTask: URLSessionWebSocketTask?
-    var currentStateJSON: CurrentStateJSON
-    var settingsStateJSON: SettingsStateJSON
+    //var currentStateJSON: CurrentStateJSON
+    //var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
     let bearerToken: String = "31f18cfbab58825aedebf9d0e14057dc"
     var AqControllerIP: String = "AquariumController.freeddns.org"
-    init(currentState: CurrentState) {
-        self.currentState = currentState
-        currentStateJSON = CurrentStateJSON.init()
-        settingsStateJSON = SettingsStateJSON.init()
-        settingsState = SettingsState.init()
+    init() {
+        //self.controllerState = nil
+        //self.settingsState = settingsState
+        //currentStateJSON = CurrentStateJSON.init()
+        //settingsStateJSON = SettingsStateJSON.init()
         comps = DateComponents()
+    }
+    
+    func attachControllerState(controllerState: ControllerState) {
+        self.controllerState = controllerState
     }
 
     func connectWebSocket() {
@@ -57,25 +61,21 @@ class Network: ObservableObject {
         }
     }
     func processStringMessage(WebSocketMessage:String) {
+        guard let controllerState = controllerState else { return }
         let jsonMessage = WebSocketMessage.data(using: .utf8)!
-        let decodedMessage = try! JSONDecoder().decode(WebSocketMessageJSON.self, from: jsonMessage)
+        let decodedMessage = try! JSONDecoder().decode(AqControllerMessage.self, from: jsonMessage)
         if (decodedMessage.messageType == .StateUpdate) {
             if let sensors = decodedMessage.sensors {
                 for sensor in sensors {
-                    var i = currentState.getSensorPosByName(sensor.name)
-                    if (i != -1) {
-                        currentState.sensors[i].value = sensor.value
-                    }
+                    var s = controllerState.getSensorByName(sensor.name)
+                    s.value = sensor.value
                 }
             }
-            
             if let devices = decodedMessage.devices {
                 for device in devices {
-                    var i = currentState.getSensorPosByName(device.name)
-                    if (i != -1) {
-                        currentState.devices[i].stateUpdatedByController = true
-                        currentState.devices[i].state = device.state
-                    }
+                    var d = controllerState.getDeviceByName(device.name)
+                    d.stateUpdatedByController = true
+                    d.state = device.state
                 }
             }
         }

@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct WebSocketMessageJSON: Decodable {
+struct AqControllerMessage: Decodable {
     enum MessageType: String, Decodable {
-        case Alert, Information, StateUpdate, Unknown
+        case Alert, Information, StateUpdate, SettingsUpdate, Unknown
         init () {
             self = .Unknown
         }
@@ -25,6 +25,8 @@ struct WebSocketMessageJSON: Decodable {
     
     let messageType: MessageType
     let message: String?
+    let aqThermostat: Int?
+    let maintenanceMode: Bool?
     let sensors: [Sensor]?
     let devices: [Device]?
     

@@ -8,26 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct CurrentStateJSON: Codable {
-    var temp: String
-    var tds: String
-    var lights: Bool
-    var filter: Bool
-    var co2: Bool
-    var air: Bool
-    var heater: Bool
-    var maint: Bool
-    init() {
-        self.temp = ""
-        self.tds = ""
-        self.lights = false
-        self.filter = false
-        self.co2 = false
-        self.air = false
-        self.heater = false
-        self.maint = false
-    }
-}
+
 /*class CurrentState: ObservableObject {
     @Published var temp: String
     @Published var tds: String
@@ -68,39 +49,40 @@ class Sensor: ObservableObject {
         self.value = ""
     }
 }
-class CurrentState: ObservableObject {
-    @Published var temp: String
-    @Published var tds: String
-    var sensors: [Sensor]
-    var devices: [Device]
+class ControllerState: ObservableObject {
+    //@Published var temp: String
+    //@Published var tds: String
+    @Published var sensors: [Sensor]
+    @Published var devices: [Device]
+    @Published var maintenanceMode: Bool
     
-    var lights: Device
-    var filter: Device
-    var co2: Device
-    var air: Device
-    var heater: Device
-    var maint: Device
-    
-
     init() {
-        temp = ""
-        tds = ""
         self.sensors = [Sensor.init("Temperature"),
                         Sensor.init("TDS")]
-        
         self.devices = [Device.init("Lights"),
                         Device.init("Filter"),
                         Device.init("CO2"),
                         Device.init("Air Pump"),
-                        Device.init("Heater"),
-                        Device.init("Maintenance Mode")]
-        
-        self.lights = Device.init("lights")
-        self.filter = Device.init("filter")
-        self.co2 = Device.init("co2")
-        self.air = Device.init("air")
-        self.heater = Device.init("heater")
-        self.maint = Device.init("maint")
+                        Device.init("Heater")]
+        maintenanceMode = false
+    }
+    func getDeviceByName(_ name:String) -> Device {
+        for device in devices {
+            if (device.name == name) {
+                return device
+            }
+        }
+        self.devices.append(Device.init(name))
+        return getDeviceByName(name)
+    }
+    func getSensorByName(_ name:String) -> Sensor {
+        for sensor in sensors {
+            if (sensor.name == name) {
+                return sensor
+            }
+        }
+        self.sensors.append(Sensor.init(name))
+        return getSensorByName(name)
     }
     func getDevicePosByName(_ name:String) -> Int {
         var i = 0

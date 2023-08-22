@@ -7,8 +7,7 @@
 
 import SwiftUI
 struct ContentView: View {
-    @EnvironmentObject var network: Network
-    @EnvironmentObject var currentState: CurrentState
+    @EnvironmentObject var aqController: AqController
     @State private var showingPopover = false
     
     let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
@@ -63,7 +62,8 @@ struct ContentView: View {
             }.padding(.horizontal, 20)
             
         }.onAppear {
-            network.connectWebSocket()
+            aqController.network.attachControllerState(controllerState: aqController.controllerState)
+            //network.connectWebSocket()
             //network.getCurrentState(currentState: currentState)
         }//.onReceive(timer) { time in
             //network.getCurrentState()
@@ -78,8 +78,7 @@ struct ContentView_Previews: PreviewProvider {
 
     static var previews: some View {
         ContentView()
-            .environmentObject(Network(currentState: CurrentState()))
-            .environmentObject(CurrentState())
+            .environmentObject(AqController())
     }
 }
 

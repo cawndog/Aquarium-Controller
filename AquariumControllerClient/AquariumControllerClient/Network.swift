@@ -189,10 +189,13 @@ class Network: ObservableObject {
         newMessage.aqThermostat = controllerState.aqThermostat
         
         for task in controllerState.tasks {
-            var taskDateComp: DateComponents = dateComponents(from: task.time)
+            
+            var taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.time)
+            var taskTime: Int = 0
             var newTask = AqControllerMessage.Task()
             newTask.name = task.name
             newTask.isDisabled = task.isDisabled
+            taskTime = taskDateComp.hour
             newTask.time = task.time
             newMessage.addTask(newTask)
         }

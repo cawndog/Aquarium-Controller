@@ -10,9 +10,10 @@ import SwiftUI
 class AqController: ObservableObject {
     @Published var controllerState: ControllerState
     var network: Network
+    
     init() {
         controllerState = ControllerState()
         network = Network()
-        //settingsState = SettingsState.init()
+        network.controllerState = self.controllerState
     }
 }

@@ -8,17 +8,23 @@
 import SwiftUI
 
 struct SensorView: View {
-    @ObservedObject var sensor: Sensor
-    init(sensor: Sensor) {
+    @ObservedObject var sensor: ControllerState.Sensor
+    init(sensor: ControllerState.Sensor) {
         self.sensor = sensor
     }
     var body: some View {
         LabeledContent(sensor.name) {
             Text(sensor.value)
+            if (sensor.name == "TDS") {
+                Text("PPM")
+            }
+            else if (sensor.name == "Temperature") {
+                Text("°F")
+            }
         }
     }
 }
 
 #Preview {
-    SensorView(sensor: Sensor("Test Sensor"))
+    SensorView(sensor: ControllerState.Sensor("Test Sensor"))
 }

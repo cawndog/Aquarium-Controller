@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct DeviceView: View {
-    @ObservedObject var device: Device
-    var connectedDevice: Device?
-    @EnvironmentObject var network: Network
+    @ObservedObject var device: ControllerState.Device
+    var connectedDevice: ControllerState.Device?
+    @EnvironmentObject var aqController: AqController
     var disabled: Bool = false
-    init(device: Device, connectedDevice: Device?) {
+    init(device: ControllerState.Device, connectedDevice: ControllerState.Device? = nil) {
         self.device = device
         if (connectedDevice != nil) {
             self.connectedDevice = connectedDevice
@@ -24,32 +24,34 @@ struct DeviceView: View {
 
     
     var body: some View {
-        Toggle(isOn: $device.state) {
-            Text(device.name)
-        }.toggleStyle(.switch).disabled(disabled).onChange(of: device.state) {
-            print ("in onChange for " + device.name)
-            
-            if (!device.stateUpdatedByController){
-                if (connectedDevice != nil){
-                    if (device.state == true && connectedDevice?.state == true) {
-                        connectedDevice!.stateUpdatedByController = true
-                        connectedDevice!.state = false
-                    }
-                    
+        if (device.name == "Heater") {
+            LabeledContent(device.name) {
+                if (device.state == true) {
+                    Text("ON")
                 }
-                    
-                
-                
-                Task {
-                    await network.checkToggleChange(device: device)
+                else {
+                    Text("OFF")
                 }
-            } else {
-                device.stateUpdatedByController = false
+                
             }
         }
+        else {
+            Toggle(isOn: Binding(
+                get:{device.state},
+                set:{v in
+                    device.state = v
+                    Task {
+                        await aqController.network.deviceToggleChange(device: device)
+                    }
+                })) {
+                    Text(device.name)
+                }
+        }
+        
     }
 }
 
 #Preview {
-    DeviceView(device: Device("Test Device"), connectedDevice: nil)
+    DeviceView(device: ControllerState.Device("Test Device"), connectedDevice: nil)
+        .environmentObject(AqController())
 }

@@ -30,32 +30,72 @@ import SwiftUI
     }
 }*/
 
-class Device: ObservableObject {
-    var name: String
-    @Published var state: Bool
-    var stateUpdatedByController: Bool
-    
-    init(_ name: String) {
-        self.name = name
-        self.state = false
-        self.stateUpdatedByController = false
-    }
-}
-class Sensor: ObservableObject {
-    var name: String
-    @Published var value: String
-    init(_ name: String) {
-        self.name = name
-        self.value = ""
-    }
-}
+
 class ControllerState: ObservableObject {
+    class Device: ObservableObject {
+        var name: String
+        @Published var state: Bool
+        var stateUpdatedByController: Bool
+        
+        init(_ name: String) {
+            self.name = name
+            self.state = false
+            self.stateUpdatedByController = false
+        }
+    }
+    class Sensor: ObservableObject {
+        var name: String
+        @Published var value: String
+        init(_ name: String) {
+            self.name = name
+            self.value = "NULL"
+        }
+    }
+    class Task: ObservableObject {
+        enum TaskType: String {
+            case SCHEDULED_TASK, SCHEDULED_DEVICE_TASK, TIMED_TASK, Unknown
+            init () {
+                self = .Unknown
+            }
+
+        }
+        var name: String
+        var taskType: TaskType
+        @Published var time: Date
+        @Published var isDisabled: Bool
+        @Published var connectedTask: Task!
+        
+        init(_ name: String) {
+            self.name = name
+            self.time = Date()
+            self.isDisabled = true;
+            //self.taskType = TaskType()
+            //self.taskType = .Unknown
+            self.taskType = .SCHEDULED_DEVICE_TASK
+            self.connectedTask = nil
+        }
+        func setTaskTypeWithString(_ type: String) {
+            switch (type) {
+                case "SCHEDULED_TASK":
+                    self.taskType = .SCHEDULED_TASK
+                case "SCHEDULED_DEVICE_TASK":
+                    self.taskType = .SCHEDULED_DEVICE_TASK
+                case "TIMED_TASK":
+                    self.taskType = .TIMED_TASK
+                default:
+                    self.taskType = .Unknown
+                   
+            }
+        }
+        
+    }
     //@Published var temp: String
     //@Published var tds: String
     @Published var sensors: [Sensor]
     @Published var devices: [Device]
+    @Published var tasks: [Task]
     @Published var maintenanceMode: Bool
-    
+    @Published var aqThermostat: Int
     init() {
         self.sensors = [Sensor.init("Temperature"),
                         Sensor.init("TDS")]
@@ -64,7 +104,11 @@ class ControllerState: ObservableObject {
                         Device.init("CO2"),
                         Device.init("Air Pump"),
                         Device.init("Heater")]
+        self.tasks = []
         maintenanceMode = false
+        aqThermostat = 0
+        
+        
     }
     func getDeviceByName(_ name:String) -> Device {
         for device in devices {
@@ -83,6 +127,15 @@ class ControllerState: ObservableObject {
         }
         self.sensors.append(Sensor.init(name))
         return getSensorByName(name)
+    }
+    func getTaskByName(_ name:String) -> Task {
+        for task in tasks {
+            if (task.name == name) {
+                return task
+            }
+        }
+        self.tasks.append(Task.init(name))
+        return getTaskByName(name)
     }
     func getDevicePosByName(_ name:String) -> Int {
         var i = 0

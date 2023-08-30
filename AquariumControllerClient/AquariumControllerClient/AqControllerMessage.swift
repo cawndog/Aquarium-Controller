@@ -7,27 +7,71 @@
 
 import Foundation
 
-struct AqControllerMessage: Decodable {
-    enum MessageType: String, Decodable {
+class AqControllerMessage: Codable {
+    enum MessageType: String, Codable {
         case Alert, Information, StateUpdate, SettingsUpdate, Unknown
         init () {
             self = .Unknown
         }
     }
-    struct Sensor: Decodable {
-        var name: String
-        var value: String
+    class Sensor: Codable {
+        var name: String = ""
+        var value: String = "0"
+        init() {
+            name = ""
+            value = "0"
+        }
     }
-    struct Device: Decodable {
-        var name: String
-        var state: Bool
+    class Device: Codable {
+        var name: String = ""
+        var state: Bool = false
     }
+    class Task: Codable {
+        enum TaskType: String, Codable {
+            case SCHEDULED_TASK, SCHEDULED_DEVICE_TASK, TIMED_TASK, Unknown
+            init () {
+                self = .Unknown
+            }
+        }
+        var name: String = ""
+        var taskType: TaskType = .Unknown
+        var time: Int = 0
+        var isDisabled: Bool = true
+        var connectedTask: Task?
+        
+        func setTaskTypeWithString(_ type: String) {
+            switch (type) {
+                case "SCHEDULED_TASK":
+                    self.taskType = .SCHEDULED_TASK
+                case "SCHEDULED_DEVICE_TASK":
+                    self.taskType = .SCHEDULED_DEVICE_TASK
+                case "TIMED_TASK":
+                    self.taskType = .TIMED_TASK
+                default:
+                    self.taskType = .Unknown
+            }
+        }
+        
+    }
+    var messageType: MessageType? = .Unknown
+    var message: String?
+    var aqThermostat: Int?
+    var maintenanceMode: Bool?
+    var sensors: [Sensor]?
+    var devices: [Device]?
+    var tasks: [Task]?
     
-    let messageType: MessageType
-    let message: String?
-    let aqThermostat: Int?
-    let maintenanceMode: Bool?
-    let sensors: [Sensor]?
-    let devices: [Device]?
+    func addSensor() {
+        //self.sensors.append(Sensor())
+    }
+    func addTask(_ newTask: AqControllerMessage.Task) {
+        if (tasks?.append(newTask) == nil) {
+            tasks = [newTask]
+        }
+        
+    }
+    /*init(messageType: MessageType) {
+        self.messageType = messageType
+    }*/
     
 }

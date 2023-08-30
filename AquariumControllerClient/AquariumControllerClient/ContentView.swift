@@ -8,11 +8,28 @@
 import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var aqController: AqController
-    @State private var showingPopover = false
+    @State private var selectedTab = "One"
     
-    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    //let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     var body: some View {
-        VStack {
+        //Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+
+        TabView (selection: $selectedTab) {
+            HomeView()
+                //.environmentObject(aqController)
+                .tabItem {
+                    Image(systemName: "house.fill")
+                    Text("Home")
+                }.tag("One")
+            SettingsView(controllerState: aqController.controllerState)
+                //.environmentObject(aqController)
+                .tabItem {
+                    Image(systemName: "gearshape.fill")
+                    Text("Settings")
+                    
+                }.tag("Two")
+        }
+        /*VStack {
             HStack {
                 Spacer()
                 Button {
@@ -37,9 +54,9 @@ struct ContentView: View {
             
             GroupBox(label: Text("Sensors")) {
                 VStack {
-                    SensorView(sensor: currentState.sensors[currentState.getSensorPosByName("Temperature")])
+                  /*  SensorView(sensor: currentState.sensors[currentState.getSensorPosByName("Temperature")])
                     Divider()
-                    SensorView(sensor: currentState.sensors[currentState.getSensorPosByName("TDS")])
+                    SensorView(sensor: currentState.sensors[currentState.getSensorPosByName("TDS")])*/
 
                 }.padding(.horizontal, 20)
                 
@@ -47,16 +64,9 @@ struct ContentView: View {
             
             GroupBox(label: Text("Control Center")) {
                 VStack {
-                    DeviceView(device: currentState.devices[currentState.getDevicePosByName("Lights")], connectedDevice: nil).environmentObject(network)
-                    Divider()
-                    DeviceView(device: currentState.devices[currentState.getDevicePosByName("Air Pump")], connectedDevice: currentState.devices[currentState.getDevicePosByName("CO2")]).environmentObject(network)
-                    Divider()
-                    DeviceView(device: currentState.devices[currentState.getDevicePosByName("CO2")], connectedDevice: currentState.devices[currentState.getDevicePosByName("Air Pump")]).environmentObject(network)
-                    Divider()
-                    DeviceView(device: currentState.devices[currentState.getDevicePosByName("Heater")], connectedDevice: nil).environmentObject(network)
-                    Divider()
-                    DeviceView(device: currentState.devices[currentState.getDevicePosByName("Maintenance Mode")], connectedDevice: nil).environmentObject(network)
-                    Divider()
+                   /* DeviceView(device: currentState.devices[currentState.getDevicePosByName("Lights")], connectedDevice: nil).environmentObject(network)
+                    Divider()*/
+ 
                     
                 }.padding(/*@START_MENU_TOKEN@*/.vertical, 10.0/*@END_MENU_TOKEN@*/).padding(.horizontal, 20)
             }.padding(.horizontal, 20)
@@ -69,13 +79,13 @@ struct ContentView: View {
             //network.getCurrentState()
         //}
         Spacer()
+         */
     }
     
     
 }
 
 struct ContentView_Previews: PreviewProvider {
-
     static var previews: some View {
         ContentView()
             .environmentObject(AqController())

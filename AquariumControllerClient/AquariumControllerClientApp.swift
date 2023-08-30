@@ -9,11 +9,9 @@ import SwiftUI
 
 @main
 struct Aquarium_ControllerApp: App {
-    var aqController: AqController
+    @StateObject var aqController: AqController = AqController()
     //var network: Network
-    init() {
-        aqController = AqController()
-    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

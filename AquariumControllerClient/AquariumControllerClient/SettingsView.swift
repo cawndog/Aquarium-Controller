@@ -9,14 +9,81 @@ import SwiftUI
 import Foundation
 struct SettingsView: View {
     @State var editMode: Bool = false;
-    @EnvironmentObject var network: Network
+    @EnvironmentObject var aqController: AqController
+    @ObservedObject var controllerState: ControllerState
+    
     @State var tempSet: Int = 82
     let tempRange = 64...94
     let tempStep = 1
+    init(controllerState: ControllerState) {
+        self.controllerState = controllerState
+        self.controllerState.getTaskByName("Test Task")
+        
+    }
     //@State var currentDate = Date();
-    
+    //@ObservedObject var controllerState: ControllerState!
     var body: some View {
+        //Text("Hello from settings!")
         NavigationView {
+            List {
+                Section {
+                    NavigationLink {
+                        Text("Thermostat")
+                    } label: {
+                        //Label("Thermostat", systemImage: "thermometer")
+                        LabeledContent {
+                            Text(String(controllerState.aqThermostat) + " °F")
+                        }
+                        label: {
+                            Label("Thermostat", systemImage: "thermometer")
+                        }
+                        
+                    }
+                } header: {
+                    Text("")
+                }
+                Section {
+                    ForEach(controllerState.tasks, id: \.name) { task in
+                        if (task.taskType == .SCHEDULED_DEVICE_TASK) {
+                            SettingsTaskView(task: task)
+                        }
+                    }
+                    
+                } header: {
+                    Text("Device Tasks").textCase(nil).bold()
+                }
+                Section {
+                    ForEach(controllerState.tasks, id: \.name) { task in
+                        if (task.taskType == .SCHEDULED_TASK) {
+                            SettingsTaskView(task: task)
+                        }
+                    }
+                } header: {
+                    Text("Scheduled Tasks").textCase(nil).bold()
+                }
+                Section {
+                    ForEach(controllerState.tasks, id: \.name) { task in
+                        if (task.taskType == .TIMED_TASK) {
+                            SettingsTaskView(task: task)
+                        }
+                    }
+                } header: {
+                    Text("Timed Tasks").textCase(nil).bold()
+                }
+            }
+            .listStyle(.insetGrouped)
+                .navigationTitle("Settings")
+        }
+        
+        /*
+         case "SCHEDULED_TASK":
+             self.taskType = .SCHEDULED_TASK
+         case "SCHEDULED_DEVICE_TASK":
+             self.taskType = .SCHEDULED_DEVICE_TASK
+         case "TIMED_TASK":
+         */
+        
+        /*NavigationView {
 
             Form {
                 Section(header: Text("Thermostat")) {
@@ -90,12 +157,13 @@ struct SettingsView: View {
                 print(comps.minute!)*/
             }
         }
+         */
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView()
-            .environmentObject(Network(currentState: CurrentState()))
+        SettingsView(controllerState: ControllerState())
+            .environmentObject(AqController())
     }
 }

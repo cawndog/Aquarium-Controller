@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D812DD5C2A9A66370034ACBA /* HomeView.swift */; };
 		D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB5D2A0828F700E1C157 /* AquariumControllerClientApp.swift */; };
 		D864CB602A0828F700E1C157 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB5F2A0828F700E1C157 /* ContentView.swift */; };
 		D864CB622A0828F800E1C157 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D864CB612A0828F800E1C157 /* Assets.xcassets */; };
@@ -17,23 +18,32 @@
 		D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6F2A082A1700E1C157 /* SettingsState.swift */; };
 		D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */; };
 		D889B9422A4670820083FA0A /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D889B9412A4670820083FA0A /* DeviceView.swift */; };
+		D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862592A9AD30C006217F6 /* ParametersView.swift */; };
+		D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */; };
+		D8C862612A9D3846006217F6 /* DetailedTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862602A9D3846006217F6 /* DetailedTaskView.swift */; };
+		D8C862632A9D7334006217F6 /* SettingsTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* SettingsTaskView.swift */; };
 		D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FC0CC52A93AB4900CF828C /* AqController.swift */; };
 		D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD39382A4B2B940074B1FD /* SensorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D812DD5C2A9A66370034ACBA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D864CB5A2A0828F700E1C157 /* AquariumControllerClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AquariumControllerClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D864CB5D2A0828F700E1C157 /* AquariumControllerClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AquariumControllerClientApp.swift; sourceTree = "<group>"; };
 		D864CB5F2A0828F700E1C157 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D864CB612A0828F800E1C157 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D864CB632A0828F800E1C157 /* AquariumControllerClient.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AquariumControllerClient.entitlements; sourceTree = "<group>"; };
 		D864CB652A0828F800E1C157 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		D864CB6C2A082A1600E1C157 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		D864CB6C2A082A1600E1C157 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; usesTabs = 0; };
 		D864CB6D2A082A1600E1C157 /* ControllerState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerState.swift; sourceTree = "<group>"; };
 		D864CB6E2A082A1600E1C157 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		D864CB6F2A082A1700E1C157 /* SettingsState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsState.swift; sourceTree = "<group>"; };
 		D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqControllerMessage.swift; sourceTree = "<group>"; };
 		D889B9412A4670820083FA0A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
+		D8C862592A9AD30C006217F6 /* ParametersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersView.swift; sourceTree = "<group>"; };
+		D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlCenterView.swift; sourceTree = "<group>"; };
+		D8C862602A9D3846006217F6 /* DetailedTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedTaskView.swift; sourceTree = "<group>"; };
+		D8C862622A9D7334006217F6 /* SettingsTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTaskView.swift; sourceTree = "<group>"; };
 		D8E7294C2A0D8B5F00634E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8FC0CC52A93AB4900CF828C /* AqController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqController.swift; sourceTree = "<group>"; };
 		D8FD39382A4B2B940074B1FD /* SensorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorView.swift; sourceTree = "<group>"; };
@@ -50,6 +60,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D81EFC4B2A9AC7540072F292 /* HomeView */ = {
+			isa = PBXGroup;
+			children = (
+				D812DD5C2A9A66370034ACBA /* HomeView.swift */,
+				D8C862592A9AD30C006217F6 /* ParametersView.swift */,
+				D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */,
+				D8FD39382A4B2B940074B1FD /* SensorView.swift */,
+				D889B9412A4670820083FA0A /* DeviceView.swift */,
+			);
+			name = HomeView;
+			sourceTree = "<group>";
+		};
 		D864CB512A0828F700E1C157 = {
 			isa = PBXGroup;
 			children = (
@@ -96,11 +118,20 @@
 			isa = PBXGroup;
 			children = (
 				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
-				D889B9412A4670820083FA0A /* DeviceView.swift */,
-				D8FD39382A4B2B940074B1FD /* SensorView.swift */,
-				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
+				D81EFC4B2A9AC7540072F292 /* HomeView */,
+				D8C8625D2A9D0EC8006217F6 /* SettingsView */,
 			);
 			name = Views;
+			sourceTree = "<group>";
+		};
+		D8C8625D2A9D0EC8006217F6 /* SettingsView */ = {
+			isa = PBXGroup;
+			children = (
+				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
+				D8C862622A9D7334006217F6 /* SettingsTaskView.swift */,
+				D8C862602A9D3846006217F6 /* DetailedTaskView.swift */,
+			);
+			name = SettingsView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -176,12 +207,17 @@
 				D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */,
 				D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */,
 				D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */,
+				D8C862612A9D3846006217F6 /* DetailedTaskView.swift in Sources */,
 				D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */,
 				D864CB722A082A1700E1C157 /* Network.swift in Sources */,
+				D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */,
+				D8C862632A9D7334006217F6 /* SettingsTaskView.swift in Sources */,
+				D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
 				D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */,
 				D864CB602A0828F700E1C157 /* ContentView.swift in Sources */,
 				D889B9422A4670820083FA0A /* DeviceView.swift in Sources */,
+				D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */,
 				D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

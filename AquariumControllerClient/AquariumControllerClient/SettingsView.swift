@@ -17,18 +17,20 @@ struct SettingsView: View {
     let tempStep = 1
     init(controllerState: ControllerState) {
         self.controllerState = controllerState
-        self.controllerState.getTaskByName("Test Task")
+        self.controllerState.getTaskByName("Test Task On").connectedTask = ControllerState.Task("Test Task Off")
+        self.controllerState.getTaskByName("Test Task 2 On").connectedTask = ControllerState.Task("Test Task 2 Off")
         
     }
     //@State var currentDate = Date();
     //@ObservedObject var controllerState: ControllerState!
     var body: some View {
         //Text("Hello from settings!")
-        NavigationView {
+        NavigationStack {
             List {
                 Section {
                     NavigationLink {
                         Text("Thermostat")
+                        
                     } label: {
                         //Label("Thermostat", systemImage: "thermometer")
                         LabeledContent {
@@ -45,7 +47,7 @@ struct SettingsView: View {
                 Section {
                     ForEach(controllerState.tasks, id: \.name) { task in
                         if (task.taskType == .SCHEDULED_DEVICE_TASK) {
-                            SettingsTaskView(task: task)
+                            TaskSummaryView(task: task)
                         }
                     }
                     
@@ -55,7 +57,7 @@ struct SettingsView: View {
                 Section {
                     ForEach(controllerState.tasks, id: \.name) { task in
                         if (task.taskType == .SCHEDULED_TASK) {
-                            SettingsTaskView(task: task)
+                            TaskSummaryView(task: task)
                         }
                     }
                 } header: {
@@ -64,7 +66,7 @@ struct SettingsView: View {
                 Section {
                     ForEach(controllerState.tasks, id: \.name) { task in
                         if (task.taskType == .TIMED_TASK) {
-                            SettingsTaskView(task: task)
+                            TaskSummaryView(task: task)
                         }
                     }
                 } header: {

@@ -20,8 +20,9 @@
 		D889B9422A4670820083FA0A /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D889B9412A4670820083FA0A /* DeviceView.swift */; };
 		D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862592A9AD30C006217F6 /* ParametersView.swift */; };
 		D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */; };
-		D8C862612A9D3846006217F6 /* DetailedTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862602A9D3846006217F6 /* DetailedTaskView.swift */; };
-		D8C862632A9D7334006217F6 /* SettingsTaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* SettingsTaskView.swift */; };
+		D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* TaskSummaryView.swift */; };
+		D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */; };
+		D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */; };
 		D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FC0CC52A93AB4900CF828C /* AqController.swift */; };
 		D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD39382A4B2B940074B1FD /* SensorView.swift */; };
 /* End PBXBuildFile section */
@@ -42,8 +43,9 @@
 		D889B9412A4670820083FA0A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
 		D8C862592A9AD30C006217F6 /* ParametersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersView.swift; sourceTree = "<group>"; };
 		D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlCenterView.swift; sourceTree = "<group>"; };
-		D8C862602A9D3846006217F6 /* DetailedTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailedTaskView.swift; sourceTree = "<group>"; };
-		D8C862622A9D7334006217F6 /* SettingsTaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTaskView.swift; sourceTree = "<group>"; };
+		D8C862622A9D7334006217F6 /* TaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSummaryView.swift; sourceTree = "<group>"; };
+		D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailedView.swift; sourceTree = "<group>"; };
+		D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = connectedTaskSummaryView.swift; sourceTree = "<group>"; };
 		D8E7294C2A0D8B5F00634E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8FC0CC52A93AB4900CF828C /* AqController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqController.swift; sourceTree = "<group>"; };
 		D8FD39382A4B2B940074B1FD /* SensorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorView.swift; sourceTree = "<group>"; };
@@ -128,8 +130,9 @@
 			isa = PBXGroup;
 			children = (
 				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
-				D8C862622A9D7334006217F6 /* SettingsTaskView.swift */,
-				D8C862602A9D3846006217F6 /* DetailedTaskView.swift */,
+				D8C862622A9D7334006217F6 /* TaskSummaryView.swift */,
+				D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */,
+				D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */,
 			);
 			name = SettingsView;
 			sourceTree = "<group>";
@@ -207,16 +210,17 @@
 				D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */,
 				D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */,
 				D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */,
-				D8C862612A9D3846006217F6 /* DetailedTaskView.swift in Sources */,
 				D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */,
 				D864CB722A082A1700E1C157 /* Network.swift in Sources */,
 				D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */,
-				D8C862632A9D7334006217F6 /* SettingsTaskView.swift in Sources */,
+				D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */,
 				D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */,
+				D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
 				D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */,
 				D864CB602A0828F700E1C157 /* ContentView.swift in Sources */,
 				D889B9422A4670820083FA0A /* DeviceView.swift in Sources */,
+				D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */,
 				D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */,
 				D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */,
 			);

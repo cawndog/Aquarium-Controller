@@ -195,8 +195,10 @@ class Network: ObservableObject {
             var newTask = AqControllerMessage.Task()
             newTask.name = task.name
             newTask.isDisabled = task.isDisabled
-            taskTime = taskDateComp.hour
-            newTask.time = task.time
+            taskTime = taskDateComp.hour! * 3600
+            taskTime += taskDateComp.minute! * 60
+            taskTime += taskDateComp.second!
+            newTask.time = taskTime
             newMessage.addTask(newTask)
         }
         

@@ -13,8 +13,7 @@
 #include <cstring>
 #include "AqWebServerInterface.h"
 #ifdef useSerial
-  #include <BluetoothSerial.h>
-  extern BluetoothSerial SerialBT;
+  extern BleSerial SerialBT;
 #endif
 
 static class AqWebServer: public AqWebServerInterface {

@@ -3,10 +3,10 @@
 #include "AqController.h"
 #include "AqWebServer.h"
 #ifdef useSerial
-  #include <BluetoothSerial.h>
-  BluetoothSerial SerialBT;
+  #include <BleSerial.h>
+  BleSerial SerialBT;
 #endif
-
+#include <WiFi.h>
 
 
 //-----------------------------Function Declarations-----------------------------
@@ -23,20 +23,30 @@ volatile uint8_t taskInterruptCounter = 0;
 void setup() {
   //http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller
   #ifdef useSerial
-    Serial.begin(19200);
-    SerialBT.setPin("0228");
-    SerialBT.begin("ESP32 Bluetooth");
+    Serial.begin(115200);
+    //SerialBT.setPin("0228");
+    SerialBT.begin("AqController");
   #endif
-
+   /* static constexpr char* ssid = "Pepper";
+    static constexpr char* password = "unlawfulOwl69!";
+    static constexpr char* ntpServer = "pool.ntp.org";
+    static const long  gmtOffset_sec = -25200;
+    static const int   daylightOffset_sec = 3600;
+    */
   //connect to WiFi
+  /*#ifdef useSerial
+    Serial.printf("Connecting to %s ", aqController.ssid);
+    SerialBT.printf("Connecting to %s ", aqController.ssid);
+  #endif*/
   #ifdef useSerial
-    Serial.printf("Connecting to %s ", ssid);
-    SerialBT.printf("Connecting to %s ", ssid);
+    Serial.printf("Connecting to %s ", "Pepper");
+    SerialBT.printf("Connecting to %s ", "Pepper");
   #endif
+  /*WiFi.disconnect();
   WiFi.setHostname("AquariumController");
   WiFi.mode(WIFI_STA);
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
-  WiFi.begin(aqController.ssid, aqController.password);
+  WiFi.begin("Pepper", "unlawfulOwl69!");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
@@ -44,18 +54,18 @@ void setup() {
     Serial.println(" CONNECTED");
     Serial.println(WiFi.localIP());
   #endif
-  
+  /*
   aqController.init(&aqWebServer);
   aqWebServer.updateDynamicIP();
 
   syncSemaphore = xSemaphoreCreateBinary();
   aqController.taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
   timerAttachInterrupt(aqController.taskTimer, &taskTimerInterrupt, true);
-  aqController.scheduleNextTask();
+  aqController.scheduleNextTask();*/
 }
 
 void loop() {
-  xSemaphoreTake(syncSemaphore, portMAX_DELAY);
+  /*xSemaphoreTake(syncSemaphore, portMAX_DELAY);
   //timeinfo = rtc.getTimeStruct();
   while (taskInterruptCounter > 0) {
     portENTER_CRITICAL(&timerMux);
@@ -63,7 +73,7 @@ void loop() {
     portEXIT_CRITICAL(&timerMux);
     aqController.nextTaskWithEvent->doTask();
   }
-  aqController.scheduleNextTask();
+  aqController.scheduleNextTask();*/
 }
 
 
@@ -86,8 +96,8 @@ void printLocalTime()
     return;
   }
   #ifdef useSerial
-    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-    SerialBT.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+    Serial.println(&(aqController.timeinfo), "%A, %B %d %Y %H:%M:%S");
+    SerialBT.println(&(aqController.timeinfo), "%A, %B %d %Y %H:%M:%S");
   #endif
 }
 

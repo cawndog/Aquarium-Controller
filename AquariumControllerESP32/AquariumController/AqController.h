@@ -15,8 +15,8 @@
 
 #define NUM_TASKS 20
 #ifdef useSerial
-  #include <BluetoothSerial.h>
-  BluetoothSerial SerialBT;
+  //#include <BleSerial.h>
+  extern BleSerial SerialBT;
 #endif
 
 class AqController {

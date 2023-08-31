@@ -120,7 +120,7 @@ void AqController::setNextTaskWithEvent() {
     }
   }
   if (nextTaskWithEvent != NULL) { 
-    if (nextTaskWithEvent->getDisabled == true) {
+    if (nextTaskWithEvent->getDisabled() == true) {
       nextTaskWithEvent = NULL;
     }
   }

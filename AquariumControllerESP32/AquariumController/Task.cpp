@@ -77,7 +77,7 @@ void ScheduledTask::initTaskState() {
         this->f();
       }
       else {
-        this->connectedTask->f();
+        this->connectedTask->runF();
       }
     }
     else {
@@ -85,12 +85,15 @@ void ScheduledTask::initTaskState() {
         this->f();
       } 
       else {
-        this->connectedTask->f();
+        this->connectedTask->runF();
       }
     }
   }
 }
 void TimedTask::initTaskState() {}
+void ScheduledTask::runF() {
+  this->f();
+}
 void ScheduledTask::doTask() {
   if (!this->settings.disabled) {
     this->f();
@@ -110,6 +113,9 @@ void ScheduledTask::doTask() {
     this->determineNextRunTime();
   }
   return;
+}
+void TimedTask::runF() {
+  //this->f();
 }
 void TimedTask::doTask() {
   if (!this->settings.disabled) {

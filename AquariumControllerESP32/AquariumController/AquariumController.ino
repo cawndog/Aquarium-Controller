@@ -73,7 +73,7 @@ void IRAM_ATTR taskTimerInterrupt() {
     Serial.println("In taskTimerInterrupt(). Power event triggered.");
     SerialBT.println("In taskTimerInterrupt(). Power event triggered.");
   #endif
-  timerAlarmDisable(powerEventTimer);
+  timerAlarmDisable(aqController.taskTimer);
   xSemaphoreGiveFromISR(syncSemaphore, NULL);
 }
 void printLocalTime()

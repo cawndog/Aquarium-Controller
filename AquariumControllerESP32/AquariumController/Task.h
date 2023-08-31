@@ -32,6 +32,7 @@ class Task {
     virtual void determineNextRunTime() = 0;
     virtual void updateSettings(bool disabled, unsigned long time) = 0;
     virtual void initTaskState() = 0;
+    virtual void runF() = 0;
     void setPrivate();
     String taskTypeToString();
     String getName();
@@ -54,6 +55,7 @@ class ScheduledTask : public Task {
     STSettings settings;*/
     ScheduledTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, AqTaskFunction f = {});
     void doTask();
+    void runF();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);
     void initTaskState(); //For ScheduledTask with a connectedTask (On/Off timer tasks). Inits timer state. 
@@ -71,6 +73,7 @@ class TimedTask : public Task {
     TTSettings settings;*/
     TimedTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, AqTaskFunction f = {});
     void doTask();
+    void runF();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);
     void initTaskState();

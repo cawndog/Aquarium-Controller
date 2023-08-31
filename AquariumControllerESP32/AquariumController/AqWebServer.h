@@ -29,6 +29,7 @@ static class AqWebServer: public AqWebServerInterface {
     void updateDDNS();
     void deviceStateUpdate(Device** devices, int numDevices);
     void sensorReadingUpdate(Sensor* sensor);
+    void updateDynamicIP();
     //void updateSensorValsOnClients(Sensor* sensors[]);
     //void updateDeviceStatesOnClients(TimedDevice* devices[]);
 } aqWebServer;

@@ -20,7 +20,9 @@ class Network: ObservableObject {
     //var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
     let bearerToken: String = "31f18cfbab58825aedebf9d0e14057dc"
-    var AqControllerIP: String = "AquariumController.freeddns.org"
+    //var AqControllerIP: String = "AquariumController.freeddns.org"
+    var AqControllerIP: String = "10.0.0.42"
+    
     init() {
         //self.controllerState = nil
         //self.settingsState = settingsState
@@ -34,7 +36,7 @@ class Network: ObservableObject {
     }
 
     func connectWebSocket() {
-        guard let url = URL(string: "ws://\(AqControllerIP):8080/") else { return }
+        guard let url = URL(string: "ws://\(AqControllerIP):80/") else { return }
         let request = URLRequest(url: url)
         webSocketTask = URLSession.shared.webSocketTask(with: request)
         webSocketTask?.resume()

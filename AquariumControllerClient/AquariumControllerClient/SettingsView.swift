@@ -17,9 +17,9 @@ struct SettingsView: View {
     let tempStep = 1
     init(controllerState: ControllerState) {
         self.controllerState = controllerState
-        self.controllerState.getTaskByName("Test Task On").connectedTask = ControllerState.Task("Test Task Off")
+        /*self.controllerState.getTaskByName("Test Task On").connectedTask = ControllerState.Task("Test Task Off")
         self.controllerState.getTaskByName("Test Task 2 On").connectedTask = ControllerState.Task("Test Task 2 Off")
-        
+        */
     }
     //@State var currentDate = Date();
     //@ObservedObject var controllerState: ControllerState!

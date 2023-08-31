@@ -21,6 +21,7 @@ struct connectedTaskSummaryView: View {
     }
     var body: some View {
         Text(dateFormatter.string(from: task.time))
+        
     }
 }
 

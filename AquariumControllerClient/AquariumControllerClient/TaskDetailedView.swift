@@ -16,7 +16,7 @@ struct TaskDetailedView: View {
       
     }
     var body: some View {
-        NavigationStack {
+        //NavigationStack {
             List {
                 Section {
                     if (task.taskType == .SCHEDULED_DEVICE_TASK || task.taskType == .SCHEDULED_TASK) {
@@ -40,14 +40,10 @@ struct TaskDetailedView: View {
                 }
                 
             }.listStyle(.insetGrouped)
-                .navigationTitle(task.name)
-                .toolbar {
-                    Button("Save", action: {
-                        
-                    })
-                }
+           
+                
             
-        }
+       // }
     }
 }
 

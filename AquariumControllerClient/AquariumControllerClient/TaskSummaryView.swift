@@ -20,43 +20,38 @@ struct TaskSummaryView: View {
         }
     }
     var body: some View {
-        NavigationLink {
-            TaskDetailedView(task: task)
-        } label: {
-            if (task.taskType == .SCHEDULED_DEVICE_TASK || task.taskType == .SCHEDULED_TASK) {
-                LabeledContent {
-                    VStack {
-                        Text(dateFormatter.string(from: task.time))
-                        if (task.connectedTask != nil) {
-                            connectedTaskSummaryView(task: task.connectedTask)
-                        }
+        
+        if (task.taskType == .SCHEDULED_DEVICE_TASK || task.taskType == .SCHEDULED_TASK) {
+            LabeledContent {
+                VStack {
+                    Text(dateFormatter.string(from: task.time))
+                    if (task.connectedTask != nil) {
+                        connectedTaskSummaryView(task: task.connectedTask)
                     }
-                    
                 }
-                label: {
-                    VStack {
-                        Label(task.name, systemImage: "clock")
-                        
-                    }
                 
-                }
-            } else {
-                LabeledContent {
-                    VStack {
-                        Text(dateFormatter.string(from: task.time))
-                    }
+            }
+            label: {
+                VStack {
+                    Label(task.name, systemImage: "clock")
                     
                 }
-                label: {
-                    VStack {
-                        Label(task.name, systemImage: "timer")
-                        
-                    }
-                    
+            
+            }
+        } else {
+            LabeledContent {
+                VStack {
+                    Text(dateFormatter.string(from: task.time))
                 }
             }
+            label: {
+                VStack {
+                    Label(task.name, systemImage: "timer")
+                    
+                }
+                
+            }
         }
-        
     }
 }
 

@@ -23,6 +23,8 @@
 		D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* TaskSummaryView.swift */; };
 		D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */; };
 		D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */; };
+		D8E5715F2A9FC0D000B8EC07 /* HashableClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */; };
+		D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */; };
 		D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FC0CC52A93AB4900CF828C /* AqController.swift */; };
 		D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD39382A4B2B940074B1FD /* SensorView.swift */; };
 /* End PBXBuildFile section */
@@ -46,6 +48,8 @@
 		D8C862622A9D7334006217F6 /* TaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSummaryView.swift; sourceTree = "<group>"; };
 		D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailedView.swift; sourceTree = "<group>"; };
 		D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = connectedTaskSummaryView.swift; sourceTree = "<group>"; };
+		D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashableClass.swift; sourceTree = "<group>"; };
+		D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermostatDetailedView.swift; sourceTree = "<group>"; };
 		D8E7294C2A0D8B5F00634E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8FC0CC52A93AB4900CF828C /* AqController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqController.swift; sourceTree = "<group>"; };
 		D8FD39382A4B2B940074B1FD /* SensorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorView.swift; sourceTree = "<group>"; };
@@ -98,6 +102,7 @@
 				D889B9432A4677070083FA0A /* Views */,
 				D8FC0CC52A93AB4900CF828C /* AqController.swift */,
 				D864CB6D2A082A1600E1C157 /* ControllerState.swift */,
+				D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
 				D864CB6F2A082A1700E1C157 /* SettingsState.swift */,
 				D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */,
@@ -133,6 +138,7 @@
 				D8C862622A9D7334006217F6 /* TaskSummaryView.swift */,
 				D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */,
 				D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */,
+				D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */,
 			);
 			name = SettingsView;
 			sourceTree = "<group>";
@@ -218,10 +224,12 @@
 				D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
 				D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */,
+				D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */,
 				D864CB602A0828F700E1C157 /* ContentView.swift in Sources */,
 				D889B9422A4670820083FA0A /* DeviceView.swift in Sources */,
 				D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */,
 				D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */,
+				D8E5715F2A9FC0D000B8EC07 /* HashableClass.swift in Sources */,
 				D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

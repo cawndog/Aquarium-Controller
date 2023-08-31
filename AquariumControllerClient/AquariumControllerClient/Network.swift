@@ -83,18 +83,32 @@ class Network: ObservableObject {
             }
         }
         if (decodedMessage.messageType == .SettingsUpdate) {
-            controllerState.aqThermostat = decodedMessage.aqThermostat!
-            if (decodedMessage.messageType == .SettingsUpdate) {
-                controllerState.aqThermostat = decodedMessage.aqThermostat!
-                if let tasks = decodedMessage.tasks {
-                    var dateComps = DateComponents()
-                    var hours: Int
-                    var minutes: Int
-                    var seconds: Int
-                    var taskTime: Int
-                    for task in tasks {
-                        var t = controllerState.getTaskByName(task.name)
-                        taskTime = task.time
+            if let thermostat = decodedMessage.aqThermostat {
+                controllerState.aqThermostat = thermostat
+            }
+            if let tasks = decodedMessage.tasks {
+                var dateComps = DateComponents()
+                var hours: Int
+                var minutes: Int
+                var seconds: Int
+                var taskTime: Int
+                for task in tasks {
+                    var t = controllerState.getTaskByName(task.name)
+                    taskTime = task.time
+                    seconds = taskTime%60
+                    taskTime -= seconds
+                    minutes = (taskTime%3600)/60
+                    taskTime -= (minutes*60)
+                    hours = taskTime/3600
+                    dateComps.hour = hours
+                    dateComps.minute = minutes
+                    dateComps.second = seconds
+                    t.time = Calendar.current.date(from: dateComps)!
+                    t.setTaskTypeWithString(task.taskType.rawValue)
+                    t.isDisabled = task.isDisabled
+                    if let connectedTask = task.connectedTask {
+                        t.connectedTask = ControllerState.Task(connectedTask.name)
+                        taskTime = connectedTask.time
                         seconds = taskTime%60
                         taskTime -= seconds
                         minutes = (taskTime%3600)/60
@@ -103,15 +117,13 @@ class Network: ObservableObject {
                         dateComps.hour = hours
                         dateComps.minute = minutes
                         dateComps.second = seconds
-                        t.time = Calendar.current.date(from: dateComps)!
-                        t.setTaskTypeWithString(task.taskType.rawValue)
-                        t.isDisabled = task.isDisabled
+                        t.connectedTask.time = Calendar.current.date(from: dateComps)!
+                        t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
+                        t.connectedTask.isDisabled = connectedTask.isDisabled
                     }
                 }
             }
         }
-        
-        
     }
     func sendMessage(_ message: String) {
         guard let data = message.data(using: .utf8) else { return }
@@ -122,7 +134,7 @@ class Network: ObservableObject {
         }
     }
     func getSettingsState() {
-        guard let controllerState = controllerState else { return }
+        guard let controllerState = self.controllerState else { return }
         guard let url = URL(string: "http://\(AqControllerIP)/getSettingsState") else { fatalError("Missing URL") }
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
@@ -139,7 +151,9 @@ class Network: ObservableObject {
                     do {
                         let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
                         if (decodedMessage.messageType == .SettingsUpdate) {
-                            controllerState.aqThermostat = decodedMessage.aqThermostat!
+                            if let thermostat = decodedMessage.aqThermostat {
+                                controllerState.aqThermostat = thermostat
+                            }
                             if let tasks = decodedMessage.tasks {
                                 var dateComps = DateComponents()
                                 var hours: Int
@@ -160,6 +174,21 @@ class Network: ObservableObject {
                                     t.time = Calendar.current.date(from: dateComps)!
                                     t.setTaskTypeWithString(task.taskType.rawValue)
                                     t.isDisabled = task.isDisabled
+                                    if let connectedTask = task.connectedTask {
+                                        t.connectedTask = ControllerState.Task(connectedTask.name)
+                                        taskTime = connectedTask.time
+                                        seconds = taskTime%60
+                                        taskTime -= seconds
+                                        minutes = (taskTime%3600)/60
+                                        taskTime -= (minutes*60)
+                                        hours = taskTime/3600
+                                        dateComps.hour = hours
+                                        dateComps.minute = minutes
+                                        dateComps.second = seconds
+                                        t.connectedTask.time = Calendar.current.date(from: dateComps)!
+                                        t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
+                                        t.connectedTask.isDisabled = connectedTask.isDisabled
+                                    }
                                 }
                             }
                         }
@@ -183,7 +212,7 @@ class Network: ObservableObject {
          
     }
     func setSettingsState() async {
-        guard let controllerState = controllerState else { return }
+        guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
         newMessage.messageType = .SettingsUpdate
         newMessage.aqThermostat = controllerState.aqThermostat
@@ -199,6 +228,17 @@ class Network: ObservableObject {
             taskTime += taskDateComp.minute! * 60
             taskTime += taskDateComp.second!
             newTask.time = taskTime
+            
+            if (task.connectedTask != nil) {
+                newTask.connectedTask = AqControllerMessage.Task()
+                newTask.connectedTask!.name = task.connectedTask.name
+                newTask.connectedTask!.isDisabled = task.connectedTask.isDisabled
+                taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
+                taskTime = taskDateComp.hour! * 3600
+                taskTime += taskDateComp.minute! * 60
+                taskTime += taskDateComp.second!
+                newTask.connectedTask!.time = taskTime
+            }
             newMessage.addTask(newTask)
         }
         
@@ -221,7 +261,7 @@ class Network: ObservableObject {
         }
     }
     func getCurrentState() {
-        guard let controllerState = controllerState else { return }
+        guard let controllerState = self.controllerState else { return }
         guard let url = URL(string: "http://\(AqControllerIP)/getCurrentState") else { fatalError("Missing URL") }
         
         var urlRequest = URLRequest(url: url)
@@ -294,7 +334,7 @@ class Network: ObservableObject {
     }
     func deviceToggleChange(device: ControllerState.Device) async {
         print("deviceToggleChange() called for " + device.name)
-        guard let controllerState = controllerState else { return }
+        guard let controllerState = self.controllerState else { return }
         //guard (!device.stateUpdatedByController) else {device.stateUpdatedByController = false; return}
         guard let encoded = try? JSONEncoder().encode("") else {
             print("Failed to encode JSON")

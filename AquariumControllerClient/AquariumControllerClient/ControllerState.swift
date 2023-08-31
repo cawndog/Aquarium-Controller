@@ -51,7 +51,8 @@ class ControllerState: ObservableObject {
             self.value = "NULL"
         }
     }
-    class Task: ObservableObject {
+    class Task: HashableClass, Identifiable, ObservableObject {
+       
         enum TaskType: String {
             case SCHEDULED_TASK, SCHEDULED_DEVICE_TASK, TIMED_TASK, Unknown
             init () {
@@ -59,6 +60,7 @@ class ControllerState: ObservableObject {
             }
 
         }
+        var id: String
         var name: String
         var taskType: TaskType
         @Published var time: Date
@@ -66,6 +68,7 @@ class ControllerState: ObservableObject {
         @Published var connectedTask: Task!
         
         init(_ name: String) {
+            self.id = name
             self.name = name
             self.time = Date()
             self.isDisabled = true;

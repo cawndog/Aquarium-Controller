@@ -28,26 +28,23 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section {
-                    NavigationLink {
-                        Text("Thermostat")
-                        
-                    } label: {
-                        //Label("Thermostat", systemImage: "thermometer")
+                    NavigationLink (value: "Thermostat") {
                         LabeledContent {
                             Text(String(controllerState.aqThermostat) + " °F")
                         }
                         label: {
                             Label("Thermostat", systemImage: "thermometer")
                         }
-                        
                     }
                 } header: {
                     Text("")
                 }
                 Section {
-                    ForEach(controllerState.tasks, id: \.name) { task in
+                    ForEach(controllerState.tasks) { task in
                         if (task.taskType == .SCHEDULED_DEVICE_TASK) {
-                            TaskSummaryView(task: task)
+                            NavigationLink(value: task) {
+                                TaskSummaryView(task: task)
+                            }
                         }
                     }
                     
@@ -55,26 +52,58 @@ struct SettingsView: View {
                     Text("Device Tasks").textCase(nil).bold()
                 }
                 Section {
-                    ForEach(controllerState.tasks, id: \.name) { task in
+                    ForEach(controllerState.tasks) { task in
                         if (task.taskType == .SCHEDULED_TASK) {
-                            TaskSummaryView(task: task)
+                            NavigationLink(value: task) {
+                                TaskSummaryView(task: task)
+                            }
                         }
                     }
                 } header: {
                     Text("Scheduled Tasks").textCase(nil).bold()
                 }
                 Section {
-                    ForEach(controllerState.tasks, id: \.name) { task in
+                    ForEach(controllerState.tasks) { task in
                         if (task.taskType == .TIMED_TASK) {
-                            TaskSummaryView(task: task)
+                            NavigationLink(value: task) {
+                                TaskSummaryView(task: task)
+                            }
                         }
                     }
                 } header: {
                     Text("Timed Tasks").textCase(nil).bold()
                 }
             }
+            .navigationDestination(for: ControllerState.Task.self) { task in
+                TaskDetailedView(task: task)
+                    .navigationTitle(task.name)
+                    .toolbar {
+                        Button("Save", action: {
+                            Task{
+                                await aqController.network.setSettingsState()
+                            }
+
+                        })
+                    }
+            }
+            .navigationDestination(for: String.self) { string in
+                ThermostatDetailedView(controllerState: aqController.controllerState)
+                    .navigationTitle(string)
+                    .toolbar {
+                        Button("Save", action: {
+                            Task{
+                                await aqController.network.setSettingsState()
+                            }
+                            
+                        })
+                    }
+            }
+            
             .listStyle(.insetGrouped)
-                .navigationTitle("Settings")
+            .navigationTitle("Settings")
+        }
+        .onAppear {
+            aqController.network.getSettingsState()
         }
         
         /*

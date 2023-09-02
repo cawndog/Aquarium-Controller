@@ -14,8 +14,8 @@
 
 
 #define NUM_TASKS 20
-#ifdef useSerial
-  //#include <BleSerial.h>
+#ifdef useSerialBT
+  #include <BleSerial.h>  
   extern BleSerial SerialBT;
 #endif
 

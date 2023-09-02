@@ -8,16 +8,18 @@
 // Variable to store the HTTP request
 
 
-const char* http_username = "admin";
-const char* http_password = "esp32";
+//const char* http_username = "admin";
+//const char* http_password = "esp32";
 // allows you to set the realm of authentication Default:"Login Required"
-const char* www_realm = "Custom Auth Realm";
+//const char* www_realm = "Custom Auth Realm";
 // the Content of the HTML response in case of Unautherized Access Default:empty
 String authFailResponse = "Authentication Failed";
-String header;
+//String header;
 
 
-AqWebServer::AqWebServer(): server(80), ws("/ws") {
+//AqWebServer::AqWebServer(int port, const char* path): server(port), ws(path) {
+  AqWebServer::AqWebServer(int port): server(port), ws("/ws") {
+    
   //server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     //if (!request->authenticate(http_username, http_password))
     //{
@@ -167,6 +169,8 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
     
     #ifdef useSerial
       Serial.println(response);
+    #endif
+    #ifdef useSerialBT
       SerialBT.println(response);
     #endif
     request->send(200, "application/json", response);
@@ -202,7 +206,7 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
     request->send(200, "application/json", response);
   });
   
-  AsyncCallbackJsonWebHandler* setSettingsHandler = new AsyncCallbackJsonWebHandler("/setSettingsState", [&](AsyncWebServerRequest *request, JsonVariant &json) {
+  setSettingsHandler = new AsyncCallbackJsonWebHandler("/setSettingsState", [&](AsyncWebServerRequest *request, JsonVariant &json) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -233,6 +237,8 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
     serializeJson(body, response);
     #ifdef useSerial
       Serial.println(response);
+    #endif
+    #ifdef useSerialBT
       SerialBT.println(response);
     #endif
 
@@ -248,36 +254,47 @@ AqWebServer::AqWebServer(): server(80), ws("/ws") {
   //init web socket
   ws.onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
              void *arg, uint8_t *data, size_t len) {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      //ws.text(client->id(), "connected");
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
-      break;
-    case WS_EVT_DATA:
-      handleWebSocketMessage(arg, data, len);
-      break;
-    case WS_EVT_PONG:
-    case WS_EVT_ERROR:
-      break;
-  }
-});
-  server.addHandler(&ws);
-
+    switch (type) {
+      case WS_EVT_CONNECT:
+        #ifdef useSerial
+          Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+        #endif
+        //ws.text(client->id(), "connected");
+        break;
+      case WS_EVT_DISCONNECT:
+        #ifdef useSerial
+          Serial.printf("WebSocket client #%u disconnected\n", client->id());
+        #endif
+        break;
+      case WS_EVT_DATA:
+        //handleWebSocketMessage(arg, data, len);
+        break;
+      case WS_EVT_PONG:
+      case WS_EVT_ERROR:
+        break;
+    }
+  });
+  server.addHandler(&(this->ws));
+  
   //AsyncElegantOTA.begin(&server);    // Start AsyncElegantOTA
   server.begin();
   #ifdef useSerial
     Serial.println("HTTP server started");
+  #endif
+  #ifdef useSerialBT
     SerialBT.println("HTTP server started");
   #endif
 }
 bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
-  bool authFailed = false;
+  bool authFailed = true;
   if (request->hasHeader("Authorization")) {
     AsyncWebHeader *header = request->getHeader("Authorization");
-    char *AuthStr = strdup(header->value().c_str());
+    String authString = header->value();
+    String requiredValue = "Bearer 31f18cfbab58825aedebf9d0e14057dc";
+    if (authString == requiredValue) {
+      authFailed = false;
+    }
+    /*char *AuthStr = strdup(header->value().c_str());
     char *savePtr;
     char *token;
     token = strtok_r(AuthStr, " ", &savePtr);
@@ -303,11 +320,14 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
   if (authFailed) {
     request->send(401, "text/plain", "Authorization Failed.");
   }
+  */
+  }
   return authFailed;
 }
-void AqWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
+AqWebServer::~AqWebServer() {}
+/*void AqWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 
-}
+}*/
 void AqWebServer::updateDDNS() {
 
 }
@@ -323,11 +343,14 @@ void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
   
   #ifdef useSerial
     Serial.println(message);
+  #endif
+  #ifdef useSerialBT
     SerialBT.println(message);
   #endif
-  ws.textAll(message);
+  //ws.textAll(message);
 }
 void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
+  
   DynamicJsonDocument body(1024);
   body["messageType"] = "StateUpdate";
   body["sensors"][1]["name"] = sensor->name;
@@ -338,9 +361,12 @@ void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
   
   #ifdef useSerial
     Serial.println(message);
+  #endif
+  #ifdef useSerialBT
     SerialBT.println(message);
   #endif
-  ws.textAll(message);
+  //ws.textAll(message);
+  
 }
 void AqWebServer::updateDynamicIP() {
   HTTPClient http;

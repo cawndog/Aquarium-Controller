@@ -62,9 +62,11 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
 
 float HardwareInterface::readTdsSensor(float temperature) {
   temperature = (temperature - 32.0)*(5.0/9.0); //convert temp to Celsius
-    #ifdef useSerial
+  #ifdef useSerial
     Serial.print("Reading TDS. Temp passed in: ");
     Serial.println(temperature);
+  #endif
+  #ifdef useSerialBT
     SerialBT.print("Reading TDS. Temp passed in: ");
     SerialBT.println(temperature);
   #endif

@@ -1,6 +1,6 @@
 #ifndef SWITCH_H
 #define SWITCH_H
-#include <Servo.h>
+#include <ESP32Servo.h>
 #include <Preferences.h>
 #include "AquariumController.h"
 //--Servo Motor Positions--

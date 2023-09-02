@@ -2,7 +2,7 @@
 
 #include "AqController.h"
 #include "AqWebServer.h"
-#ifdef useSerial
+#ifdef useSerialBT
   #include <BleSerial.h>
   BleSerial SerialBT;
 #endif
@@ -24,15 +24,17 @@ void setup() {
   //http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller
   #ifdef useSerial
     Serial.begin(115200);
+  #endif
+  #ifdef useSerialBT
     //SerialBT.setPin("0228");
     SerialBT.begin("AqController");
   #endif
-   /* static constexpr char* ssid = "Pepper";
+    static constexpr char* ssid = "Pepper";
     static constexpr char* password = "unlawfulOwl69!";
     static constexpr char* ntpServer = "pool.ntp.org";
     static const long  gmtOffset_sec = -25200;
     static const int   daylightOffset_sec = 3600;
-    */
+  
   //connect to WiFi
   /*#ifdef useSerial
     Serial.printf("Connecting to %s ", aqController.ssid);
@@ -40,9 +42,11 @@ void setup() {
   #endif*/
   #ifdef useSerial
     Serial.printf("Connecting to %s ", "Pepper");
+  #endif
+  #ifdef useSerialBT
     SerialBT.printf("Connecting to %s ", "Pepper");
   #endif
-  /*WiFi.disconnect();
+  WiFi.disconnect(true);
   WiFi.setHostname("AquariumController");
   WiFi.mode(WIFI_STA);
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
@@ -54,7 +58,10 @@ void setup() {
     Serial.println(" CONNECTED");
     Serial.println(WiFi.localIP());
   #endif
+  //AqWebServer aqWebServer(80, "/ws");
+  AqWebServer aqWebServer(80);
   /*
+  
   aqController.init(&aqWebServer);
   aqWebServer.updateDynamicIP();
 
@@ -65,6 +72,10 @@ void setup() {
 }
 
 void loop() {
+  #ifdef useSerial
+    Serial.println("Hi");
+    delay(3000);
+  #endif
   /*xSemaphoreTake(syncSemaphore, portMAX_DELAY);
   //timeinfo = rtc.getTimeStruct();
   while (taskInterruptCounter > 0) {
@@ -81,6 +92,8 @@ void IRAM_ATTR taskTimerInterrupt() {
   taskInterruptCounter++;
   #ifdef useSerial
     Serial.println("In taskTimerInterrupt(). Power event triggered.");
+  #endif
+  #ifdef useSerialBT
     SerialBT.println("In taskTimerInterrupt(). Power event triggered.");
   #endif
   timerAlarmDisable(aqController.taskTimer);
@@ -91,12 +104,16 @@ void printLocalTime()
   if(!getLocalTime(&aqController.timeinfo)){
     #ifdef useSerial
       Serial.println("Failed to obtain time");
+    #endif
+    #ifdef useSerialBT
       SerialBT.println("Failed to obtain time");
     #endif
     return;
   }
   #ifdef useSerial
     Serial.println(&(aqController.timeinfo), "%A, %B %d %Y %H:%M:%S");
+  #endif
+  #ifdef useSerialBT
     SerialBT.println(&(aqController.timeinfo), "%A, %B %d %Y %H:%M:%S");
   #endif
 }

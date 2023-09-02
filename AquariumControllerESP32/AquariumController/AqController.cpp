@@ -130,6 +130,8 @@ void AqController::scheduleNextTask() {
   //timerAlarmEnable(aqController.taskTimer);
   #ifdef useSerial 
     Serial.println("Scheduling next task.");
+  #endif
+  #ifdef useSerialBT
     SerialBT.println("Scheduling next task.");
   #endif
   setNextTaskWithEvent();

@@ -1,6 +1,7 @@
 #ifndef AQUARIUMCONTROLLER_H
 #define AQUARIUMCONTROLLER_H
 #define useSerial
+//#define useSerialBT
 //Pins
 #define TDS_SENSOR_PIN 35
 #define TEMP_SENSOR_PIN 13

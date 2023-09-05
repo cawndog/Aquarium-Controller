@@ -21,11 +21,13 @@
   extern AqController aqController;
 class AqWebServer: public AqWebServerInterface {
   public: 
-    AsyncWebServer server;
-    AsyncWebSocket ws;
+    AsyncWebServer* server;
+    AsyncWebSocket* ws;
     AsyncCallbackJsonWebHandler* setSettingsHandler;
+    AsyncCallbackJsonWebHandler* setDeviceStateHandler;
     //AqWebServer(int port, const char* path);
-    AqWebServer(int port);
+    AqWebServer();
+    void init();
     ~AqWebServer();
     //void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
     //void webServerSetup();
@@ -34,6 +36,8 @@ class AqWebServer: public AqWebServerInterface {
     void deviceStateUpdate(Device** devices, int numDevices);
     void sensorReadingUpdate(Sensor* sensor);
     void updateDynamicIP();
+    bool processAqControllerMessage(JsonVariant &json);
+
     //void updateSensorValsOnClients(Sensor* sensors[]);
     //void updateDeviceStatesOnClients(TimedDevice* devices[]);
 };

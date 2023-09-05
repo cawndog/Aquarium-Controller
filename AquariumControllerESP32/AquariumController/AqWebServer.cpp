@@ -18,9 +18,13 @@ String authFailResponse = "Authentication Failed";
 
 
 //AqWebServer::AqWebServer(int port, const char* path): server(port), ws(path) {
-  AqWebServer::AqWebServer(int port): server(port), ws("/ws") {
-    
-  //server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+  AqWebServer::AqWebServer() {
+    this->server = new AsyncWebServer(80);
+    this->ws = new AsyncWebSocket("/ws");
+  }
+  void AqWebServer::init() {
+
+  //server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     //if (!request->authenticate(http_username, http_password))
     //{
       //return request->requestAuthentication();
@@ -28,7 +32,7 @@ String authFailResponse = "Authentication Failed";
     //request->send(200, "text/plain", "Temp: " + String(aquariumTemp) + " TDS: " + String(tdsVal));
     //request->send(200, "text/html", HTML_home);
   //});
-  server.on("/restart", HTTP_GET, [&](AsyncWebServerRequest *request) {
+  server->on("/restart", HTTP_GET, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -37,7 +41,7 @@ String authFailResponse = "Authentication Failed";
     delay(15);
     ESP.restart();
   });
-  server.on("/co2On", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/co2On", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -45,7 +49,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200);
     aqController.co2.setStateOn();
   });
-  server.on("/co2Off", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/co2Off", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -53,7 +57,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200);
     aqController.co2.setStateOff();
   });
-  server.on("/airOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/airOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -61,7 +65,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200);
     aqController.airPump.setStateOn();
   });
-  server.on("/airOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/airOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -69,7 +73,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200);
     aqController.airPump.setStateOff();
   });
-  server.on("/lightsOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/lightsOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -77,7 +81,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200);
     aqController.lights.setStateOn();
   });
-  server.on("/lightsOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/lightsOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -85,7 +89,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200);
     aqController.lights.setStateOff();
   });
-  server.on("/heaterOff", HTTP_GET, [&](AsyncWebServerRequest *request) {
+  server->on("/heaterOff", HTTP_GET, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -93,7 +97,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200, "text/plain", "Heater Control Off");
     aqController.heater.setStateOff();
   });
-  server.on("/heaterOn", HTTP_GET, [&](AsyncWebServerRequest *request) {
+  server->on("/heaterOn", HTTP_GET, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -101,7 +105,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200, "text/plain", "Heater Control On");
     aqController.heater.setStateOn();
   });
-  server.on("/filterOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/filterOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -109,7 +113,7 @@ String authFailResponse = "Authentication Failed";
     request->send(200);
     aqController.filter.setStateOff();
   });
-  server.on("/filterOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/filterOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -121,7 +125,7 @@ String authFailResponse = "Authentication Failed";
       request->send(409);
     }
   });
-  server.on("/maintOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/maintOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -131,7 +135,7 @@ String authFailResponse = "Authentication Failed";
     aqController.filter.setStateOff();
     aqController.heater.setStateOff();
   });
-  server.on("/maintOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
+  server->on("/maintOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
@@ -140,7 +144,7 @@ String authFailResponse = "Authentication Failed";
     aqController.maintMode = false;
     aqController.filter.setStateOn();
   });
-  server.on("/getCurrentState", HTTP_GET, [&](AsyncWebServerRequest *request) {
+  server->on("/getCurrentState", HTTP_GET, [&](AsyncWebServerRequest *request) {
     //AsyncResponseStream *response = request->beginResponseStream("application/json");
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
@@ -176,13 +180,14 @@ String authFailResponse = "Authentication Failed";
     request->send(200, "application/json", response);
   });
 
-  server.on("/getSettingsState", HTTP_GET, [&](AsyncWebServerRequest *request) {
+  server->on("/getSettingsState", HTTP_GET, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
       return;
     }
 
     DynamicJsonDocument body(1024);
+    body["messageType"] = "SettingsUpdate";
     body["aqThermostat"] = aqController.aqThermostat;
   
     for (int i = 0; aqController.tasks[i] != NULL; i++) {
@@ -212,6 +217,10 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     JsonObject body = json.as<JsonObject>();
+    #ifdef useSerial
+      Serial.println("in setSettingsHandler");
+      body.printTo(Serial);
+    #endif
     if (body.containsKey("aqThermostat")) {
       aqController.aqThermostat = short(body["aqThermostat"]);
       aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
@@ -233,33 +242,46 @@ String authFailResponse = "Authentication Failed";
     aqController.initScheduledDeviceTaskStates();
     aqController.scheduleNextTask();
 
-    String response = "";
-    serializeJson(body, response);
-    #ifdef useSerial
-      Serial.println(response);
-    #endif
-    #ifdef useSerialBT
-      SerialBT.println(response);
-    #endif
-
-    request->send(200, "application/json", response);
+    request->send(200, "application/text", "setSettingsState succeeded.");
     
   });
-  server.addHandler(setSettingsHandler);
-
-  server.onNotFound([&](AsyncWebServerRequest *request) {
+  server->addHandler(setSettingsHandler);
+  setDeviceStateHandler = new AsyncCallbackJsonWebHandler("/setDeviceState", [&](AsyncWebServerRequest *request, JsonVariant &json) {
+    bool authFailed = checkAuthorization(request);
+    if (authFailed) {
+      return;
+    }
+    JsonObject body = json.as<JsonObject>();
+    if (body.containsKey("devices")) {
+      if (body["devices"].size() > 0) {
+        Device* deviceToSet = aqController.getDeviceByName(body["devices"][0]["name"]);
+        if (deviceToSet != NULL) {
+          if (body["devices"][0]["state"] == true) {
+            deviceToSet->setStateOn();
+          }
+          else {
+            deviceToSet->setStateOff();
+          }
+        }
+      }
+    }
+    request->send(200, "text/plain", "setDeviceOn Succeeded");
+    
+  });
+  server->addHandler(setDeviceStateHandler);
+  server->onNotFound([&](AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
   });  
 
   //init web socket
-  ws.onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+  ws->onEvent([&](AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
              void *arg, uint8_t *data, size_t len) {
     switch (type) {
       case WS_EVT_CONNECT:
         #ifdef useSerial
           Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
         #endif
-        //ws.text(client->id(), "connected");
+        //ws->text(client->id(), "connected");
         break;
       case WS_EVT_DISCONNECT:
         #ifdef useSerial
@@ -274,10 +296,10 @@ String authFailResponse = "Authentication Failed";
         break;
     }
   });
-  server.addHandler(&(this->ws));
+  server->addHandler(ws);
   
   //AsyncElegantOTA.begin(&server);    // Start AsyncElegantOTA
-  server.begin();
+  server->begin();
   #ifdef useSerial
     Serial.println("HTTP server started");
   #endif
@@ -291,9 +313,21 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
     AsyncWebHeader *header = request->getHeader("Authorization");
     String authString = header->value();
     String requiredValue = "Bearer 31f18cfbab58825aedebf9d0e14057dc";
-    if (authString == requiredValue) {
-      authFailed = false;
+    if (authString != requiredValue) {
+      #ifdef useSerial
+        Serial.print("Auth failed. Bad auth string: ");
+        Serial.println(authString);
+      #endif
+      request->send(401, "text/plain", "Authorization Failed.");
+      authFailed = true;
     }
+    else {
+      authFailed = false;
+      #ifdef useSerial
+        Serial.println("Auth Succeeded.");
+      #endif
+    }
+
     /*char *AuthStr = strdup(header->value().c_str());
     char *savePtr;
     char *token;
@@ -321,7 +355,14 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
     request->send(401, "text/plain", "Authorization Failed.");
   }
   */
+  } else {
+    #ifdef useSerial
+      Serial.println("Auth failed. No auth header.");
+    #endif
+    request->send(401, "text/plain", "Authorization Failed.");
+    authFailed = true;
   }
+
   return authFailed;
 }
 AqWebServer::~AqWebServer() {}
@@ -342,30 +383,32 @@ void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
   serializeJson(body, message);
   
   #ifdef useSerial
+  Serial.println("In deviceStateUpdate()");
     Serial.println(message);
   #endif
   #ifdef useSerialBT
     SerialBT.println(message);
   #endif
-  //ws.textAll(message);
+  ws->textAll(message);
 }
 void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
   
   DynamicJsonDocument body(1024);
   body["messageType"] = "StateUpdate";
-  body["sensors"][1]["name"] = sensor->name;
-  body["sensors"][1]["value"] = sensor->getValue();
+  body["sensors"][0]["name"] = sensor->name;
+  body["sensors"][0]["value"] = sensor->getValue();
 
   String message;
   serializeJson(body, message);
   
   #ifdef useSerial
+    Serial.println("In sensorReadingUpdate()");
     Serial.println(message);
   #endif
   #ifdef useSerialBT
     SerialBT.println(message);
   #endif
-  //ws.textAll(message);
+  ws->textAll(message);
   
 }
 void AqWebServer::updateDynamicIP() {
@@ -373,6 +416,66 @@ void AqWebServer::updateDynamicIP() {
   http.begin("http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller");
   http.GET();
   http.end();
+}
+bool processAqControllerMessage(JsonVariant &json) {
+  JsonObject body = json.as<JsonObject>();
+  if (body.containsKey("messageType")) {
+    if (body["messageType"] == "StateUpdate") {
+      if (body.containsKey("devices")) {
+        if (body["devices"].size() > 0) {
+          Device* deviceToSet = aqController.getDeviceByName(body["devices"][0]["name"]);
+          if (deviceToSet != NULL) {
+            if (body["devices"][0]["state"] == true) {
+              deviceToSet->setStateOn();
+            }
+            else {
+              deviceToSet->setStateOff();
+            }
+          }
+        }
+      }
+      if (body.containsKey("maintenanceMode")) {
+        if (body["maintenanceMode"] == true) {
+          aqController.maintMode = true;
+          aqController.filter.setStateOff();
+          aqController.heater.setStateOff();
+        }
+        else {
+          aqController.maintMode = false;
+          aqController.filter.setStateOn();
+          aqController.aqTemperature.readSensor();
+        }
+      }
+    }
+    else if (body["messageType"] == "SettingsUpdate") {
+      if (body.containsKey("aqThermostat")) {
+        aqController.aqThermostat = short(body["aqThermostat"]);
+        aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
+      }
+      const int numTasks = body["tasks"].size();
+      for (int i = 0; i < numTasks; i++) {
+        Task* task = aqController.getTaskByName(body["tasks"][i]["name"]);
+        if (task != NULL) {
+          task->updateSettings(body["tasks"][i]["isDisabled"], body["tasks"][i]["time"]);
+          if (body["tasks"][i].containsKey("connectedTask")) {
+            task = aqController.getTaskByName(body["tasks"][i]["connectedTask"]["name"]);
+            if (task != NULL) {
+              task->updateSettings(body["tasks"][i]["connectedTask"]["isDisabled"], body["tasks"][i]["connectedTask"]["time"]);
+            }
+          }
+        } 
+      }
+      aqController.aqTemperature.readSensor();
+      aqController.initScheduledDeviceTaskStates();
+      aqController.scheduleNextTask();
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+  return true;
+
 }
 
 /*struct WebSocketMessageJSON: Decodable {

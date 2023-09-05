@@ -5,6 +5,7 @@
   this->valueUpdated = false;
 }*/
 TdsSensor::TdsSensor() {
+    //webSocketUpdateState = [](Sensor* sensor){};
     webSocketUpdateState = {};
     this->value = "0.0";
     this->prevValue = "0.0";
@@ -19,13 +20,23 @@ AquariumTemperatureSensor::AquariumTemperatureSensor() {
 void Sensor::init(String name, HardwareInterface* hardwareInterface, AqWebServerFunction webSocketUpdateState) {
     this->name = name;
     this->hardwareInterface = hardwareInterface;
+    this->webSocketUpdateState = webSocketUpdateState;
 }
 void TdsSensor::init(String name, HardwareInterface* hardwareInterface, AquariumTemperatureSensor* aqTempSensor, AqWebServerFunction webSocketUpdateState) {
     this->name = name;
     this->hardwareInterface = hardwareInterface;
     this->aqTempSensor = aqTempSensor;
+    this->webSocketUpdateState = webSocketUpdateState;
+}
+void AquariumTemperatureSensor::init(String name, HardwareInterface* hardwareInterface, AqWebServerFunction webSocketUpdateState) {
+    this->name = name;
+    this->hardwareInterface = hardwareInterface;
+    this->webSocketUpdateState = webSocketUpdateState;
 }
 String TdsSensor::getValue() {
+    return this->value;
+}
+String AquariumTemperatureSensor::getValue() {
     return this->value;
 }
 void TdsSensor::readSensor() {
@@ -38,8 +49,6 @@ void AquariumTemperatureSensor::readSensor() {
     this->value = String(this->hardwareInterface->readAquariumTemperatureSensor(), 1);
     this->webSocketUpdateState(this);
 }
-String AquariumTemperatureSensor::getValue() {
-    return this->value;
-}
+
 
 

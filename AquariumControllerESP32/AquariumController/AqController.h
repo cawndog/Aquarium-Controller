@@ -39,10 +39,10 @@ class AqController {
     Device co2;
     Device airPump;
     Device filter;
-    //Device** allDevices;
-
+    Device* devices[5] = {&heater, &lights, &co2, &airPump, &filter};
     TdsSensor tds;
     AquariumTemperatureSensor aqTemperature;
+    Sensor* sensors[2] = {&aqTemperature, &tds};
     short aqThermostat;
     Task* tasks[NUM_TASKS];
     Task* nextTaskWithEvent;
@@ -52,9 +52,9 @@ class AqController {
     void initScheduledDeviceTaskStates();
     void setNextTaskWithEvent();
     void scheduleNextTask();
+    Device* getDeviceByName(String devName);
+    Sensor* getSensorByName(String sensorName);
   };
-
-  static AqController aqController;
 
 
 #endif

@@ -19,6 +19,8 @@ volatile SemaphoreHandle_t syncSemaphore;
 hw_timer_t* taskTimer;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint8_t taskInterruptCounter = 0;
+AqController aqController;
+AqWebServer aqWebServer;
 
 void setup() {
   //http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller
@@ -29,11 +31,11 @@ void setup() {
     //SerialBT.setPin("0228");
     SerialBT.begin("AqController");
   #endif
-    static constexpr char* ssid = "Pepper";
-    static constexpr char* password = "unlawfulOwl69!";
-    static constexpr char* ntpServer = "pool.ntp.org";
-    static const long  gmtOffset_sec = -25200;
-    static const int   daylightOffset_sec = 3600;
+    const char* ssid = "Pepper";
+    const char* password = "unlawfulOwl69!";
+    const char* ntpServer = "pool.ntp.org";
+    const long  gmtOffset_sec = -25200;
+    const int   daylightOffset_sec = 3600;
   
   //connect to WiFi
   /*#ifdef useSerial
@@ -59,24 +61,26 @@ void setup() {
     Serial.println(WiFi.localIP());
   #endif
   //AqWebServer aqWebServer(80, "/ws");
-  AqWebServer aqWebServer(80);
-  /*
+  aqWebServer.init();
+  
   
   aqController.init(&aqWebServer);
+  
   aqWebServer.updateDynamicIP();
 
   syncSemaphore = xSemaphoreCreateBinary();
-  aqController.taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
+  /*aqController.taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
   timerAttachInterrupt(aqController.taskTimer, &taskTimerInterrupt, true);
   aqController.scheduleNextTask();*/
 }
 
 void loop() {
   #ifdef useSerial
-    Serial.println("Hi");
-    delay(3000);
+    //Serial.println("Hi");
+    delay(1000);
   #endif
-  /*xSemaphoreTake(syncSemaphore, portMAX_DELAY);
+  xSemaphoreTake(syncSemaphore, portMAX_DELAY);
+  /*
   //timeinfo = rtc.getTimeStruct();
   while (taskInterruptCounter > 0) {
     portENTER_CRITICAL(&timerMux);

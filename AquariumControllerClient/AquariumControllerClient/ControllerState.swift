@@ -100,7 +100,7 @@ class ControllerState: ObservableObject {
     @Published var maintenanceMode: Bool
     @Published var aqThermostat: Int
     init() {
-        self.sensors = [Sensor.init("Temperature"),
+        self.sensors = [Sensor.init("Aquarium Temperature"),
                         Sensor.init("TDS")]
         self.devices = [Device.init("Lights"),
                         Device.init("Filter"),

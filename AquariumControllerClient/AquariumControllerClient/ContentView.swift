@@ -31,7 +31,7 @@ struct ContentView: View {
         }
         .onAppear {
             aqController.network.getCurrentState()
-            //aqController.network.getSettingsState()
+            aqController.network.getSettingsState()
             aqController.network.connectWebSocket()
             //network.getCurrentState(currentState: currentState)
         }

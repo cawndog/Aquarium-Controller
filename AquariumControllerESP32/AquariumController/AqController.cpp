@@ -17,24 +17,24 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   savedState.begin("aqController", false);
   this->aqThermostat = savedState.getShort("aqThermostat", 82);
   hardwareInterface.init(&savedState);
-  heater.init("Heater", &hardwareInterface, [&](Device** devices, int numDevices) {
+  heater.init("Heater", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  lights.init("Lights", &hardwareInterface, [&](Device** devices, int numDevices) {
+  lights.init("Lights", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  co2.init("CO2", &hardwareInterface, [&](Device** devices, int numDevices) {
+  co2.init("CO2", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  airPump.init("Air Pump", &hardwareInterface, [&](Device** devices, int numDevices) {
+  airPump.init("Air Pump", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  filter.init("Filter", &hardwareInterface, [&](Device** devices, int numDevices) {
+  filter.init("Filter", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
   co2.attachConnectedDevice(&airPump);
   airPump.attachConnectedDevice(&co2);
-  aqTemperature.init("Aquarium Temperature", &hardwareInterface, [&](Sensor* sensor) {
+  aqTemperature.init("Aquarium Temperature", &hardwareInterface, [this](Sensor* sensor) {
     if (this->maintMode != true) {
       float valAsFloat = sensor->getValue().toFloat();
       if (valAsFloat < (aqThermostat - 0.5)) {
@@ -48,11 +48,13 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
       this->aqWebServerInterface->sensorReadingUpdate(sensor);
     }
   });
-  tds.init("TDS", &hardwareInterface, &aqTemperature, [&](Sensor* sensor) {
+  tds.init("TDS", &hardwareInterface, &aqTemperature, [this](Sensor* sensor) {
     if (sensor->prevValue != sensor->value) {
       this->aqWebServerInterface->sensorReadingUpdate(sensor);
     }
   });
+  aqTemperature.readSensor();
+  tds.readSensor();
   tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, &savedState, &rtc, [&]() {
     lights.setStateOn();
   });
@@ -87,17 +89,28 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   tasks[6] = new TimedTask ("Update Dynamic IP", TIMED_TASK, &savedState, &rtc, [&](){
     aqWebServerInterface->updateDynamicIP();
   });
-  initScheduledDeviceTaskStates();
+  //initScheduledDeviceTaskStates();
 }
 
 Task* AqController::getTaskByName(String name) {
+  if (tasks == NULL) {
+    return NULL;
+  }  
   for(int i = 0; tasks[i] != NULL; i++) {
-    if (tasks[i]->getName() == name)
+    if (tasks[i]->getName() == name){
       return tasks[i];
+    }  
+    if (tasks[i]->connectedTask != NULL) {
+      if (tasks[i]->connectedTask->getName() == name)
+        return tasks[i]->connectedTask;
+    }
   }
   return NULL;
 }
 void AqController::initScheduledDeviceTaskStates() {
+  if (tasks == NULL) {
+    return;
+  }
   for (int i = 0; tasks[i] != NULL; i++) {
     if (tasks[i]->taskType == SCHEDULED_DEVICE_TASK) {
       tasks[i]->initTaskState();
@@ -105,6 +118,9 @@ void AqController::initScheduledDeviceTaskStates() {
   }
 }
 void AqController::setNextTaskWithEvent() {
+  if (tasks == NULL) {
+    return;
+  }
   Task* nextTaskWithEvent = tasks[0];
   for (int i = 0; tasks[i] != NULL; i++) {
     if (tasks[i]->getDisabled()) {
@@ -128,6 +144,9 @@ void AqController::setNextTaskWithEvent() {
 void AqController::scheduleNextTask() {
   //timerAlarmWrite(aqController.taskTimer, 20000, true);
   //timerAlarmEnable(aqController.taskTimer);
+  if (tasks == NULL) {
+    return;
+  }
   #ifdef useSerial 
     Serial.println("Scheduling next task.");
   #endif
@@ -151,5 +170,21 @@ void AqController::scheduleNextTask() {
     timerAlarmEnable(taskTimer);
   }
  
+}
+Device* AqController::getDeviceByName(String devName) {
+  for (int i = 0; i < sizeof(devices) / sizeof(Device*); i++) {
+    if (devices[i]->name == devName) {
+      return devices[i];
+    }
+  }
+  return NULL;
+}
+Sensor* AqController::getSensorByName(String sensorName) {
+  for (int i = 0; i < sizeof(sensors) / sizeof(Sensor*); i++) {
+    if (sensors[i]->name == sensorName) {
+      return sensors[i];
+    }
+  }
+  return NULL;
 }
 

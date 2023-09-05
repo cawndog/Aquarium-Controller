@@ -12,7 +12,7 @@ class Sensor {
     bool valueUpdated;
     HardwareInterface* hardwareInterface;
     //Sensor(String name);
-    void init(String name, HardwareInterface* hardwareInterface, AqWebServerFunction webSocketUpdateState);
+    virtual void init(String name, HardwareInterface* hardwareInterface, AqWebServerFunction webSocketUpdateState);
     virtual String getValue() = 0;
     virtual void readSensor() = 0;
 };
@@ -22,6 +22,7 @@ class Sensor {
 class AquariumTemperatureSensor : public Sensor { //Stores value in Fahrenheit
   public:
     AquariumTemperatureSensor();
+    void init(String name, HardwareInterface* hardwareInterface, AqWebServerFunction webSocketUpdateState);
     void readSensor();
     String getValue();
 };

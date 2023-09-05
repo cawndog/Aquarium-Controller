@@ -81,7 +81,7 @@ void Switch2::powerControl(SwitchState state) { //light control switch
   #define ON_OFFSET_2 -2
   #define AUXON_OFFSET_2 3
   this->setSwitchState(state);
-  this->controllerServo.attach(AIR_SRVO_PIN);
+  this->controllerServo.attach(LIGHT_SRVO_PIN);
   if (state == OFF) {
     this->controllerServo.write(OFF_POS + OFF_OFFSET_2);
     delay(200);
@@ -89,7 +89,7 @@ void Switch2::powerControl(SwitchState state) { //light control switch
     return;
   }
   if (state == ON) { 
-    this->controllerServo.write(POS1 + ON_OFFSET_2);
+    this->controllerServo.write(POS2 + ON_OFFSET_2);
     delay(200);
     this->controllerServo.detach();
     return;
@@ -141,7 +141,7 @@ void Switch4::powerControl(SwitchState state) { //filter control switch
   #define ON_OFFSET_4 10
   #define AUXON_OFFSET_4 10
   this->setSwitchState(state);
-  this->controllerServo.attach(AIR_SRVO_PIN);
+  this->controllerServo.attach(FILTER_SRVO_PIN);
   if (state == OFF) {
     this->controllerServo.write(OFF_POS + OFF_OFFSET_4);
     delay(200);
@@ -149,7 +149,7 @@ void Switch4::powerControl(SwitchState state) { //filter control switch
     return;
   }
   if (state == ON) {
-    this->controllerServo.write(POS1 + ON_OFFSET_4);
+    this->controllerServo.write(POS2 + ON_OFFSET_4);
     delay(200);
     this->controllerServo.detach();
     return;

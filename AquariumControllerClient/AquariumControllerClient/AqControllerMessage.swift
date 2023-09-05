@@ -64,6 +64,11 @@ class AqControllerMessage: Codable {
     func addSensor() {
         //self.sensors.append(Sensor())
     }
+    func addDevice(_ newDevice: AqControllerMessage.Device) {
+        if (devices?.append(newDevice) == nil) {
+            devices = [newDevice]
+        }
+    }
     func addTask(_ newTask: AqControllerMessage.Task) {
         if (tasks?.append(newTask) == nil) {
             tasks = [newTask]

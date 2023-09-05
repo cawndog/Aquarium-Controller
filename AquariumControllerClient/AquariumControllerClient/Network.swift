@@ -21,7 +21,7 @@ class Network: ObservableObject {
     var comps: DateComponents
     let bearerToken: String = "31f18cfbab58825aedebf9d0e14057dc"
     //var AqControllerIP: String = "AquariumController.freeddns.org"
-    var AqControllerIP: String = "10.0.0.42"
+    var AqControllerIP: String = "10.0.0.96"
     
     init() {
         //self.controllerState = nil
@@ -36,7 +36,7 @@ class Network: ObservableObject {
     }
 
     func connectWebSocket() {
-        guard let url = URL(string: "ws://\(AqControllerIP):80/") else { return }
+        guard let url = URL(string: "ws://\(AqControllerIP):80/ws") else { return }
         let request = URLRequest(url: url)
         webSocketTask = URLSession.shared.webSocketTask(with: request)
         webSocketTask?.resume()
@@ -51,15 +51,19 @@ class Network: ObservableObject {
                 case .success(let message):
                     switch message {
                         case .string(let text):
+                            print("Received a text message")
+                            print(text)
                             //self.messages.append(text)
                             self.processStringMessage(WebSocketMessage: text)
                         case .data(let data):
+                            print("Received a data message")
                             // Handle binary data
                             break
                         @unknown default:
                             break
                     }
             }
+            self.receiveMessage()
         }
     }
     func processStringMessage(WebSocketMessage:String) {
@@ -136,6 +140,7 @@ class Network: ObservableObject {
         }
     }
     func getSettingsState() {
+        print("getSettingsState() called.")
         guard let controllerState = self.controllerState else { return }
         guard let url = URL(string: "http://\(AqControllerIP)/getSettingsState") else { fatalError("Missing URL") }
         var urlRequest = URLRequest(url: url)
@@ -152,7 +157,7 @@ class Network: ObservableObject {
                 DispatchQueue.main.async {
                     do {
                         let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
-                        if (decodedMessage.messageType == .SettingsUpdate) {
+                        //if (decodedMessage.messageType == .SettingsUpdate) {
                             if let thermostat = decodedMessage.aqThermostat {
                                 controllerState.aqThermostat = thermostat
                             }
@@ -193,7 +198,7 @@ class Network: ObservableObject {
                                     }
                                 }
                             }
-                        }
+                        //}
                         //------------airPump
                         
                         /*self.comps.hour = self.settingsStateJSON.timers.airPump.onHr
@@ -234,7 +239,7 @@ class Network: ObservableObject {
             if (task.connectedTask != nil) {
                 newTask.connectedTask = AqControllerMessage.Task()
                 newTask.connectedTask!.name = task.connectedTask.name
-                newTask.connectedTask!.isDisabled = task.connectedTask.isDisabled
+                newTask.connectedTask!.isDisabled = task.isDisabled
                 taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
                 taskTime = taskDateComp.hour! * 3600
                 taskTime += taskDateComp.minute! * 60
@@ -248,7 +253,10 @@ class Network: ObservableObject {
             print("Failed to encode JSON")
             return
         }
-        print(encoded)
+        
+        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        print("In setSettingsState()")
+        print(jsonString)
         let urlString: String = "http://\(AqControllerIP)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -277,11 +285,13 @@ class Network: ObservableObject {
             guard let response = response as? HTTPURLResponse else { return }
             if response.statusCode == 200 {
                 guard let data = data else { return }
+                print("in getCurrentState()")
+                let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+                print(jsonString)
                 DispatchQueue.main.async {
                     do {
                         let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
                         
-                        print(decodedMessage)
                         if (decodedMessage.messageType == .StateUpdate) {
                             if let maintMode = decodedMessage.maintenanceMode {
                                 controllerState.maintenanceMode = maintMode
@@ -315,7 +325,7 @@ class Network: ObservableObject {
             print("Failed to encode JSON")
             return
         }
-        var urlString: String = "http://\(AqControllerIP)/maintMode"
+        var urlString: String = "http://\(AqControllerIP)/maint"
         if (state == true) {
             urlString = urlString + "On"
             
@@ -338,23 +348,28 @@ class Network: ObservableObject {
         print("deviceToggleChange() called for " + device.name)
         guard let controllerState = self.controllerState else { return }
         //guard (!device.stateUpdatedByController) else {device.stateUpdatedByController = false; return}
-        guard let encoded = try? JSONEncoder().encode("") else {
+        var newMessage = AqControllerMessage()
+        newMessage.messageType = .StateUpdate
+        var newDevice = AqControllerMessage.Device()
+        newDevice.name = device.name
+        newDevice.state = device.state
+        newMessage.addDevice(newDevice)
+        guard let encoded = try? JSONEncoder().encode(newMessage) else {
             print("Failed to encode JSON")
             return
         }
-        var urlString: String = "http://\(AqControllerIP)/" + device.name
+        
+        var urlString: String = "http://\(AqControllerIP)/setDeviceState"
         if (device.state == true) {
-            urlString = urlString + "On"
             if (device.name == "CO2") {
-                print("settings Air Pump to false")
+                print("setting Air Pump to false")
                 controllerState.getDeviceByName("Air Pump").state = false
             }
             else if (device.name == "Air Pump") {
+                print("setting CO2 to false")
                 controllerState.getDeviceByName("CO2").state = false
             }
             
-        } else {
-            urlString = urlString + "Off"
         }
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)

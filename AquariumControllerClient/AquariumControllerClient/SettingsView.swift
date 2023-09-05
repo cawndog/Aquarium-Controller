@@ -26,6 +26,7 @@ struct SettingsView: View {
     var body: some View {
         //Text("Hello from settings!")
         NavigationStack {
+            
             List {
                 Section {
                     NavigationLink (value: "Thermostat") {
@@ -103,7 +104,7 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         }
         .onAppear {
-            aqController.network.getSettingsState()
+            //aqController.network.getSettingsState()
         }
         
         /*

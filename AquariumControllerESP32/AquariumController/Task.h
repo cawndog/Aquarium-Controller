@@ -2,18 +2,12 @@
 #define TASK_H
 #include <ESP32Time.h>
 #include <Arduino.h>
-#include "Sensor.h"
-#include "Device.h"
 #include <Preferences.h>
-
+extern ESP32Time rtc;
 enum TaskType {
   SCHEDULED_TASK,
   SCHEDULED_DEVICE_TASK,
   TIMED_TASK,
-};
-struct TaskSettings {
-  bool disabled;
-  unsigned long time;
 };
 typedef std::function<void()> AqTaskFunction;
 class Task {
@@ -22,18 +16,17 @@ class Task {
     unsigned long nextRunTime; //Next run time in Epoch Time
     TaskType taskType;
     Preferences* savedState;
-    ESP32Time* rtc;
-    TaskSettings settings;
-    bool privateTask = false; //task and its settings will not be passed to clients for viewing/editing.
+    bool disabled;
+    unsigned long time;
     Task* connectedTask = NULL;
-    //Task(String name);
-    //virtual ~Task() {};
+
     virtual void doTask() = 0;
     virtual void determineNextRunTime() = 0;
     virtual void updateSettings(bool disabled, unsigned long time) = 0;
-    virtual void initTaskState() = 0;
+    //virtual void initTaskState() = 0;
     virtual void runF() = 0;
-    void setPrivate();
+    virtual void attachConnectedTask(String name, AqTaskFunction f = [](){}) = 0;
+    virtual bool hasConnectedTask() = 0;
     String taskTypeToString();
     String getName();
     bool getDisabled(); 
@@ -45,40 +38,29 @@ class Task {
 
 class ScheduledTask : public Task {
   public: 
-    Device *device;
     AqTaskFunction f;
-    void (*Taskfunc);
-    /*struct STSettings {
-      bool disabled;
-      uint16_t runTime;
-    };
-    STSettings settings;*/
-    ScheduledTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, AqTaskFunction f = {});
+    //void (*Taskfunc);
+    ScheduledTask(String name, TaskType taskType, Preferences* savedState, AqTaskFunction f = [](){});
     void doTask();
     void runF();
+    void attachConnectedTask(String name, AqTaskFunction f = [](){});
+    bool hasConnectedTask();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);
     void initTaskState(); //For ScheduledTask with a connectedTask (On/Off timer tasks). Inits timer state. 
 };
 class TimedTask : public Task {
   public: 
-    Device* device;
-    Sensor* sensor;
     AqTaskFunction f;
-    /*struct TTSettings {
-      bool disabled;
-      unsigned long runTimeInterval;
-    };
-
-    TTSettings settings;*/
-    TimedTask(String name, TaskType taskType, Preferences* savedState, ESP32Time* rtc, AqTaskFunction f = {});
+    TimedTask(String name, TaskType taskType, Preferences* savedState, AqTaskFunction f = {});
     void doTask();
     void runF();
+    void attachConnectedTask(String name, AqTaskFunction f = [](){});
+    bool hasConnectedTask();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);
-    void initTaskState();
+    //void initTaskState();
 };
-
 
 
 

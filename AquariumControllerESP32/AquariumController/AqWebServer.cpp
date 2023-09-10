@@ -41,90 +41,7 @@ String authFailResponse = "Authentication Failed";
     delay(15);
     ESP.restart();
   });
-  server->on("/co2On", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200);
-    aqController.co2.setStateOn();
-  });
-  server->on("/co2Off", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200);
-    aqController.co2.setStateOff();
-  });
-  server->on("/airOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200);
-    aqController.airPump.setStateOn();
-  });
-  server->on("/airOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200);
-    aqController.airPump.setStateOff();
-  });
-  server->on("/lightsOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200);
-    aqController.lights.setStateOn();
-  });
-  server->on("/lightsOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200);
-    aqController.lights.setStateOff();
-  });
-  server->on("/heaterOff", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200, "text/plain", "Heater Control Off");
-    aqController.heater.setStateOff();
-  });
-  server->on("/heaterOn", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200, "text/plain", "Heater Control On");
-    aqController.heater.setStateOn();
-  });
-  server->on("/filterOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    request->send(200);
-    aqController.filter.setStateOff();
-  });
-  server->on("/filterOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
-    bool authFailed = checkAuthorization(request);
-    if (authFailed) {
-      return;
-    }
-    if (!aqController.maintMode) {
-      request->send(200);
-      aqController.filter.setStateOn();
-    } else {
-      request->send(409);
-    }
-  });
+  
   server->on("/maintOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
@@ -170,7 +87,7 @@ String authFailResponse = "Authentication Failed";
     body["devices"][4]["state"] = aqController.heater.getStateBool();
     String response;
     serializeJson(body, response);
-    
+    body.clear();
     #ifdef useSerial
       Serial.println(response);
     #endif
@@ -191,23 +108,25 @@ String authFailResponse = "Authentication Failed";
     body["aqThermostat"] = aqController.aqThermostat;
   
     for (int i = 0; aqController.tasks[i] != NULL; i++) {
-      if (aqController.tasks[i]->privateTask != true) {
-        body["tasks"][i]["name"] = aqController.tasks[i]->getName();
-        body["tasks"][i]["taskType"] = aqController.tasks[i]->taskTypeToString();
-        body["tasks"][i]["time"] = aqController.tasks[i]->getTime();
-        body["tasks"][i]["isDisabled"] = aqController.tasks[i]->getDisabled();
-        if (aqController.tasks[i]->connectedTask != NULL) {
-          body["tasks"][i]["connectedTask"]["name"] = aqController.tasks[i]->connectedTask->getName();
-          body["tasks"][i]["connectedTask"]["taskType"] = aqController.tasks[i]->connectedTask->taskTypeToString();
-          body["tasks"][i]["connectedTask"]["time"] = aqController.tasks[i]->connectedTask->getTime();
-          body["tasks"][i]["connectedTask"]["isDisabled"] = aqController.tasks[i]->connectedTask->getDisabled();
-        }
+      body["tasks"][i]["name"] = aqController.tasks[i]->getName();
+      body["tasks"][i]["taskType"] = aqController.tasks[i]->taskTypeToString();
+      body["tasks"][i]["time"] = aqController.tasks[i]->getTime();
+      body["tasks"][i]["isDisabled"] = aqController.tasks[i]->getDisabled();
+      if (aqController.tasks[i]->hasConnectedTask()) {
+        body["tasks"][i]["connectedTask"]["name"] = aqController.tasks[i]->connectedTask->getName();
+        body["tasks"][i]["connectedTask"]["taskType"] = aqController.tasks[i]->connectedTask->taskTypeToString();
+        body["tasks"][i]["connectedTask"]["time"] = aqController.tasks[i]->connectedTask->getTime();
+        body["tasks"][i]["connectedTask"]["isDisabled"] = aqController.tasks[i]->connectedTask->getDisabled();
       }
-
     }
 
     String response; 
     serializeJson(body, response);
+    body.clear();
+    #ifdef useSerial
+      Serial.printf("in /getSettingsState. Sending response: \n");
+      Serial.println(response);
+    #endif
     request->send(200, "application/json", response);
   });
   
@@ -218,28 +137,64 @@ String authFailResponse = "Authentication Failed";
     }
     JsonObject body = json.as<JsonObject>();
     #ifdef useSerial
-      Serial.println("in setSettingsHandler");
-      body.printTo(Serial);
+      Serial.println("DEBUG: in setSettingsHandler()");
     #endif
     if (body.containsKey("aqThermostat")) {
-      aqController.aqThermostat = short(body["aqThermostat"]);
+      aqController.aqThermostat = body["aqThermostat"];
       aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
+      aqController.aqTemperature.readSensor();
     }
-    const int numTasks = body["tasks"].size();
-    for (int i = 0; i < numTasks; i++) {
-      Task* task = aqController.getTaskByName(body["tasks"][i]["name"]);
-      if (task != NULL) {
-        task->updateSettings(body["tasks"][i]["isDisabled"], body["tasks"][i]["time"]);
-        if (body["tasks"][i].containsKey("connectedTask")) {
-          task = aqController.getTaskByName(body["tasks"][i]["connectedTask"]["name"]);
-          if (task != NULL) {
-            task->updateSettings(body["tasks"][i]["connectedTask"]["isDisabled"], body["tasks"][i]["connectedTask"]["time"]);
+    const int numTasksInMsg = body["tasks"].size();
+    #ifdef useSerial
+      Serial.printf("numTasksInMsg %d\n", numTasksInMsg);
+    #endif
+    Task* task;
+    Task* connectedTask;
+    bool isDisabled = true;
+    unsigned long time = 0;
+    for (int i = 0; i < numTasksInMsg; i++) {
+      const char* taskName = body["tasks"][i]["name"];
+      if (taskName != NULL) {
+        Task* task = aqController.getTaskByName(taskName);
+        if (task != NULL) {
+          #ifdef useSerial
+            Serial.printf("DEBUG: in setSettingsHandler(). Got task %s\n", task->getName().c_str());
+            //Serial.println(task->getName());
+          #endif
+          const char* connectedTaskName = body["tasks"][i]["connectedTask"]["name"];
+          if (connectedTaskName != NULL) {
+            connectedTask = aqController.getTaskByName(connectedTaskName);
+            if (connectedTask != NULL) {
+              #ifdef useSerial
+                Serial.printf("DEBUG: in setSettingsHandler(). Got connectedTask %s\n", connectedTask->getName().c_str());
+              #endif
+              if (body["tasks"][i]["connectedTask"]["isDisabled"] == 0) {
+                isDisabled = false;
+              } else {
+                isDisabled = true;
+              }
+              time = body["tasks"][i]["connectedTask"]["time"];
+              connectedTask->updateSettings(isDisabled, time);
+              #ifdef useSerial
+                Serial.printf("DEBUG: in /setSettingsState. Updated connectedTask %s\n", connectedTask->getName().c_str());
+              #endif
+            }
           }
-        }
-      } 
+          isDisabled = body["tasks"][i]["isDisabled"];
+          if (body["tasks"][i]["isDisabled"] == 0) {
+            isDisabled = false;
+          } else {
+            isDisabled = true;
+          }
+          time = body["tasks"][i]["time"];
+          task->updateSettings(isDisabled, time);
+          #ifdef useSerial
+            Serial.printf("DEBUG: in /setSettingsState. Updated task %s\n", task->getName().c_str());
+            //Serial.println(task->getName());
+          #endif
+        } 
+      }
     }
-    aqController.aqTemperature.readSensor();
-    aqController.initScheduledDeviceTaskStates();
     aqController.scheduleNextTask();
 
     request->send(200, "application/text", "setSettingsState succeeded.");
@@ -381,7 +336,7 @@ void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
   }
   String message;
   serializeJson(body, message);
-  
+  body.clear();
   #ifdef useSerial
   Serial.println("In deviceStateUpdate()");
     Serial.println(message);
@@ -400,7 +355,7 @@ void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
 
   String message;
   serializeJson(body, message);
-  
+  body.clear();
   #ifdef useSerial
     Serial.println("In sensorReadingUpdate()");
     Serial.println(message);
@@ -418,7 +373,7 @@ void AqWebServer::updateDynamicIP() {
   http.end();
 }
 bool processAqControllerMessage(JsonVariant &json) {
-  JsonObject body = json.as<JsonObject>();
+  /*JsonObject body = json.as<JsonObject>();
   if (body.containsKey("messageType")) {
     if (body["messageType"] == "StateUpdate") {
       if (body.containsKey("devices")) {
@@ -466,14 +421,13 @@ bool processAqControllerMessage(JsonVariant &json) {
         } 
       }
       aqController.aqTemperature.readSensor();
-      aqController.initScheduledDeviceTaskStates();
       aqController.scheduleNextTask();
     } else {
       return false;
     }
   } else {
     return false;
-  }
+  }*/
   return true;
 
 }

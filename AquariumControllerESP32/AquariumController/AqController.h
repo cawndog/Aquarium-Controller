@@ -9,6 +9,7 @@
 #include <Preferences.h>
 #include "HardwareInterface.h"
 #include "Device.h"
+#include "Sensor.h"
 #include "Task.h"
 #include "AqWebServerInterface.h"
 
@@ -21,14 +22,13 @@
 
 class AqController {
   public: 
-    static constexpr char* ssid = "Pepper";
-    static constexpr char* password = "unlawfulOwl69!";
-    static constexpr char* ntpServer = "pool.ntp.org";
-    static const long  gmtOffset_sec = -25200;
-    static const int   daylightOffset_sec = 3600;
+    const char* ssid = "Pepper";
+    const char* password = "unlawfulOwl69!";
+    const char* ntpServer = "pool.ntp.org";
+    const long  gmtOffset_sec = -25200;
+    const int   daylightOffset_sec = 3600;
     hw_timer_t* taskTimer;
-    ESP32Time rtc; //Real time clock
-    tm timeinfo;
+
     AqWebServerInterface* aqWebServerInterface;
     bool maintMode;
     Preferences savedState;
@@ -49,7 +49,6 @@ class AqController {
     AqController();
     void init(AqWebServerInterface* aqWebServerInterface);
     Task* getTaskByName(String name);
-    void initScheduledDeviceTaskStates();
     void setNextTaskWithEvent();
     void scheduleNextTask();
     Device* getDeviceByName(String devName);

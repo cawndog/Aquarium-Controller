@@ -267,7 +267,78 @@ class Network: ObservableObject {
             let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
             // handle the result
         } catch {
-            print("Device state change failed.")
+            print("setSettingsState() failed.")
+        }
+    }
+    func setSettingsState(task: ControllerState.Task) async {
+        guard let controllerState = self.controllerState else { return }
+        var newMessage = AqControllerMessage()
+        newMessage.messageType = .SettingsUpdate
+            var taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.time)
+            var taskTime: Int = 0
+            var newTask = AqControllerMessage.Task()
+            newTask.name = task.name
+            newTask.isDisabled = task.isDisabled
+            taskTime = taskDateComp.hour! * 3600
+            taskTime += taskDateComp.minute! * 60
+            taskTime += taskDateComp.second!
+            newTask.time = taskTime
+            if (task.connectedTask != nil) {
+                newTask.connectedTask = AqControllerMessage.Task()
+                newTask.connectedTask!.name = task.connectedTask.name
+                newTask.connectedTask!.isDisabled = task.isDisabled
+                taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
+                taskTime = taskDateComp.hour! * 3600
+                taskTime += taskDateComp.minute! * 60
+                taskTime += taskDateComp.second!
+                newTask.connectedTask!.time = taskTime
+            }
+            newMessage.addTask(newTask)
+        
+        guard let encoded = try? JSONEncoder().encode(newMessage) else {
+            print("Failed to encode JSON")
+            return
+        }
+        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        print("In setSettingsState()")
+        print(jsonString)
+        let urlString: String = "http://\(AqControllerIP)/setSettingsState"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            // handle the result
+        } catch {
+            print("setSettingsState(task) failed.")
+        }
+    }
+    func setSettingsState(aqThermostat: Int) async {
+        guard let controllerState = self.controllerState else { return }
+        var newMessage = AqControllerMessage()
+        newMessage.messageType = .SettingsUpdate
+        newMessage.aqThermostat = aqThermostat
+      
+        guard let encoded = try? JSONEncoder().encode(newMessage) else {
+            print("Failed to encode JSON")
+            return
+        }
+        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        print("In setSettingsState()")
+        print(jsonString)
+        let urlString: String = "http://\(AqControllerIP)/setSettingsState"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            // handle the result
+        } catch {
+            print("setSettingsState(aqThermostat) failed.")
         }
     }
     func getCurrentState() {

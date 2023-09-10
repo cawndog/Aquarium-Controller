@@ -5,9 +5,9 @@ Device::Device() {
     this->state = DEVICE_OFF;
     this->connectedDevice = NULL;
     this->hardwareInterface = NULL;
-    webSocketUpdateState = {};
+    webSocketUpdateState = [](Device** devices, int numDevices){};
 }
-void Device::init(String name, HardwareInterface* hardwareInterface, AqWebServerFunction webSocketUpdateState) {
+void Device::init(String name, HardwareInterface* hardwareInterface, AqWebServerDevFunction webSocketUpdateState) {
     this->name = name;
     this->hardwareInterface = hardwareInterface;
     this->state = intToDeviceState(hardwareInterface->initDeviceState(this->name));

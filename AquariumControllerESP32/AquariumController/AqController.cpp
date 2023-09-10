@@ -8,11 +8,7 @@ AqController::AqController() {
 void AqController::init(AqWebServerInterface* aqWebServerInterface) {
     //Setup real time clock
   this->aqWebServerInterface = aqWebServerInterface;
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  while (!getLocalTime(&timeinfo)){
-    //Wait until the local time is determined.
-  }
-  rtc.setTimeStruct(timeinfo);
+
   //rtc.setTime(30, 24, 15, 17, 1, 2021);  // 17th Jan 2021 15:24:30
   savedState.begin("aqController", false);
   this->aqThermostat = savedState.getShort("aqThermostat", 82);
@@ -55,41 +51,41 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
-  tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, &savedState, &rtc, [&]() {
+  Serial.println("DEBUG: Read sensors in aqController.init()");
+  tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, &savedState, [this]() {
     lights.setStateOn();
   });
-  tasks[0]->connectedTask = new ScheduledTask("Lights Off", SCHEDULED_DEVICE_TASK, &savedState, &rtc, [&]() {
+  tasks[0]->attachConnectedTask("Lights Off", [this]() {
     lights.setStateOff();
   });
-  tasks[1] = new ScheduledTask("CO2 On", SCHEDULED_DEVICE_TASK, &savedState, &rtc, [&]() {
+  tasks[1] = new ScheduledTask("CO2 On", SCHEDULED_DEVICE_TASK, &savedState, [this]() {
     co2.setStateOn();
   });
-  tasks[1]->connectedTask = new ScheduledTask("CO2 Off", SCHEDULED_DEVICE_TASK, &savedState, &rtc, [&]() {
+  tasks[1]->attachConnectedTask("CO2 Off", [this]() {
     co2.setStateOff();
   });
-  tasks[2] = new ScheduledTask("Air Pump On", SCHEDULED_DEVICE_TASK, &savedState, &rtc, [&]() {
+  tasks[2] = new ScheduledTask("Air Pump On", SCHEDULED_DEVICE_TASK, &savedState, [this]() {
     airPump.setStateOn();
   });
-  tasks[2]->connectedTask = new ScheduledTask("Air Pump Off", SCHEDULED_DEVICE_TASK, &savedState, &rtc, [&]() {
+  tasks[2]->attachConnectedTask("Air Pump Off", [this]() {
     airPump.setStateOff();
   });
-  //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, &savedState, &rtc, NULL, NULL, &aqTemperature);
-  //tasks[4] = new TimedTask ("Read TDS", SENSOR_READ, &savedState, &rtc, [&](){}, NULL, &tds);
-  tasks[3] = new TimedTask ("Read Aquarium Temp", TIMED_TASK, &savedState, &rtc, [&](){
+  //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, &savedState, NULL, NULL, &aqTemperature);
+  //tasks[4] = new TimedTask ("Read TDS", SENSOR_READ, &savedState, [&](){}, NULL, &tds);
+  tasks[3] = new TimedTask ("Read Aquarium Temp", TIMED_TASK, &savedState, [this](){
     aqTemperature.readSensor();
   });
-  tasks[4] = new TimedTask ("Read TDS", TIMED_TASK, &savedState, &rtc, [&](){
+  tasks[4] = new TimedTask ("Read TDS", TIMED_TASK, &savedState, [this](){
     tds.readSensor();
   });
-  tasks[5] = new TimedTask ("Check WiFi Connection", TIMED_TASK, &savedState, &rtc, [&](){
+  tasks[5] = new TimedTask ("Check WiFi Connection", TIMED_TASK, &savedState, [this](){
     if (WiFi.status() != WL_CONNECTED) {
       WiFi.reconnect();
     }
   });
-  tasks[6] = new TimedTask ("Update Dynamic IP", TIMED_TASK, &savedState, &rtc, [&](){
-    aqWebServerInterface->updateDynamicIP();
+  tasks[6] = new TimedTask ("Update Dynamic IP", TIMED_TASK, &savedState, [this](){
+    this->aqWebServerInterface->updateDynamicIP();
   });
-  //initScheduledDeviceTaskStates();
 }
 
 Task* AqController::getTaskByName(String name) {
@@ -100,48 +96,55 @@ Task* AqController::getTaskByName(String name) {
     if (tasks[i]->getName() == name){
       return tasks[i];
     }  
-    if (tasks[i]->connectedTask != NULL) {
+    if (tasks[i]->hasConnectedTask()) {
       if (tasks[i]->connectedTask->getName() == name)
         return tasks[i]->connectedTask;
     }
   }
   return NULL;
 }
-void AqController::initScheduledDeviceTaskStates() {
-  if (tasks == NULL) {
-    return;
-  }
-  for (int i = 0; tasks[i] != NULL; i++) {
-    if (tasks[i]->taskType == SCHEDULED_DEVICE_TASK) {
-      tasks[i]->initTaskState();
-    }
-  }
-}
 void AqController::setNextTaskWithEvent() {
+  Serial.println("In setNextTaskWithEvent().");
   if (tasks == NULL) {
+    Serial.println("tasks array is null. No tasks exist");
     return;
   }
-  Task* nextTaskWithEvent = tasks[0];
+  Serial.printf("Setting nextTaskWithEventLocal to the first task. Task name: %s\n", tasks[0]->getName().c_str());
+  Task* nextTaskWithEventLocal = tasks[0];
   for (int i = 0; tasks[i] != NULL; i++) {
+    //Serial.printf("Checking tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
     if (tasks[i]->getDisabled()) {
+      //Serial.printf("tasks[%d]. Task name: %s is disabled. Continuing.\n", i, tasks[i]->getName().c_str());
       continue;
     }
-    if (tasks[i]->connectedTask != NULL) {
-      if (tasks[i]->connectedTask->nextRunTime < nextTaskWithEvent->nextRunTime) {
-        nextTaskWithEvent = tasks[i]->connectedTask;
+    if (tasks[i]->hasConnectedTask()) {
+      //Serial.printf("Checking task[%d]'s connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
+      //Task* connectedTask = tasks[i]->connectedTask;
+      if (tasks[i]->connectedTask->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
+        Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]->connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
+        Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->connectedTask->getName().c_str(), tasks[i]->connectedTask->nextRunTime);
+        nextTaskWithEventLocal = tasks[i]->connectedTask;
       }
     }
-    if (tasks[i]->nextRunTime < nextTaskWithEvent->nextRunTime) {
-      nextTaskWithEvent = tasks[i];
+    if (tasks[i]->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
+      Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
+      Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->getName().c_str(), tasks[i]->nextRunTime);
+      nextTaskWithEventLocal = tasks[i];
     }
   }
-  if (nextTaskWithEvent != NULL) { 
-    if (nextTaskWithEvent->getDisabled() == true) {
-      nextTaskWithEvent = NULL;
+  if (nextTaskWithEventLocal != NULL) { 
+    if (nextTaskWithEventLocal->getDisabled() == true) {
+      Serial.print("nextTaskWithEventLocal was disabled. Setting nextTaskWithEventLocal to NULL.");
+      nextTaskWithEventLocal = NULL;
     }
   }
+  this->nextTaskWithEvent = nextTaskWithEventLocal;
+
 }
 void AqController::scheduleNextTask() {
+  #ifdef useSerial
+    Serial.println("in scheduleNextTask()");
+  #endif
   //timerAlarmWrite(aqController.taskTimer, 20000, true);
   //timerAlarmEnable(aqController.taskTimer);
   if (tasks == NULL) {
@@ -155,6 +158,9 @@ void AqController::scheduleNextTask() {
   #endif
   setNextTaskWithEvent();
   if (nextTaskWithEvent != NULL) { 
+    #ifdef useSerial 
+      Serial.printf("Next task with event is %s.\n", nextTaskWithEvent->getName().c_str());
+    #endif
     unsigned long currentLocalEpoch = rtc.getLocalEpoch();
     timerRestart(taskTimer);
 
@@ -168,6 +174,8 @@ void AqController::scheduleNextTask() {
     }
     
     timerAlarmEnable(taskTimer);
+  } else {
+    Serial.println("nextTaskWithEvent was NULL.");
   }
  
 }

@@ -76,24 +76,26 @@ struct SettingsView: View {
                 }
             }
             .navigationDestination(for: ControllerState.Task.self) { task in
+                //var detailedTask = ControllerState.Task(task.name)
+                
                 TaskDetailedView(task: task)
                     .navigationTitle(task.name)
                     .toolbar {
                         Button("Save", action: {
                             Task{
-                                await aqController.network.setSettingsState()
+                                await aqController.network.setSettingsState(task: task)
                             }
 
                         })
                     }
             }
             .navigationDestination(for: String.self) { string in
-                ThermostatDetailedView(controllerState: aqController.controllerState)
+                ThermostatDetailedView(controllerState: controllerState)
                     .navigationTitle(string)
                     .toolbar {
                         Button("Save", action: {
                             Task{
-                                await aqController.network.setSettingsState()
+                                await aqController.network.setSettingsState(aqThermostat: controllerState.aqThermostat)
                             }
                             
                         })

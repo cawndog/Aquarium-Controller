@@ -19,6 +19,8 @@ volatile SemaphoreHandle_t syncSemaphore;
 hw_timer_t* taskTimer;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint8_t taskInterruptCounter = 0;
+ESP32Time rtc; //Real time clock
+tm timeinfo;
 AqController aqController;
 AqWebServer aqWebServer;
 
@@ -60,6 +62,11 @@ void setup() {
     Serial.println(" CONNECTED");
     Serial.println(WiFi.localIP());
   #endif
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  while (!getLocalTime(&timeinfo)){
+    //Wait until the local time is determined.
+  }
+  rtc.setTimeStruct(timeinfo);
   //AqWebServer aqWebServer(80, "/ws");
   aqWebServer.init();
   
@@ -69,43 +76,40 @@ void setup() {
   aqWebServer.updateDynamicIP();
 
   syncSemaphore = xSemaphoreCreateBinary();
-  /*aqController.taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
+  aqController.taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
   timerAttachInterrupt(aqController.taskTimer, &taskTimerInterrupt, true);
-  aqController.scheduleNextTask();*/
+  aqController.scheduleNextTask();
 }
 
 void loop() {
-  #ifdef useSerial
-    //Serial.println("Hi");
-    delay(1000);
-  #endif
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
-  /*
   //timeinfo = rtc.getTimeStruct();
+  printLocalTime();
   while (taskInterruptCounter > 0) {
     portENTER_CRITICAL(&timerMux);
       taskInterruptCounter--;
     portEXIT_CRITICAL(&timerMux);
-    aqController.nextTaskWithEvent->doTask();
   }
-  aqController.scheduleNextTask();*/
+  if (aqController.nextTaskWithEvent != NULL) 
+      aqController.nextTaskWithEvent->doTask();
+  aqController.scheduleNextTask();
 }
 
 
 void IRAM_ATTR taskTimerInterrupt() {
   taskInterruptCounter++;
   #ifdef useSerial
-    Serial.println("In taskTimerInterrupt(). Power event triggered.");
+    Serial.println("In taskTimerInterrupt(). Task event triggered.");
   #endif
   #ifdef useSerialBT
-    SerialBT.println("In taskTimerInterrupt(). Power event triggered.");
+    SerialBT.println("In taskTimerInterrupt(). Task event triggered.");
   #endif
   timerAlarmDisable(aqController.taskTimer);
   xSemaphoreGiveFromISR(syncSemaphore, NULL);
 }
 void printLocalTime()
 { 
-  if(!getLocalTime(&aqController.timeinfo)){
+  if(!getLocalTime(&timeinfo)){
     #ifdef useSerial
       Serial.println("Failed to obtain time");
     #endif
@@ -115,10 +119,10 @@ void printLocalTime()
     return;
   }
   #ifdef useSerial
-    Serial.println(&(aqController.timeinfo), "%A, %B %d %Y %H:%M:%S");
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   #endif
   #ifdef useSerialBT
-    SerialBT.println(&(aqController.timeinfo), "%A, %B %d %Y %H:%M:%S");
+    SerialBT.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   #endif
 }
 

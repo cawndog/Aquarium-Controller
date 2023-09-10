@@ -90,7 +90,20 @@ class ControllerState: ObservableObject {
                    
             }
         }
-        
+        /*func copyFromTask(taskToCopy: ControllerState.Task) {
+            self.taskType = taskToCopy.taskType
+            self.time = taskToCopy.time
+            self.isDisabled = taskToCopy.isDisabled
+            if taskToCopy.connectedTask != nil {
+                if (self.connectedTask == nil) {
+                    self.connectedTask = ControllerState.Task(taskToCopy.connectedTask.name)
+                }
+                self.connectedTask.taskType = taskToCopy.connectedTask.taskType
+                self.connectedTask.time = taskToCopy.connectedTask.time
+                self.connectedTask.isDisabled = taskToCopy.connectedTask.isDisabled
+            }
+            
+        }*/
     }
     //@Published var temp: String
     //@Published var tds: String

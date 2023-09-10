@@ -5,14 +5,15 @@
   this->valueUpdated = false;
 }*/
 TdsSensor::TdsSensor() {
-    //webSocketUpdateState = [](Sensor* sensor){};
-    webSocketUpdateState = {};
+    webSocketUpdateState = [](Sensor* sensor){};
+    //webSocketUpdateState = {};
     this->value = "0.0";
     this->prevValue = "0.0";
     this->valueUpdated = false;
 }
 AquariumTemperatureSensor::AquariumTemperatureSensor() {
-    webSocketUpdateState = {};
+    webSocketUpdateState = [](Sensor* sensor){};
+    //webSocketUpdateState = {};
     this->value = "0.0";
     this->prevValue = "0.0";
     this->valueUpdated = false;

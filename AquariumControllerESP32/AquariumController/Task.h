@@ -51,8 +51,9 @@ class ScheduledTask : public Task {
 };
 class TimedTask : public Task {
   public: 
+    String shortName;
     AqTaskFunction f;
-    TimedTask(String name, TaskType taskType, Preferences* savedState, AqTaskFunction f = {});
+    TimedTask(String name, String shortName, TaskType taskType, Preferences* savedState, AqTaskFunction f = {});
     void doTask();
     void runF();
     void attachConnectedTask(String name, AqTaskFunction f = [](){});

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D812DD5C2A9A66370034ACBA /* HomeView.swift */; };
+		D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */; };
 		D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB5D2A0828F700E1C157 /* AquariumControllerClientApp.swift */; };
 		D864CB602A0828F700E1C157 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB5F2A0828F700E1C157 /* ContentView.swift */; };
 		D864CB622A0828F800E1C157 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D864CB612A0828F800E1C157 /* Assets.xcassets */; };
@@ -18,6 +19,7 @@
 		D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6F2A082A1700E1C157 /* SettingsState.swift */; };
 		D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */; };
 		D889B9422A4670820083FA0A /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D889B9412A4670820083FA0A /* DeviceView.swift */; };
+		D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D898A2EB2AAE1B600061A234 /* DatePickerView.swift */; };
 		D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862592A9AD30C006217F6 /* ParametersView.swift */; };
 		D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */; };
 		D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* TaskSummaryView.swift */; };
@@ -31,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		D812DD5C2A9A66370034ACBA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiComponentPicker.swift; sourceTree = "<group>"; };
 		D864CB5A2A0828F700E1C157 /* AquariumControllerClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AquariumControllerClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D864CB5D2A0828F700E1C157 /* AquariumControllerClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AquariumControllerClientApp.swift; sourceTree = "<group>"; };
 		D864CB5F2A0828F700E1C157 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -43,6 +46,7 @@
 		D864CB6F2A082A1700E1C157 /* SettingsState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsState.swift; sourceTree = "<group>"; };
 		D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqControllerMessage.swift; sourceTree = "<group>"; };
 		D889B9412A4670820083FA0A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
+		D898A2EB2AAE1B600061A234 /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
 		D8C862592A9AD30C006217F6 /* ParametersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersView.swift; sourceTree = "<group>"; };
 		D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlCenterView.swift; sourceTree = "<group>"; };
 		D8C862622A9D7334006217F6 /* TaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSummaryView.swift; sourceTree = "<group>"; };
@@ -138,6 +142,8 @@
 				D8C862622A9D7334006217F6 /* TaskSummaryView.swift */,
 				D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */,
 				D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */,
+				D898A2EB2AAE1B600061A234 /* DatePickerView.swift */,
+				D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */,
 				D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */,
 			);
 			name = SettingsView;
@@ -171,7 +177,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					D864CB592A0828F700E1C157 = {
 						CreatedOnToolsVersion = 14.3;
@@ -219,9 +225,11 @@
 				D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */,
 				D864CB722A082A1700E1C157 /* Network.swift in Sources */,
 				D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */,
+				D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */,
 				D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */,
 				D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */,
 				D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */,
+				D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
 				D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */,
 				D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */,
@@ -270,9 +278,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -328,9 +338,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -354,6 +366,7 @@
 				CODE_SIGN_ENTITLEMENTS = AquariumControllerClient/AquariumControllerClient.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"AquariumControllerClient/Preview Content\"";
 				DEVELOPMENT_TEAM = DTT7NYTYUQ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -375,7 +388,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.connorwilliams.AquariumControllerClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -395,6 +408,7 @@
 				CODE_SIGN_ENTITLEMENTS = AquariumControllerClient/AquariumControllerClient.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"AquariumControllerClient/Preview Content\"";
 				DEVELOPMENT_TEAM = DTT7NYTYUQ;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -416,7 +430,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.connorwilliams.AquariumControllerClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";

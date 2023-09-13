@@ -50,8 +50,9 @@ ScheduledTask::ScheduledTask(String name, TaskType taskType, Preferences* savedS
   }
   
 }
-TimedTask::TimedTask(String name, TaskType taskType, Preferences* savedState, AqTaskFunction f) {
+TimedTask::TimedTask(String name, String shortname, TaskType taskType, Preferences* savedState, AqTaskFunction f) {
   this->name = name;
+  this->shortName = shortName;
   this->taskType = taskType;
   this->f = f;
   this->savedState = savedState;
@@ -62,8 +63,8 @@ TimedTask::TimedTask(String name, TaskType taskType, Preferences* savedState, Aq
     this->time = 100;
     return;
   }*/
-  String taskDisabledKey = this->name + "_D";
-  String taskTimeKey = this->name + "_T";
+  String taskDisabledKey = this->shortName + "_D";
+  String taskTimeKey = this->shortName + "_T";
   this->disabled = this->savedState->getBool(taskDisabledKey.c_str(), true);
   this->time = this->savedState->getULong(taskTimeKey.c_str(), 0);
   if (!this->getDisabled()) {
@@ -216,8 +217,8 @@ void TimedTask::updateSettings(bool disabled, unsigned long time) {
   this->time = time;
   //const char* namePtr = &(this->name[0]);
   //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
-  String taskDisabledKey = this->name + "_D";
-  String taskTimeKey = this->name + "_T";
+  String taskDisabledKey = this->shortName + "_D";
+  String taskTimeKey = this->shortName + "_T";
   this->savedState->putBool(taskDisabledKey.c_str(), disabled);
   this->savedState->putULong(taskTimeKey.c_str(), time);
   if (!this->getDisabled()) {

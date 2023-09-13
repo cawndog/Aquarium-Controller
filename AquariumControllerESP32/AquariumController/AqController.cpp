@@ -72,18 +72,18 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, &savedState, NULL, NULL, &aqTemperature);
   //tasks[4] = new TimedTask ("Read TDS", SENSOR_READ, &savedState, [&](){}, NULL, &tds);
-  tasks[3] = new TimedTask ("Read Aquarium Temp", TIMED_TASK, &savedState, [this](){
+  tasks[3] = new TimedTask ("Read Aquarium Temp", "Rd_Aq_Tmp", TIMED_TASK, &savedState, [this](){
     aqTemperature.readSensor();
   });
-  tasks[4] = new TimedTask ("Read TDS", TIMED_TASK, &savedState, [this](){
+  tasks[4] = new TimedTask ("Read TDS", "Rd_Tds", TIMED_TASK, &savedState, [this](){
     tds.readSensor();
   });
-  tasks[5] = new TimedTask ("Check WiFi Connection", TIMED_TASK, &savedState, [this](){
+  tasks[5] = new TimedTask ("Check WiFi Connection", "Ck_Wifi", TIMED_TASK, &savedState, [this](){
     if (WiFi.status() != WL_CONNECTED) {
       WiFi.reconnect();
-    }
+    }       
   });
-  tasks[6] = new TimedTask ("Update Dynamic IP", TIMED_TASK, &savedState, [this](){
+  tasks[6] = new TimedTask ("Update Dynamic IP", "Up_Dyn_IP", TIMED_TASK, &savedState, [this](){
     this->aqWebServerInterface->updateDynamicIP();
   });
 }

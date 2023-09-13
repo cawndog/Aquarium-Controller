@@ -9,13 +9,15 @@ import Foundation
 import SwiftUI
 
 class Network: ObservableObject {
-    @Published var messages = [String]()
+    //@Published var messages = [String]()
+    var messages = [String]()
     //@Published var currentState: CurrentState
     var controllerState: ControllerState?
     //var settingsState: SettingsState
     //@State var currentState: CurrentState
     //var currentState: CurrentState
     private var webSocketTask: URLSessionWebSocketTask?
+    var webSocketConnected: Bool
     //var currentStateJSON: CurrentStateJSON
     //var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
@@ -29,6 +31,7 @@ class Network: ObservableObject {
         //currentStateJSON = CurrentStateJSON.init()
         //settingsStateJSON = SettingsStateJSON.init()
         comps = DateComponents()
+        webSocketConnected = false
     }
     
     func attachControllerState(controllerState: ControllerState) {
@@ -40,31 +43,42 @@ class Network: ObservableObject {
         let request = URLRequest(url: url)
         webSocketTask = URLSession.shared.webSocketTask(with: request)
         webSocketTask?.resume()
+        print("Web socket connected.")
+        webSocketConnected = true;
         receiveMessage()
             
     }
+    func disconnectWebSocket() {
+        guard let webSocketTask = self.webSocketTask else {return}
+        webSocketTask.cancel(with: .goingAway, reason: nil)
+        webSocketConnected = false
+        print("WebSocket disconnected.")
+    }
     func receiveMessage() {
-        webSocketTask?.receive { result in
-            switch result {
-                case .failure(let error):
-                    print(error.localizedDescription)
-                case .success(let message):
-                    switch message {
-                        case .string(let text):
-                            print("Received a text message")
-                            print(text)
-                            //self.messages.append(text)
-                            self.processStringMessage(WebSocketMessage: text)
-                        case .data(let data):
-                            print("Received a data message")
-                            // Handle binary data
-                            break
-                        @unknown default:
-                            break
-                    }
+        if (self.webSocketConnected) {
+            webSocketTask?.receive { result in
+                switch result {
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    case .success(let message):
+                        switch message {
+                            case .string(let text):
+                                print("Received a text message")
+                                print(text)
+                                //self.messages.append(text)
+                                self.processStringMessage(WebSocketMessage: text)
+                            case .data(let data):
+                                print("Received a data message")
+                                // Handle binary data
+                                break
+                            @unknown default:
+                                break
+                        }
+                }
+                self.receiveMessage()
             }
-            self.receiveMessage()
         }
+        
     }
     func processStringMessage(WebSocketMessage:String) {
         guard let controllerState = controllerState else { return }
@@ -156,6 +170,8 @@ class Network: ObservableObject {
                 guard let data = data else { return }
                 DispatchQueue.main.async {
                     do {
+                        //let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+                        //print(jsonString)
                         let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
                         //if (decodedMessage.messageType == .SettingsUpdate) {
                             if let thermostat = decodedMessage.aqThermostat {
@@ -169,6 +185,7 @@ class Network: ObservableObject {
                                 var taskTime: Int
                                 for task in tasks {
                                     var t = controllerState.getTaskByName(task.name)
+                                    t.timeInSeconds = task.time
                                     taskTime = task.time
                                     seconds = taskTime%60
                                     taskTime -= seconds
@@ -181,6 +198,7 @@ class Network: ObservableObject {
                                     t.time = Calendar.current.date(from: dateComps)!
                                     t.setTaskTypeWithString(task.taskType.rawValue)
                                     t.isDisabled = task.isDisabled
+                                    
                                     if let connectedTask = task.connectedTask {
                                         t.connectedTask = ControllerState.Task(connectedTask.name)
                                         taskTime = connectedTask.time
@@ -254,9 +272,9 @@ class Network: ObservableObject {
             return
         }
         
-        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
         print("In setSettingsState()")
-        print(jsonString)
+        //print(jsonString)
         let urlString: String = "http://\(AqControllerIP)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -274,34 +292,44 @@ class Network: ObservableObject {
         guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
         newMessage.messageType = .SettingsUpdate
-            var taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.time)
-            var taskTime: Int = 0
+            
+            
             var newTask = AqControllerMessage.Task()
             newTask.name = task.name
             newTask.isDisabled = task.isDisabled
-            taskTime = taskDateComp.hour! * 3600
-            taskTime += taskDateComp.minute! * 60
-            taskTime += taskDateComp.second!
-            newTask.time = taskTime
-            if (task.connectedTask != nil) {
-                newTask.connectedTask = AqControllerMessage.Task()
-                newTask.connectedTask!.name = task.connectedTask.name
-                newTask.connectedTask!.isDisabled = task.isDisabled
-                taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
+            //newTask.time = taskTime
+            
+            if (task.taskType == .TIMED_TASK) {
+                newTask.time = task.timeInSeconds
+            }
+            else {
+                var taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.time)
+                var taskTime: Int = 0
                 taskTime = taskDateComp.hour! * 3600
                 taskTime += taskDateComp.minute! * 60
                 taskTime += taskDateComp.second!
-                newTask.connectedTask!.time = taskTime
+                newTask.time = taskTime
+                if (task.connectedTask != nil) {
+                    newTask.connectedTask = AqControllerMessage.Task()
+                    newTask.connectedTask!.name = task.connectedTask.name
+                    newTask.connectedTask!.isDisabled = task.isDisabled
+                    taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
+                    taskTime = taskDateComp.hour! * 3600
+                    taskTime += taskDateComp.minute! * 60
+                    taskTime += taskDateComp.second!
+                    newTask.connectedTask!.time = taskTime
+                }
             }
+            
             newMessage.addTask(newTask)
         
         guard let encoded = try? JSONEncoder().encode(newMessage) else {
             print("Failed to encode JSON")
             return
         }
-        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
         print("In setSettingsState()")
-        print(jsonString)
+        //print(jsonString)
         let urlString: String = "http://\(AqControllerIP)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -325,9 +353,9 @@ class Network: ObservableObject {
             print("Failed to encode JSON")
             return
         }
-        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
         print("In setSettingsState()")
-        print(jsonString)
+        //print(jsonString)
         let urlString: String = "http://\(AqControllerIP)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -357,10 +385,11 @@ class Network: ObservableObject {
             if response.statusCode == 200 {
                 guard let data = data else { return }
                 print("in getCurrentState()")
-                let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
-                print(jsonString)
+               
                 DispatchQueue.main.async {
                     do {
+                        //let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+                        //print(jsonString)
                         let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
                         
                         if (decodedMessage.messageType == .StateUpdate) {
@@ -416,7 +445,7 @@ class Network: ObservableObject {
         }
     }
     func deviceToggleChange(device: ControllerState.Device) async {
-        print("deviceToggleChange() called for " + device.name)
+        //print("deviceToggleChange() called for " + device.name)
         guard let controllerState = self.controllerState else { return }
         //guard (!device.stateUpdatedByController) else {device.stateUpdatedByController = false; return}
         var newMessage = AqControllerMessage()
@@ -433,11 +462,11 @@ class Network: ObservableObject {
         var urlString: String = "http://\(AqControllerIP)/setDeviceState"
         if (device.state == true) {
             if (device.name == "CO2") {
-                print("setting Air Pump to false")
+                //print("setting Air Pump to false")
                 controllerState.getDeviceByName("Air Pump").state = false
             }
             else if (device.name == "Air Pump") {
-                print("setting CO2 to false")
+                //print("setting CO2 to false")
                 controllerState.getDeviceByName("CO2").state = false
             }
             
@@ -455,51 +484,3 @@ class Network: ObservableObject {
         }
     }
 }
-    /*function checkClickFunc(device) {
-                var checkbox = document.getElementById(device);
-                if (checkbox.checked == true) {
-                    if (device=='air') {
-                        document.getElementById('co2').checked = false;
-                    }
-                    if (device=='co2') {
-                        document.getElementById('air').checked = false;
-                    }
-                    if (device=='maint') {
-                        filter = document.getElementById('filter');
-                        filter.checked = false;
-                        filter.disabled = true;
-                        document.getElementById('heaterState').innerHTML = "OFF";
-                    }
-                    fetch('http://\(AqControllerIP)/'+device+'On', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ "id": 78912 })
-                    })
-                    .then (response => {
-                        console.log(response.status);
-                    });
-                }
-                else {
-                    fetch('http://\(AqControllerIP)/'+device+'Off', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ "id": 78913 })
-                    })
-                    .then (response => {
-                        console.log(response.status);
-                        if (response.status == 200) {
-                            if (device=='maint') {
-                                filter = document.getElementById('filter');
-                                filter.checked = true;
-                                filter.disabled = false;
-                            }
-                        }
-                    });
-                }
-            }
-}
-*/

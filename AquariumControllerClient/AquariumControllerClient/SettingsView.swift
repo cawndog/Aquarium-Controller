@@ -8,8 +8,9 @@
 import SwiftUI
 import Foundation
 struct SettingsView: View {
-    @State var editMode: Bool = false;
+    //@State var editMode: Bool = false;
     @EnvironmentObject var aqController: AqController
+    @Environment(\.scenePhase) var scenePhase
     @ObservedObject var controllerState: ControllerState
     
     @State var tempSet: Int = 82
@@ -52,16 +53,18 @@ struct SettingsView: View {
                 } header: {
                     Text("Device Tasks").textCase(nil).bold()
                 }
-                Section {
-                    ForEach(controllerState.tasks) { task in
-                        if (task.taskType == .SCHEDULED_TASK) {
-                            NavigationLink(value: task) {
-                                TaskSummaryView(task: task)
+                if (controllerState.scheduledTasksExist()) {
+                    Section {
+                        ForEach(controllerState.tasks) { task in
+                            if (task.taskType == .SCHEDULED_TASK) {
+                                NavigationLink(value: task) {
+                                    TaskSummaryView(task: task)
+                                }
                             }
                         }
+                    } header: {
+                        Text("Scheduled Tasks").textCase(nil).bold()
                     }
-                } header: {
-                    Text("Scheduled Tasks").textCase(nil).bold()
                 }
                 Section {
                     ForEach(controllerState.tasks) { task in
@@ -76,18 +79,16 @@ struct SettingsView: View {
                 }
             }
             .navigationDestination(for: ControllerState.Task.self) { task in
-                //var detailedTask = ControllerState.Task(task.name)
-                
                 TaskDetailedView(task: task)
                     .navigationTitle(task.name)
-                    .toolbar {
+                    /*.toolbar {
                         Button("Save", action: {
                             Task{
                                 await aqController.network.setSettingsState(task: task)
                             }
 
                         })
-                    }
+                    }*/
             }
             .navigationDestination(for: String.self) { string in
                 ThermostatDetailedView(controllerState: controllerState)
@@ -102,13 +103,18 @@ struct SettingsView: View {
                     }
             }
             
-            .listStyle(.insetGrouped)
+            //.listStyle(.insetGrouped)
             .navigationTitle("Settings")
         }
         .onAppear {
             //aqController.network.getSettingsState()
         }
-        
+        .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
+            if (newPhase == .active) {
+                print("SettingsView is now active")
+                aqController.network.getSettingsState()
+            }
+        }
         /*
          case "SCHEDULED_TASK":
              self.taskType = .SCHEDULED_TASK

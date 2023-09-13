@@ -64,6 +64,7 @@ class ControllerState: ObservableObject {
         var name: String
         var taskType: TaskType
         @Published var time: Date
+        @Published var timeInSeconds: Int
         @Published var isDisabled: Bool
         @Published var connectedTask: Task!
         
@@ -71,6 +72,7 @@ class ControllerState: ObservableObject {
             self.id = name
             self.name = name
             self.time = Date()
+            self.timeInSeconds = 1;
             self.isDisabled = true;
             //self.taskType = TaskType()
             //self.taskType = .Unknown
@@ -90,20 +92,23 @@ class ControllerState: ObservableObject {
                    
             }
         }
-        /*func copyFromTask(taskToCopy: ControllerState.Task) {
+        
+        func copyFromTask(taskToCopy: ControllerState.Task) {
             self.taskType = taskToCopy.taskType
             self.time = taskToCopy.time
+            self.timeInSeconds = taskToCopy.timeInSeconds
             self.isDisabled = taskToCopy.isDisabled
             if taskToCopy.connectedTask != nil {
-                if (self.connectedTask == nil) {
+                if self.connectedTask == nil {
                     self.connectedTask = ControllerState.Task(taskToCopy.connectedTask.name)
                 }
                 self.connectedTask.taskType = taskToCopy.connectedTask.taskType
                 self.connectedTask.time = taskToCopy.connectedTask.time
+                self.connectedTask.timeInSeconds = taskToCopy.connectedTask.timeInSeconds
                 self.connectedTask.isDisabled = taskToCopy.connectedTask.isDisabled
             }
             
-        }*/
+        }
     }
     //@Published var temp: String
     //@Published var tds: String
@@ -172,6 +177,14 @@ class ControllerState: ObservableObject {
             i+=1
         }
         return -1
+    }
+    func scheduledTasksExist() -> Bool {
+        for task in tasks {
+            if (task.taskType == .SCHEDULED_TASK) {
+                return true
+            }
+        }
+        return false
     }
 }
 /*class Device: ObservableObject {

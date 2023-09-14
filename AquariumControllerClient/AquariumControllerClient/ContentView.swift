@@ -49,6 +49,7 @@ struct ContentView: View {
                 Task {
                     await aqController.network.determineIP()
                     aqController.network.getCurrentState()
+                    aqController.network.getSettingsState()
                     aqController.network.connectWebSocket()
                 }
             } else if (newPhase == .background) {

@@ -112,7 +112,7 @@ struct SettingsView: View {
         .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
             if (newPhase == .active) {
                 print("SettingsView is now active")
-                aqController.network.getSettingsState()
+                //aqController.network.getSettingsState()
             }
         }
         /*

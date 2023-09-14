@@ -87,6 +87,7 @@ class Network: ObservableObject {
         //request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         //request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "GET"
+        request.timeoutInterval = 2
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let httpResponse = response as? HTTPURLResponse {
@@ -99,7 +100,7 @@ class Network: ObservableObject {
                 }
             }
         } catch {
-            print("Failed to connect to controller with public DNS and private IP.")
+            print("Setting AqControllerIP to publicIpDNS")
             AqControllerIP = publicIpDNS
         }
     }

@@ -127,3 +127,6 @@ iOSInjectionProject/
 *.app
 
 *.xcuserstate
+AquariumControllerClient/AquariumControllerClient.xcodeproj/project.xcworkspace/xcuserdata/connorwilliams.xcuserdatad/UserInterfaceState.xcuserstate
+*.xcuserstate
+*.xcuserstate

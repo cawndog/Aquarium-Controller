@@ -8,15 +8,122 @@
 import SwiftUI
 import Foundation
 struct SettingsView: View {
-    @State var editMode: Bool = false;
-    @EnvironmentObject var network: Network
+    //@State var editMode: Bool = false;
+    @EnvironmentObject var aqController: AqController
+    @Environment(\.scenePhase) var scenePhase
+    @ObservedObject var controllerState: ControllerState
+    
     @State var tempSet: Int = 82
     let tempRange = 64...94
     let tempStep = 1
+    init(controllerState: ControllerState) {
+        self.controllerState = controllerState
+        /*self.controllerState.getTaskByName("Test Task On").connectedTask = ControllerState.Task("Test Task Off")
+        self.controllerState.getTaskByName("Test Task 2 On").connectedTask = ControllerState.Task("Test Task 2 Off")
+        */
+    }
     //@State var currentDate = Date();
-    
+    //@ObservedObject var controllerState: ControllerState!
     var body: some View {
-        NavigationView {
+        //Text("Hello from settings!")
+        NavigationStack {
+            
+            List {
+                Section {
+                    NavigationLink (value: "Thermostat") {
+                        LabeledContent {
+                            Text(String(controllerState.aqThermostat) + " °F")
+                        }
+                        label: {
+                            Label("Thermostat", systemImage: "thermometer")
+                        }
+                    }
+                } header: {
+                    Text("")
+                }
+                Section {
+                    ForEach(controllerState.tasks) { task in
+                        if (task.taskType == .SCHEDULED_DEVICE_TASK) {
+                            NavigationLink(value: task) {
+                                TaskSummaryView(task: task)
+                            }
+                        }
+                    }
+                    
+                } header: {
+                    Text("Device Tasks").textCase(nil).bold()
+                }
+                if (controllerState.scheduledTasksExist()) {
+                    Section {
+                        ForEach(controllerState.tasks) { task in
+                            if (task.taskType == .SCHEDULED_TASK) {
+                                NavigationLink(value: task) {
+                                    TaskSummaryView(task: task)
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Scheduled Tasks").textCase(nil).bold()
+                    }
+                }
+                Section {
+                    ForEach(controllerState.tasks) { task in
+                        if (task.taskType == .TIMED_TASK) {
+                            NavigationLink(value: task) {
+                                TaskSummaryView(task: task)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Timed Tasks").textCase(nil).bold()
+                }
+            }
+            .navigationDestination(for: ControllerState.Task.self) { task in
+                TaskDetailedView(task: task)
+                    .navigationTitle(task.name)
+                    /*.toolbar {
+                        Button("Save", action: {
+                            Task{
+                                await aqController.network.setSettingsState(task: task)
+                            }
+
+                        })
+                    }*/
+            }
+            .navigationDestination(for: String.self) { string in
+                ThermostatDetailedView(controllerState: controllerState)
+                    .navigationTitle(string)
+                    .toolbar {
+                        Button("Save", action: {
+                            Task{
+                                await aqController.network.setSettingsState(aqThermostat: controllerState.aqThermostat)
+                            }
+                            
+                        })
+                    }
+            }
+            
+            //.listStyle(.insetGrouped)
+            .navigationTitle("Settings")
+        }
+        .onAppear {
+            //aqController.network.getSettingsState()
+        }
+        .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
+            if (newPhase == .active) {
+                print("SettingsView is now active")
+                //aqController.network.getSettingsState()
+            }
+        }
+        /*
+         case "SCHEDULED_TASK":
+             self.taskType = .SCHEDULED_TASK
+         case "SCHEDULED_DEVICE_TASK":
+             self.taskType = .SCHEDULED_DEVICE_TASK
+         case "TIMED_TASK":
+         */
+        
+        /*NavigationView {
 
             Form {
                 Section(header: Text("Thermostat")) {
@@ -90,12 +197,13 @@ struct SettingsView: View {
                 print(comps.minute!)*/
             }
         }
+         */
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView()
-            .environmentObject(Network())
+        SettingsView(controllerState: ControllerState())
+            .environmentObject(AqController())
     }
 }

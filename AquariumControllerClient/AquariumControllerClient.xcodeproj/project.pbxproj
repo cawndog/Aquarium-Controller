@@ -7,28 +7,59 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D812DD5C2A9A66370034ACBA /* HomeView.swift */; };
+		D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */; };
 		D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB5D2A0828F700E1C157 /* AquariumControllerClientApp.swift */; };
 		D864CB602A0828F700E1C157 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB5F2A0828F700E1C157 /* ContentView.swift */; };
 		D864CB622A0828F800E1C157 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D864CB612A0828F800E1C157 /* Assets.xcassets */; };
 		D864CB662A0828F800E1C157 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D864CB652A0828F800E1C157 /* Preview Assets.xcassets */; };
 		D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6C2A082A1600E1C157 /* SettingsView.swift */; };
-		D864CB712A082A1700E1C157 /* CurrentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6D2A082A1600E1C157 /* CurrentState.swift */; };
+		D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6D2A082A1600E1C157 /* ControllerState.swift */; };
 		D864CB722A082A1700E1C157 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6E2A082A1600E1C157 /* Network.swift */; };
 		D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6F2A082A1700E1C157 /* SettingsState.swift */; };
+		D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */; };
+		D87BC3F82AB21552003D5916 /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87BC3F72AB21552003D5916 /* LocationModel.swift */; };
+		D889B9422A4670820083FA0A /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D889B9412A4670820083FA0A /* DeviceView.swift */; };
+		D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D898A2EB2AAE1B600061A234 /* DatePickerView.swift */; };
+		D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862592A9AD30C006217F6 /* ParametersView.swift */; };
+		D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */; };
+		D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* TaskSummaryView.swift */; };
+		D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */; };
+		D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */; };
+		D8E5715F2A9FC0D000B8EC07 /* HashableClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */; };
+		D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */; };
+		D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FC0CC52A93AB4900CF828C /* AqController.swift */; };
+		D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FD39382A4B2B940074B1FD /* SensorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D812DD5C2A9A66370034ACBA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiComponentPicker.swift; sourceTree = "<group>"; };
 		D864CB5A2A0828F700E1C157 /* AquariumControllerClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AquariumControllerClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D864CB5D2A0828F700E1C157 /* AquariumControllerClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AquariumControllerClientApp.swift; sourceTree = "<group>"; };
 		D864CB5F2A0828F700E1C157 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D864CB612A0828F800E1C157 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D864CB632A0828F800E1C157 /* AquariumControllerClient.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AquariumControllerClient.entitlements; sourceTree = "<group>"; };
 		D864CB652A0828F800E1C157 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		D864CB6C2A082A1600E1C157 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		D864CB6D2A082A1600E1C157 /* CurrentState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentState.swift; sourceTree = "<group>"; };
+		D864CB6C2A082A1600E1C157 /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; usesTabs = 0; };
+		D864CB6D2A082A1600E1C157 /* ControllerState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerState.swift; sourceTree = "<group>"; };
 		D864CB6E2A082A1600E1C157 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		D864CB6F2A082A1700E1C157 /* SettingsState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsState.swift; sourceTree = "<group>"; };
+		D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqControllerMessage.swift; sourceTree = "<group>"; };
+		D87BC3F72AB21552003D5916 /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
+		D87BC3F92AB222D1003D5916 /* AquariumControllerClientDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AquariumControllerClientDebug.entitlements; sourceTree = "<group>"; };
+		D889B9412A4670820083FA0A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
+		D898A2EB2AAE1B600061A234 /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
+		D8C862592A9AD30C006217F6 /* ParametersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersView.swift; sourceTree = "<group>"; };
+		D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlCenterView.swift; sourceTree = "<group>"; };
+		D8C862622A9D7334006217F6 /* TaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSummaryView.swift; sourceTree = "<group>"; };
+		D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailedView.swift; sourceTree = "<group>"; };
+		D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = connectedTaskSummaryView.swift; sourceTree = "<group>"; };
+		D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashableClass.swift; sourceTree = "<group>"; };
+		D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermostatDetailedView.swift; sourceTree = "<group>"; };
 		D8E7294C2A0D8B5F00634E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D8FC0CC52A93AB4900CF828C /* AqController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqController.swift; sourceTree = "<group>"; };
+		D8FD39382A4B2B940074B1FD /* SensorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +73,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D81EFC4B2A9AC7540072F292 /* HomeView */ = {
+			isa = PBXGroup;
+			children = (
+				D812DD5C2A9A66370034ACBA /* HomeView.swift */,
+				D8C862592A9AD30C006217F6 /* ParametersView.swift */,
+				D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */,
+				D8FD39382A4B2B940074B1FD /* SensorView.swift */,
+				D889B9412A4670820083FA0A /* DeviceView.swift */,
+			);
+			name = HomeView;
+			sourceTree = "<group>";
+		};
 		D864CB512A0828F700E1C157 = {
 			isa = PBXGroup;
 			children = (
@@ -62,12 +105,16 @@
 		D864CB5C2A0828F700E1C157 /* AquariumControllerClient */ = {
 			isa = PBXGroup;
 			children = (
+				D87BC3F92AB222D1003D5916 /* AquariumControllerClientDebug.entitlements */,
 				D8E7294C2A0D8B5F00634E08 /* Info.plist */,
-				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
-				D864CB6D2A082A1600E1C157 /* CurrentState.swift */,
+				D889B9432A4677070083FA0A /* Views */,
+				D8FC0CC52A93AB4900CF828C /* AqController.swift */,
+				D864CB6D2A082A1600E1C157 /* ControllerState.swift */,
+				D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
+				D87BC3F72AB21552003D5916 /* LocationModel.swift */,
 				D864CB6F2A082A1700E1C157 /* SettingsState.swift */,
-				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
+				D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */,
 				D864CB612A0828F800E1C157 /* Assets.xcassets */,
 				D864CB632A0828F800E1C157 /* AquariumControllerClient.entitlements */,
 				D864CB642A0828F800E1C157 /* Preview Content */,
@@ -81,6 +128,30 @@
 				D864CB652A0828F800E1C157 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		D889B9432A4677070083FA0A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D864CB5F2A0828F700E1C157 /* ContentView.swift */,
+				D81EFC4B2A9AC7540072F292 /* HomeView */,
+				D8C8625D2A9D0EC8006217F6 /* SettingsView */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		D8C8625D2A9D0EC8006217F6 /* SettingsView */ = {
+			isa = PBXGroup;
+			children = (
+				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
+				D8C862622A9D7334006217F6 /* TaskSummaryView.swift */,
+				D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */,
+				D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */,
+				D898A2EB2AAE1B600061A234 /* DatePickerView.swift */,
+				D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */,
+				D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */,
+			);
+			name = SettingsView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -111,7 +182,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					D864CB592A0828F700E1C157 = {
 						CreatedOnToolsVersion = 14.3;
@@ -154,10 +225,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */,
+				D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */,
+				D8FD39392A4B2B940074B1FD /* SensorView.swift in Sources */,
+				D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */,
 				D864CB722A082A1700E1C157 /* Network.swift in Sources */,
+				D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */,
+				D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */,
+				D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */,
+				D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */,
+				D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */,
+				D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
-				D864CB712A082A1700E1C157 /* CurrentState.swift in Sources */,
+				D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */,
+				D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */,
 				D864CB602A0828F700E1C157 /* ContentView.swift in Sources */,
+				D889B9422A4670820083FA0A /* DeviceView.swift in Sources */,
+				D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */,
+				D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */,
+				D8E5715F2A9FC0D000B8EC07 /* HashableClass.swift in Sources */,
+				D87BC3F82AB21552003D5916 /* LocationModel.swift in Sources */,
 				D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -198,9 +284,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -256,9 +344,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -279,12 +369,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = AquariumControllerClient/AquariumControllerClient.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AquariumControllerClient/AquariumControllerClientDebug.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"AquariumControllerClient/Preview Content\"";
 				DEVELOPMENT_TEAM = DTT7NYTYUQ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AquariumControllerClient/Info.plist;
@@ -300,13 +393,14 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.connorwilliams.AquariumControllerClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -321,11 +415,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AquariumControllerClient/AquariumControllerClient.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"AquariumControllerClient/Preview Content\"";
 				DEVELOPMENT_TEAM = DTT7NYTYUQ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AquariumControllerClient/Info.plist;
@@ -341,13 +438,14 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.connorwilliams.AquariumControllerClient;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = YES;

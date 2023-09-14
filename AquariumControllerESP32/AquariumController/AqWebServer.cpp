@@ -19,7 +19,7 @@ String authFailResponse = "Authentication Failed";
 
 //AqWebServer::AqWebServer(int port, const char* path): server(port), ws(path) {
   AqWebServer::AqWebServer() {
-    this->server = new AsyncWebServer(80);
+    this->server = new AsyncWebServer(8008);
     this->ws = new AsyncWebSocket("/ws");
   }
   void AqWebServer::init() {

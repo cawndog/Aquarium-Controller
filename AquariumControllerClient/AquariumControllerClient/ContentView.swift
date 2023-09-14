@@ -6,11 +6,19 @@
 //
 
 import SwiftUI
+
 struct ContentView: View {
     @EnvironmentObject var aqController: AqController
     @Environment(\.scenePhase) var scenePhase
     @State private var selectedTab = "One"
+    //@StateObject var locationModel: LocationModel = LocationModel()
+    /*locationModel.requestAuthorisation(always: true)
     
+    if locationModel.authorisationStatus == .notDetermined {
+        print("authorization status not determined")
+    } else {
+        print("authorization status determined")
+    }*/
     //let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     var body: some View {
         //Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
@@ -38,13 +46,24 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
             if (newPhase == .active) {
-                aqController.network.getCurrentState()
-                aqController.network.connectWebSocket()
+                Task {
+                    await aqController.network.determineIP()
+                    aqController.network.getCurrentState()
+                    aqController.network.connectWebSocket()
+                }
             } else if (newPhase == .background) {
                 aqController.network.disconnectWebSocket()
             }
               
         }
+        /*.onChange(of: locationModel.authorisationStatus) {
+            print("Auth status changed.")
+            if locationModel.authorisationStatus == .notDetermined {
+                print("authorization status not determined")
+            } else {
+                print("authorization status determined")
+            }
+        }*/
        
     }
     

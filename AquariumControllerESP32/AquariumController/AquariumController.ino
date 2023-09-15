@@ -12,6 +12,8 @@
 //-----------------------------Function Declarations-----------------------------
 void printLocalTime();
 void IRAM_ATTR taskTimerInterrupt();
+void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info);
+void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info);
 
 //-------------------------------Global Variables-------------------------------
 
@@ -50,6 +52,8 @@ void setup() {
   #ifdef useSerialBT
     SerialBT.printf("Connecting to %s ", "Pepper");
   #endif
+  WiFi.onEvent(WiFiStationHasIP, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+  WiFi.onEvent(WiFiStationDisconnect, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
   WiFi.disconnect(true);
   WiFi.setHostname("AquariumController");
   WiFi.mode(WIFI_STA);
@@ -62,6 +66,9 @@ void setup() {
     Serial.println(" CONNECTED");
     Serial.println(WiFi.localIP());
   #endif
+  //rtc.setTime(30, 24, 15, 17, 1, 2021);  // 17th Jan 2021 15:24:30
+  //rtc.setTime(1609459200);  // 1st Jan 2021 00:00:00
+  rtc.setTime(0, 0, 0, 1, 1, 2023);  // 1st Jan 2023 00:00:00
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   while (!getLocalTime(&timeinfo)){
     //Wait until the local time is determined.
@@ -90,8 +97,12 @@ void loop() {
       taskInterruptCounter--;
     portEXIT_CRITICAL(&timerMux);
   }
-  if (aqController.nextTaskWithEvent != NULL) 
-      aqController.nextTaskWithEvent->doTask();
+  if (aqController.nextTaskWithEvent != NULL) {
+    #ifdef useSerial
+      Serial.printf("Task event triggered for %s\n.", aqController.nextTaskWithEvent->getName().c_str());
+    #endif
+    aqController.nextTaskWithEvent->doTask();
+  }    
   aqController.scheduleNextTask();
 }
 
@@ -123,6 +134,18 @@ void printLocalTime()
   #endif
   #ifdef useSerialBT
     SerialBT.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  #endif
+}
+
+void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
+  #ifdef useSerial
+    Serial.println("WiFiStationHasIP() Got IP.");
+  #endif
+}
+
+void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info) {
+  #ifdef useSerial
+    Serial.println("WiFiStationDisconnect() WiFi disconnected.");
   #endif
 }
 

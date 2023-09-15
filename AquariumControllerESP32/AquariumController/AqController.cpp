@@ -51,7 +51,6 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
-  Serial.println("DEBUG: Read sensors in aqController.init()");
   tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, &savedState, [this]() {
     lights.setStateOn();
   });
@@ -104,12 +103,9 @@ Task* AqController::getTaskByName(String name) {
   return NULL;
 }
 void AqController::setNextTaskWithEvent() {
-  Serial.println("In setNextTaskWithEvent().");
   if (tasks == NULL) {
-    Serial.println("tasks array is null. No tasks exist");
     return;
   }
-  Serial.printf("Setting nextTaskWithEventLocal to the first task. Task name: %s\n", tasks[0]->getName().c_str());
   Task* nextTaskWithEventLocal = tasks[0];
   for (int i = 0; tasks[i] != NULL; i++) {
     //Serial.printf("Checking tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
@@ -121,20 +117,20 @@ void AqController::setNextTaskWithEvent() {
       //Serial.printf("Checking task[%d]'s connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
       //Task* connectedTask = tasks[i]->connectedTask;
       if (tasks[i]->connectedTask->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
-        Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]->connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
-        Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->connectedTask->getName().c_str(), tasks[i]->connectedTask->nextRunTime);
+        //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]->connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
+        //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->connectedTask->getName().c_str(), tasks[i]->connectedTask->nextRunTime);
         nextTaskWithEventLocal = tasks[i]->connectedTask;
       }
     }
     if (tasks[i]->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
-      Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
-      Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->getName().c_str(), tasks[i]->nextRunTime);
+      //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
+      //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->getName().c_str(), tasks[i]->nextRunTime);
       nextTaskWithEventLocal = tasks[i];
     }
   }
   if (nextTaskWithEventLocal != NULL) { 
     if (nextTaskWithEventLocal->getDisabled() == true) {
-      Serial.print("nextTaskWithEventLocal was disabled. Setting nextTaskWithEventLocal to NULL.");
+      //Serial.print("nextTaskWithEventLocal was disabled. Setting nextTaskWithEventLocal to NULL.");
       nextTaskWithEventLocal = NULL;
     }
   }
@@ -142,25 +138,15 @@ void AqController::setNextTaskWithEvent() {
 
 }
 void AqController::scheduleNextTask() {
-  #ifdef useSerial
-    Serial.println("in scheduleNextTask()");
-  #endif
+
   //timerAlarmWrite(aqController.taskTimer, 20000, true);
   //timerAlarmEnable(aqController.taskTimer);
   if (tasks == NULL) {
     return;
   }
-  #ifdef useSerial 
-    Serial.println("Scheduling next task.");
-  #endif
-  #ifdef useSerialBT
-    SerialBT.println("Scheduling next task.");
-  #endif
+
   setNextTaskWithEvent();
   if (nextTaskWithEvent != NULL) { 
-    #ifdef useSerial 
-      Serial.printf("Next task with event is %s.\n", nextTaskWithEvent->getName().c_str());
-    #endif
     unsigned long currentLocalEpoch = rtc.getLocalEpoch();
     timerRestart(taskTimer);
 
@@ -175,7 +161,7 @@ void AqController::scheduleNextTask() {
     
     timerAlarmEnable(taskTimer);
   } else {
-    Serial.println("nextTaskWithEvent was NULL.");
+    //Serial.println("nextTaskWithEvent was NULL.");
   }
  
 }
@@ -194,5 +180,8 @@ Sensor* AqController::getSensorByName(String sensorName) {
     }
   }
   return NULL;
+}
+void AqController::setAqWebServerInterface(AqWebServerInterface* aqWebServerInterface) {
+  this->aqWebServerInterface = aqWebServerInterface;
 }
 

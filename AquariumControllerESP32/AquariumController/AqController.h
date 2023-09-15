@@ -29,7 +29,7 @@ class AqController {
     const int   daylightOffset_sec = 3600;
     hw_timer_t* taskTimer;
 
-    AqWebServerInterface* aqWebServerInterface;
+    AqWebServerInterface* aqWebServerInterface = NULL;
     bool maintMode;
     Preferences savedState;
     HardwareInterface hardwareInterface;
@@ -53,6 +53,7 @@ class AqController {
     void scheduleNextTask();
     Device* getDeviceByName(String devName);
     Sensor* getSensorByName(String sensorName);
+    void setAqWebServerInterface(AqWebServerInterface* aqWebServerInterface);
   };
 
 

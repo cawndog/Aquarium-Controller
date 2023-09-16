@@ -4,10 +4,12 @@ class Device;
 class Sensor;
 class AqWebServerInterface {
   public:
-    AqWebServerInterface() {}
+    AqWebServerInterface() {};
     virtual void deviceStateUpdate(Device** devices, int numDevices) = 0;
     virtual void sensorReadingUpdate(Sensor* sensor) = 0;
     virtual void updateDynamicIP() = 0;
     ~AqWebServerInterface() {};
 };
+
+
 #endif

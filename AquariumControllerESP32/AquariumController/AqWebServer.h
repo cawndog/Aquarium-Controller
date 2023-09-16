@@ -42,6 +42,14 @@ class AqWebServer: public AqWebServerInterface {
     //void updateDeviceStatesOnClients(TimedDevice* devices[]);
 };
 
+class AqWebServerDummy: public AqWebServerInterface {
+  public: 
+    AqWebServerDummy() {};
+    virtual void deviceStateUpdate(Device** devices, int numDevices) {};
+    virtual void sensorReadingUpdate(Sensor* sensor) {};
+    virtual void updateDynamicIP() {};
+    ~AqWebServerDummy() {};
+};
 
 /*
 

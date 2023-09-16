@@ -9,11 +9,11 @@ HardwareInterface::~HardwareInterface() {
   delete this->tempSensors;
 }
 
-void HardwareInterface::init(Preferences* savedState) {
-  this->switch1.init("1", savedState);
-  this->switch2.init("2", savedState);
-  this->switch3.init("3", savedState);
-  this->switch4.init("4", savedState);
+void HardwareInterface::init() {
+  this->switch1.init("1");
+  this->switch2.init("2");
+  this->switch3.init("3");
+  this->switch4.init("4");
 
   this->oneWire = new OneWire(TEMP_SENSOR_PIN);
   this->tempSensors = new DallasTemperature(this->oneWire);

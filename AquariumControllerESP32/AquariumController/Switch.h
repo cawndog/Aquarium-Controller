@@ -7,6 +7,7 @@
 #define OFF_POS 90
 #define POS1 70
 #define POS2 110
+extern Preferences savedState;
 enum SwitchState {
   OFF = 0,
   ON = 1,
@@ -16,9 +17,8 @@ class Switch {
   public: 
     String name;
     SwitchState state;
-    Preferences* savedState;
     Servo controllerServo;
-    void init(String name, Preferences* savedState);
+    void init(String name);
     void powerControl(SwitchState state) {};
     void setSwitchState(SwitchState state);
     SwitchState getSwitchState();

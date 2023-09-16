@@ -136,12 +136,9 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     JsonObject body = json.as<JsonObject>();
-    #ifdef useSerial
-      Serial.println("DEBUG: in setSettingsHandler()");
-    #endif
     if (body.containsKey("aqThermostat")) {
       aqController.aqThermostat = body["aqThermostat"];
-      aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
+      savedState.putShort("aqThermostat", aqController.aqThermostat);
       aqController.aqTemperature.readSensor();
     }
     const int numTasksInMsg = body["tasks"].size();
@@ -157,17 +154,10 @@ String authFailResponse = "Authentication Failed";
       if (taskName != NULL) {
         Task* task = aqController.getTaskByName(taskName);
         if (task != NULL) {
-          #ifdef useSerial
-            Serial.printf("DEBUG: in setSettingsHandler(). Got task %s\n", task->getName().c_str());
-            //Serial.println(task->getName());
-          #endif
           const char* connectedTaskName = body["tasks"][i]["connectedTask"]["name"];
           if (connectedTaskName != NULL) {
             connectedTask = aqController.getTaskByName(connectedTaskName);
             if (connectedTask != NULL) {
-              #ifdef useSerial
-                Serial.printf("DEBUG: in setSettingsHandler(). Got connectedTask %s\n", connectedTask->getName().c_str());
-              #endif
               if (body["tasks"][i]["connectedTask"]["isDisabled"] == 0) {
                 isDisabled = false;
               } else {
@@ -175,9 +165,6 @@ String authFailResponse = "Authentication Failed";
               }
               time = body["tasks"][i]["connectedTask"]["time"];
               connectedTask->updateSettings(isDisabled, time);
-              #ifdef useSerial
-                Serial.printf("DEBUG: in /setSettingsState. Updated connectedTask %s\n", connectedTask->getName().c_str());
-              #endif
             }
           }
           isDisabled = body["tasks"][i]["isDisabled"];
@@ -188,10 +175,6 @@ String authFailResponse = "Authentication Failed";
           }
           time = body["tasks"][i]["time"];
           task->updateSettings(isDisabled, time);
-          #ifdef useSerial
-            Serial.printf("DEBUG: in /setSettingsState. Updated task %s\n", task->getName().c_str());
-            //Serial.println(task->getName());
-          #endif
         } 
       }
     }

@@ -33,7 +33,7 @@ class HardwareInterface {
   public:
     HardwareInterface(); //Constructor
     ~HardwareInterface();
-    void init(Preferences* savedState); //Constructor used in setup() after EEPROM is initialized
+    void init(); //Constructor used in setup() after EEPROM is initialized
     uint8_t initDeviceState(String deviceName);
     void powerControl(String deviceName, uint8_t state); //power control interface for a device. Turns a device's corresponding switch on/off depending on the state of the device. 
     float readTdsSensor(float temperature);

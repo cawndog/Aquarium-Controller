@@ -29,11 +29,10 @@ String Task::taskTypeToString() {
   }
 }
 
-ScheduledTask::ScheduledTask(String name, TaskType taskType, Preferences* savedState, AqTaskFunction f) {
+ScheduledTask::ScheduledTask(String name, TaskType taskType, AqTaskFunction f) {
   this->name = name;
   this->taskType = taskType;
   this->f = f;
-  this->savedState = savedState;
   this->connectedTask = NULL;
   //const char* namePtr = &(this->name[0]);
   /*if(savedState->getBytes(name.c_str(), &(this->settings), sizeof(TaskSettings)) != sizeof(TaskSettings)) {
@@ -43,19 +42,18 @@ ScheduledTask::ScheduledTask(String name, TaskType taskType, Preferences* savedS
   }*/
   String taskDisabledKey = this->name + "_D";
   String taskTimeKey = this->name + "_T";
-  this->disabled = this->savedState->getBool(taskDisabledKey.c_str(), true);
-  this->time = this->savedState->getULong(taskTimeKey.c_str(), 0);
+  this->disabled = savedState.getBool(taskDisabledKey.c_str(), true);
+  this->time = savedState.getULong(taskTimeKey.c_str(), 0);
   if (!this->getDisabled()) {
     this->determineNextRunTime();
   }
   
 }
-TimedTask::TimedTask(String name, String shortname, TaskType taskType, Preferences* savedState, AqTaskFunction f) {
+TimedTask::TimedTask(String name, String shortname, TaskType taskType, AqTaskFunction f) {
   this->name = name;
   this->shortName = shortName;
   this->taskType = taskType;
   this->f = f;
-  this->savedState = savedState;
   this->connectedTask = NULL;
   //const char* namePtr = &(this->name[0]);
   /*if(savedState->getBytes(name.c_str(), &(this->settings), sizeof(TaskSettings)) != sizeof(TaskSettings)) {
@@ -65,8 +63,8 @@ TimedTask::TimedTask(String name, String shortname, TaskType taskType, Preferenc
   }*/
   String taskDisabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
-  this->disabled = this->savedState->getBool(taskDisabledKey.c_str(), true);
-  this->time = this->savedState->getULong(taskTimeKey.c_str(), 0);
+  this->disabled = savedState.getBool(taskDisabledKey.c_str(), true);
+  this->time = savedState.getULong(taskTimeKey.c_str(), 0);
   if (!this->getDisabled()) {
     this->determineNextRunTime();
   }
@@ -123,7 +121,7 @@ void TimedTask::runF() {
   //this->f();
 }
 void ScheduledTask::attachConnectedTask(String name, AqTaskFunction f){
-  this->connectedTask = new ScheduledTask(name, SCHEDULED_DEVICE_TASK, savedState, f);
+  this->connectedTask = new ScheduledTask(name, SCHEDULED_DEVICE_TASK, f);
   this->initTaskState();
 }
 void TimedTask::attachConnectedTask(String name, AqTaskFunction f) {
@@ -189,8 +187,8 @@ void ScheduledTask::updateSettings(bool disabled, unsigned long time) {
   //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
   String taskDisabledKey = this->name + "_D";
   String taskTimeKey = this->name + "_T";
-  this->savedState->putBool(taskDisabledKey.c_str(), disabled);
-  this->savedState->putULong(taskTimeKey.c_str(), time);
+  savedState.putBool(taskDisabledKey.c_str(), disabled);
+  savedState.putULong(taskTimeKey.c_str(), time);
   if (!this->getDisabled()) {
     this->determineNextRunTime();
     if (this->hasConnectedTask()) {
@@ -205,8 +203,8 @@ void TimedTask::updateSettings(bool disabled, unsigned long time) {
   //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
   String taskDisabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
-  this->savedState->putBool(taskDisabledKey.c_str(), disabled);
-  this->savedState->putULong(taskTimeKey.c_str(), time);
+  savedState.putBool(taskDisabledKey.c_str(), disabled);
+  savedState.putULong(taskTimeKey.c_str(), time);
   if (!this->getDisabled()) {
     this->determineNextRunTime();
   }

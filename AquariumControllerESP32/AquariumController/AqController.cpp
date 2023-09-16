@@ -10,9 +10,9 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   this->aqWebServerInterface = aqWebServerInterface;
 
   //rtc.setTime(30, 24, 15, 17, 1, 2021);  // 17th Jan 2021 15:24:30
-  savedState.begin("aqController", false);
+  
   this->aqThermostat = savedState.getShort("aqThermostat", 82);
-  hardwareInterface.init(&savedState);
+  hardwareInterface.init();
   heater.init("Heater", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
@@ -51,38 +51,38 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
-  tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, &savedState, [this]() {
+  tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, [this]() {
     lights.setStateOn();
   });
   tasks[0]->attachConnectedTask("Lights Off", [this]() {
     lights.setStateOff();
   });
-  tasks[1] = new ScheduledTask("CO2 On", SCHEDULED_DEVICE_TASK, &savedState, [this]() {
+  tasks[1] = new ScheduledTask("CO2 On", SCHEDULED_DEVICE_TASK, [this]() {
     co2.setStateOn();
   });
   tasks[1]->attachConnectedTask("CO2 Off", [this]() {
     co2.setStateOff();
   });
-  tasks[2] = new ScheduledTask("Air Pump On", SCHEDULED_DEVICE_TASK, &savedState, [this]() {
+  tasks[2] = new ScheduledTask("Air Pump On", SCHEDULED_DEVICE_TASK, [this]() {
     airPump.setStateOn();
   });
   tasks[2]->attachConnectedTask("Air Pump Off", [this]() {
     airPump.setStateOff();
   });
-  //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, &savedState, NULL, NULL, &aqTemperature);
-  //tasks[4] = new TimedTask ("Read TDS", SENSOR_READ, &savedState, [&](){}, NULL, &tds);
-  tasks[3] = new TimedTask ("Read Aquarium Temp", "Rd_Aq_Tmp", TIMED_TASK, &savedState, [this](){
+  //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, NULL, NULL, &aqTemperature);
+  //tasks[4] = new TimedTask ("Read TDS", SENSOR_READ, [&](){}, NULL, &tds);
+  tasks[3] = new TimedTask ("Read Aquarium Temp", "Rd_Aq_Tmp", TIMED_TASK, [this](){
     aqTemperature.readSensor();
   });
-  tasks[4] = new TimedTask ("Read TDS", "Rd_Tds", TIMED_TASK, &savedState, [this](){
+  tasks[4] = new TimedTask ("Read TDS", "Rd_Tds", TIMED_TASK, [this](){
     tds.readSensor();
   });
-  tasks[5] = new TimedTask ("Check WiFi Connection", "Ck_Wifi", TIMED_TASK, &savedState, [this](){
+  tasks[5] = new TimedTask ("Check WiFi Connection", "Ck_Wifi", TIMED_TASK, [this](){
     if (WiFi.status() != WL_CONNECTED) {
       WiFi.reconnect();
     }       
   });
-  tasks[6] = new TimedTask ("Update Dynamic IP", "Up_Dyn_IP", TIMED_TASK, &savedState, [this](){
+  tasks[6] = new TimedTask ("Update Dynamic IP", "Up_Dyn_IP", TIMED_TASK, [this](){
     this->aqWebServerInterface->updateDynamicIP();
   });
 }

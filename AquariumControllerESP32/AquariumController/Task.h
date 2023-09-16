@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 extern ESP32Time rtc;
+extern Preferences savedState;
 enum TaskType {
   SCHEDULED_TASK,
   SCHEDULED_DEVICE_TASK,
@@ -15,7 +16,6 @@ class Task {
     String name;
     unsigned long nextRunTime; //Next run time in Epoch Time
     TaskType taskType;
-    Preferences* savedState;
     bool disabled;
     unsigned long time;
     Task* connectedTask = NULL;
@@ -40,7 +40,7 @@ class ScheduledTask : public Task {
   public: 
     AqTaskFunction f;
     //void (*Taskfunc);
-    ScheduledTask(String name, TaskType taskType, Preferences* savedState, AqTaskFunction f = [](){});
+    ScheduledTask(String name, TaskType taskType, AqTaskFunction f = [](){});
     void doTask();
     void runF();
     void attachConnectedTask(String name, AqTaskFunction f = [](){});
@@ -53,7 +53,7 @@ class TimedTask : public Task {
   public: 
     String shortName;
     AqTaskFunction f;
-    TimedTask(String name, String shortName, TaskType taskType, Preferences* savedState, AqTaskFunction f = {});
+    TimedTask(String name, String shortName, TaskType taskType, AqTaskFunction f = {});
     void doTask();
     void runF();
     void attachConnectedTask(String name, AqTaskFunction f = [](){});

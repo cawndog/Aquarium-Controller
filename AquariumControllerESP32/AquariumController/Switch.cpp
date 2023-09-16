@@ -1,11 +1,12 @@
+#include "WString.h"
 #include "Switch.h"
 
-void Switch::init(String name, Preferences* savedState) {
+void Switch::init(String name) {
   this->name = name;
-  this->savedState = savedState;
-  const char* namePtr = &(this->name[0]);
-  this->state = this->IntToSwitchState(savedState->getUChar(namePtr, 0));
-  
+  //const char* namePtr = &(this->name[0]);
+  //this->state = this->IntToSwitchState(savedState.getUChar(namePtr, 0));
+  String switchStateKey = this->name + "_SW";
+  this->state = this->IntToSwitchState(savedState.getUChar(switchStateKey.c_str(), 0));
 }
 SwitchState Switch::getSwitchState() {
   return this->state;
@@ -35,8 +36,10 @@ SwitchState Switch::IntToSwitchState (uint8_t state) {
 }
 void Switch::setSwitchState(SwitchState state) {
   this->state = state;
-  const char* namePtr = &(this->name[0]);
-  this->savedState->putUChar(namePtr, this->SwitchStateToInt());
+  //const char* namePtr = &(this->name[0]);
+  //savedState.putUChar(namePtr, this->SwitchStateToInt());
+  String switchStateKey = this->name + "_SW";
+  savedState.putUChar(switchStateKey.c_str(), this->SwitchStateToInt());
   return;
 }
 void Switch1::powerControl(SwitchState state) { //air control switch

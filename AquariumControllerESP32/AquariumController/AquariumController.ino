@@ -23,6 +23,7 @@ portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint8_t taskInterruptCounter = 0;
 ESP32Time rtc; //Real time clock
 tm timeinfo;
+Preferences savedState;
 AqController aqController;
 AqWebServer aqWebServer;
 
@@ -74,6 +75,7 @@ void setup() {
     //Wait until the local time is determined.
   }
   rtc.setTimeStruct(timeinfo);
+  savedState.begin("aqController", false);
   //AqWebServer aqWebServer(80, "/ws");
   aqWebServer.init();
   
@@ -99,7 +101,7 @@ void loop() {
   }
   if (aqController.nextTaskWithEvent != NULL) {
     #ifdef useSerial
-      Serial.printf("Task event triggered for %s\n.", aqController.nextTaskWithEvent->getName().c_str());
+      Serial.printf("Task event triggered for %s.\n", aqController.nextTaskWithEvent->getName().c_str());
     #endif
     aqController.nextTaskWithEvent->doTask();
   }    

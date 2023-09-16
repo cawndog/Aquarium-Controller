@@ -138,7 +138,7 @@ String authFailResponse = "Authentication Failed";
     JsonObject body = json.as<JsonObject>();
     if (body.containsKey("aqThermostat")) {
       aqController.aqThermostat = body["aqThermostat"];
-      aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
+      savedState.putShort("aqThermostat", aqController.aqThermostat);
       aqController.aqTemperature.readSensor();
     }
     const int numTasksInMsg = body["tasks"].size();

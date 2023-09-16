@@ -19,7 +19,7 @@
   #include <BleSerial.h>  
   extern BleSerial SerialBT;
 #endif
-
+extern Preferences savedState;
 class AqController {
   public: 
     const char* ssid = "Pepper";
@@ -31,7 +31,7 @@ class AqController {
 
     AqWebServerInterface* aqWebServerInterface = NULL;
     bool maintMode;
-    Preferences savedState;
+    
     HardwareInterface hardwareInterface;
 
     Device heater;

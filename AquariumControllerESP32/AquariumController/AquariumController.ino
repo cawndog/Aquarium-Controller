@@ -18,9 +18,12 @@ void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info);
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
+volatile SemaphoreHandle_t asyncEventSemaphore;
 hw_timer_t* taskTimer;
+hw_timer_t* asyncEventTimer;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint8_t taskInterruptCounter = 0;
+volatile uint8_t asyncEventCounter = 0;
 ESP32Time rtc; //Real time clock
 tm timeinfo;
 Preferences savedState;
@@ -85,8 +88,8 @@ void setup() {
   aqWebServer.updateDynamicIP();
 
   syncSemaphore = xSemaphoreCreateBinary();
-  aqController.taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
-  timerAttachInterrupt(aqController.taskTimer, &taskTimerInterrupt, true);
+  taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
+  timerAttachInterrupt(taskTimer, &taskTimerInterrupt, true);
   aqController.scheduleNextTask();
 }
 
@@ -117,7 +120,7 @@ void IRAM_ATTR taskTimerInterrupt() {
   #ifdef useSerialBT
     SerialBT.println("In taskTimerInterrupt(). Task event triggered.");
   #endif
-  timerAlarmDisable(aqController.taskTimer);
+  timerAlarmDisable(taskTimer);
   xSemaphoreGiveFromISR(syncSemaphore, NULL);
 }
 void printLocalTime()

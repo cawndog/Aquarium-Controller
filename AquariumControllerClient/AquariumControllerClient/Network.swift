@@ -80,7 +80,7 @@ class Network: ObservableObject {
         print("WebSocket disconnected.")
     }
     func determineIP() async {
-        var urlString: String = "http://\(privateIp)/"
+        var urlString: String = "http://\(privateIp)/esp_alv"
 
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -91,7 +91,7 @@ class Network: ObservableObject {
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let httpResponse = response as? HTTPURLResponse {
-                if httpResponse.statusCode == 404 {
+                if httpResponse.statusCode == 204 {
                     print("Setting AqControllerIP to privateIp.")
                     AqControllerIP = privateIp
                 } else {

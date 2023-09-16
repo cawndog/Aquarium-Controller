@@ -41,7 +41,9 @@ String authFailResponse = "Authentication Failed";
     delay(15);
     ESP.restart();
   });
-  
+  server->on("/esp_alv", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->send(204);
+  });
   server->on("/maintOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {

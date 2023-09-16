@@ -51,22 +51,22 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
-  tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, [this]() {
+  tasks[0] = new ScheduledTask("Lights On", "Lt_On", SCHEDULED_DEVICE_TASK, [this]() {
     lights.setStateOn();
   });
-  tasks[0]->attachConnectedTask("Lights Off", [this]() {
+  tasks[0]->attachConnectedTask("Lights Off", "Lt_Off", [this]() {
     lights.setStateOff();
   });
-  tasks[1] = new ScheduledTask("CO2 On", SCHEDULED_DEVICE_TASK, [this]() {
+  tasks[1] = new ScheduledTask("CO2 On", "CO_On", SCHEDULED_DEVICE_TASK, [this]() {
     co2.setStateOn();
   });
-  tasks[1]->attachConnectedTask("CO2 Off", [this]() {
+  tasks[1]->attachConnectedTask("CO2 Off", "CO_Off", [this]() {
     co2.setStateOff();
   });
-  tasks[2] = new ScheduledTask("Air Pump On", SCHEDULED_DEVICE_TASK, [this]() {
+  tasks[2] = new ScheduledTask("Air Pump On", "Ar_On", SCHEDULED_DEVICE_TASK, [this]() {
     airPump.setStateOn();
   });
-  tasks[2]->attachConnectedTask("Air Pump Off", [this]() {
+  tasks[2]->attachConnectedTask("Air Pump Off", "Ar_Off", [this]() {
     airPump.setStateOff();
   });
   //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, NULL, NULL, &aqTemperature);
@@ -139,8 +139,8 @@ void AqController::setNextTaskWithEvent() {
 }
 void AqController::scheduleNextTask() {
 
-  //timerAlarmWrite(aqController.taskTimer, 20000, true);
-  //timerAlarmEnable(aqController.taskTimer);
+  //timerAlarmWrite(taskTimer, 20000, true);
+  //timerAlarmEnable(taskTimer);
   if (tasks == NULL) {
     return;
   }

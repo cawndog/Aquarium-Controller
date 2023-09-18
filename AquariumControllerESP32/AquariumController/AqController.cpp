@@ -42,6 +42,10 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
     }
     if (sensor->prevValue != sensor->value) {
       this->aqWebServerInterface->sensorReadingUpdate(sensor);
+    } else {
+      #ifdef useSerial
+        Serial.println("Temperature did not change. Will not update clients.");
+      #endif
     }
   });
   tds.init("TDS", &hardwareInterface, &aqTemperature, [this](Sensor* sensor) {

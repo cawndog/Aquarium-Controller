@@ -32,7 +32,6 @@ class AqWebServer: public AqWebServerInterface {
     //void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
     //void webServerSetup();
     bool checkAuthorization(AsyncWebServerRequest *request);
-    void updateDDNS();
     void deviceStateUpdate(Device** devices, int numDevices);
     void sensorReadingUpdate(Sensor* sensor);
     void updateDynamicIP();

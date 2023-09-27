@@ -29,8 +29,9 @@ String Task::taskTypeToString() {
   }
 }
 
-ScheduledTask::ScheduledTask(String name, TaskType taskType, AqTaskFunction f) {
+ScheduledTask::ScheduledTask(String name, String shortName, TaskType taskType, AqTaskFunction f) {
   this->name = name;
+  this->shortName = shortName;
   this->taskType = taskType;
   this->f = f;
   this->connectedTask = NULL;
@@ -40,8 +41,8 @@ ScheduledTask::ScheduledTask(String name, TaskType taskType, AqTaskFunction f) {
     this->time = 0;
     return;
   }*/
-  String taskDisabledKey = this->name + "_D";
-  String taskTimeKey = this->name + "_T";
+  String taskDisabledKey = this->shortName + "_D";
+  String taskTimeKey = this->shortName + "_T";
   this->disabled = savedState.getBool(taskDisabledKey.c_str(), true);
   this->time = savedState.getULong(taskTimeKey.c_str(), 0);
   if (!this->getDisabled()) {
@@ -49,7 +50,7 @@ ScheduledTask::ScheduledTask(String name, TaskType taskType, AqTaskFunction f) {
   }
   
 }
-TimedTask::TimedTask(String name, String shortname, TaskType taskType, AqTaskFunction f) {
+TimedTask::TimedTask(String name, String shortName, TaskType taskType, AqTaskFunction f) {
   this->name = name;
   this->shortName = shortName;
   this->taskType = taskType;
@@ -93,7 +94,9 @@ void ScheduledTask::initTaskState() {
     }
   }
 }
-
+void TimedTask::initTaskState() { 
+  //do nothing
+}
 void ScheduledTask::runF() {
   this->f();
 }
@@ -120,11 +123,11 @@ void ScheduledTask::doTask() {
 void TimedTask::runF() {
   //this->f();
 }
-void ScheduledTask::attachConnectedTask(String name, AqTaskFunction f){
-  this->connectedTask = new ScheduledTask(name, SCHEDULED_DEVICE_TASK, f);
+void ScheduledTask::attachConnectedTask(String name, String shortName, AqTaskFunction f){
+  this->connectedTask = new ScheduledTask(name, shortName, SCHEDULED_DEVICE_TASK, f);
   this->initTaskState();
 }
-void TimedTask::attachConnectedTask(String name, AqTaskFunction f) {
+void TimedTask::attachConnectedTask(String name, String shortName, AqTaskFunction f) {
   return;
 }
 bool TimedTask::hasConnectedTask() {
@@ -185,8 +188,8 @@ void ScheduledTask::updateSettings(bool disabled, unsigned long time) {
   this->time = time;
   //const char* namePtr = &(this->name[0]);
   //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
-  String taskDisabledKey = this->name + "_D";
-  String taskTimeKey = this->name + "_T";
+  String taskDisabledKey = this->shortName + "_D";
+  String taskTimeKey = this->shortName + "_T";
   savedState.putBool(taskDisabledKey.c_str(), disabled);
   savedState.putULong(taskTimeKey.c_str(), time);
   if (!this->getDisabled()) {

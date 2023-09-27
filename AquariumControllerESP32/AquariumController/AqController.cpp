@@ -42,6 +42,10 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
     }
     if (sensor->prevValue != sensor->value) {
       this->aqWebServerInterface->sensorReadingUpdate(sensor);
+    } else {
+      #ifdef useSerial
+        Serial.println("Temperature did not change. Will not update clients.");
+      #endif
     }
   });
   tds.init("TDS", &hardwareInterface, &aqTemperature, [this](Sensor* sensor) {
@@ -51,22 +55,22 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
-  tasks[0] = new ScheduledTask("Lights On", SCHEDULED_DEVICE_TASK, [this]() {
+  tasks[0] = new ScheduledTask("Lights On", "Lt_On", SCHEDULED_DEVICE_TASK, [this]() {
     lights.setStateOn();
   });
-  tasks[0]->attachConnectedTask("Lights Off", [this]() {
+  tasks[0]->attachConnectedTask("Lights Off", "Lt_Off", [this]() {
     lights.setStateOff();
   });
-  tasks[1] = new ScheduledTask("CO2 On", SCHEDULED_DEVICE_TASK, [this]() {
+  tasks[1] = new ScheduledTask("CO2 On", "CO_On", SCHEDULED_DEVICE_TASK, [this]() {
     co2.setStateOn();
   });
-  tasks[1]->attachConnectedTask("CO2 Off", [this]() {
+  tasks[1]->attachConnectedTask("CO2 Off", "CO_Off", [this]() {
     co2.setStateOff();
   });
-  tasks[2] = new ScheduledTask("Air Pump On", SCHEDULED_DEVICE_TASK, [this]() {
+  tasks[2] = new ScheduledTask("Air Pump On", "Ar_On", SCHEDULED_DEVICE_TASK, [this]() {
     airPump.setStateOn();
   });
-  tasks[2]->attachConnectedTask("Air Pump Off", [this]() {
+  tasks[2]->attachConnectedTask("Air Pump Off", "Ar_Off", [this]() {
     airPump.setStateOff();
   });
   //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, NULL, NULL, &aqTemperature);
@@ -101,6 +105,21 @@ Task* AqController::getTaskByName(String name) {
     }
   }
   return NULL;
+}
+void AqController::determineTaskRunTimes() {
+  for (int i = 0; tasks[i] != NULL; i++) {
+    tasks[i]->determineNextRunTime();
+    if (tasks[i]->hasConnectedTask()) {
+      tasks[i]->connectedTask->determineNextRunTime();
+    }
+  }
+}
+void AqController::initSchedDeviceTasks() {
+  for (int i = 0; tasks[i] != NULL; i++) {
+    if (tasks[i]->taskType == SCHEDULED_DEVICE_TASK) {
+      tasks[i]->initTaskState();
+    }
+  }
 }
 void AqController::setNextTaskWithEvent() {
   if (tasks == NULL) {
@@ -139,8 +158,8 @@ void AqController::setNextTaskWithEvent() {
 }
 void AqController::scheduleNextTask() {
 
-  //timerAlarmWrite(aqController.taskTimer, 20000, true);
-  //timerAlarmEnable(aqController.taskTimer);
+  //timerAlarmWrite(taskTimer, 20000, true);
+  //timerAlarmEnable(taskTimer);
   if (tasks == NULL) {
     return;
   }

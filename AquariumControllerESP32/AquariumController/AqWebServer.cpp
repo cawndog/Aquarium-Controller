@@ -41,7 +41,9 @@ String authFailResponse = "Authentication Failed";
     delay(15);
     ESP.restart();
   });
-  
+  server->on("/esp_alv", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->send(204);
+  });
   server->on("/maintOn", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
@@ -303,13 +305,15 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
 
   return authFailed;
 }
-AqWebServer::~AqWebServer() {}
+AqWebServer::~AqWebServer() {
+  delete this->server;
+  delete this->ws;
+  delete this->setSettingsHandler;
+  delete this->setDeviceStateHandler;
+}
 /*void AqWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 
 }*/
-void AqWebServer::updateDDNS() {
-
-}
 void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
   DynamicJsonDocument body(1024);
   body["messageType"] = "StateUpdate";
@@ -415,20 +419,4 @@ bool processAqControllerMessage(JsonVariant &json) {
 
 }
 
-/*struct WebSocketMessageJSON: Decodable {
-  enum MessageType: String, Decodable {
-    case Alert, Information, StateUpdate, Unknown
-    init () {
-        self = .Unknown
-    };
-  };
-  struct Sensor: Decodable {
-    var name: String
-    var value: String
-  };
-  struct Device: Decodable {
-    var name: String
-    var state: Bool
-  };
-};*/
 

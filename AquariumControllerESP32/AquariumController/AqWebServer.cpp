@@ -419,5 +419,4 @@ bool processAqControllerMessage(JsonVariant &json) {
 
 }
 
-*/
 

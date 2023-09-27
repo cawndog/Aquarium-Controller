@@ -14,7 +14,10 @@ void printLocalTime();
 void IRAM_ATTR taskTimerInterrupt();
 void IRAM_ATTR asyncEventInterrupt();
 void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info);
+void WiFiStaConnectedToSoftAP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info);
+void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info);
+
 
 //-------------------------------Global Variables-------------------------------
 
@@ -35,6 +38,9 @@ const char* ssid = "Pepper";
 const char* password = "unlawfulOwl69!";
 const char* softApSsid = "AqController";
 const char* softApPassword = "unlawfulOwl69!";
+volatile int wifiReconnectAttempts = 0;
+volatile int wifiReconnectMaxAttempts = 4; //Max wifi reconnect attempts before delay attemping to connect again.
+volatile int RECONNECT_DELAY = 90000;
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -25200;
 const int   daylightOffset_sec = 3600;
@@ -45,13 +51,13 @@ void setup() {
   inSetup = true;
   //http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller
   #ifdef useSerial
-    Serial.begin(115200);
+    //Serial.begin(9600);
   #endif
   #ifdef useSerialBT
     //SerialBT.setPin("0228");
-    SerialBT.begin("AqController");
+    //SerialBT.begin("AqController");
   #endif
-
+  Serial.begin(115200);
   
   //connect to WiFi
   /*#ifdef useSerial
@@ -66,6 +72,8 @@ void setup() {
   #endif
   WiFi.onEvent(WiFiStationHasIP, ARDUINO_EVENT_WIFI_STA_GOT_IP);
   WiFi.onEvent(WiFiStationDisconnect, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+  WiFi.onEvent(WiFiScanComplete, ARDUINO_EVENT_WIFI_SCAN_DONE);
+  WiFi.onEvent(WiFiStaConnectedToSoftAP, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
   WiFi.disconnect(true);
   WiFi.setHostname("AquariumController");
   WiFi.mode(WIFI_STA);
@@ -75,10 +83,12 @@ void setup() {
   //timerAttachInterrupt(asyncEventTimer, &asyncEventInterrupt, true);
   //timerAlarmWrite(asyncEventTimer, 10 * 2000, false);
   //timerAlarmEnable(asyncEventTimer);
+  WiFi.setAutoReconnect(false);
   WiFi.begin(ssid, password);
-  const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
-  xSemaphoreTake(asyncEventSemaphore, xDelay);
-  if (WiFi.status() != WL_CONNECTED) {
+  
+  //const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
+  xSemaphoreTake(asyncEventSemaphore, portMAX_DELAY);
+  /*if (WiFi.status() != WL_CONNECTED) {
     #ifdef useSerial
       Serial.printf("Failed to connect to WiFi network %s.\n", ssid);
       //Serial.println(WiFi.localIP());
@@ -102,7 +112,18 @@ void setup() {
     } else {
       rtc.setTime(0, 0, 0, 1, 1, 2023);
     }
-  }  
+  }  */
+  if (WiFi.status() == WL_CONNECTED) {
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    if (getLocalTime(&timeinfo, 10000)) {
+      rtc.setTimeStruct(timeinfo);
+    } else {
+      rtc.setTime(0, 0, 0, 1, 1, 2023);
+    }
+  } else {
+    rtc.setTime(0, 0, 0, 1, 1, 2023);
+  }
+ 
   savedState.begin("aqController", false);
   //AqWebServer aqWebServer(80, "/ws");
   aqWebServer.init();
@@ -123,11 +144,13 @@ void loop() {
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
   //timeinfo = rtc.getTimeStruct();
   printLocalTime();
-  while (taskInterruptCounter > 0) {
-    portENTER_CRITICAL(&timerMux);
+  
+  portENTER_CRITICAL(&timerMux);
+    while (taskInterruptCounter > 0) {
       taskInterruptCounter--;
-    portEXIT_CRITICAL(&timerMux);
-  }
+    }
+  portEXIT_CRITICAL(&timerMux);
+
   if (aqController.nextTaskWithEvent != NULL) {
     #ifdef useSerial
       Serial.printf("Task event triggered for %s.\n", aqController.nextTaskWithEvent->getName().c_str());
@@ -177,6 +200,27 @@ void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   #ifdef useSerial
     Serial.println("WiFiStationHasIP() Got IP.");
   #endif
+  wifiReconnectAttempts = 0;
+  if (inSetup) {
+    xSemaphoreGive(asyncEventSemaphore);
+  } else {
+    if (getLocalTime(&timeinfo, 8000)) {
+      rtc.setTimeStruct(timeinfo);
+    } else {
+      rtc.setTime(0, 0, 0, 1, 1, 2023);
+    }
+    //portENTER_CRITICAL(&timerMux);
+      aqController.determineTaskRunTimes();
+      aqController.initSchedDeviceTasks();
+      aqController.scheduleNextTask();
+    //portEXIT_CRITICAL(&timerMux);
+  }
+  if (WiFi.getMode() == WIFI_AP_STA) {
+    WiFi.softAPdisconnect();
+    WiFi.mode(WIFI_STA);
+  }
+}
+void WiFiStaConnectedToSoftAP(WiFiEvent_t event, WiFiEventInfo_t info) {
   if (inSetup) {
     xSemaphoreGive(asyncEventSemaphore);
   }
@@ -184,12 +228,59 @@ void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
 
 void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info) {
   #ifdef useSerial
-    Serial.println("WiFiStationDisconnect() WiFi disconnected.");
+    Serial.printf("WiFiStationDisconnect() WiFi disconnected. ReconnectAttempts: %d\n", wifiReconnectAttempts);
   #endif
-  if (inSetup) {
+  if (wifiReconnectAttempts < wifiReconnectMaxAttempts) {
+      #ifdef useSerial
+    Serial.printf("wifiReconnectAttempts < wifiReconnectMaxAttempt\n");
+    #endif
+    wifiReconnectAttempts++;
+    //WiFi.begin(ssid, password);
+    WiFi.reconnect();
+  } else {
+    Serial.printf("wifiReconnectAttempts NOT < wifiReconnectMaxAttempt. Will not attempt to reconnect.\n");
+    //WiFi.mode(WIFI_AP);
+    if (WiFi.getMode() != WIFI_AP_STA) {
+      Serial.printf("Setting WIFI mode to WIFI_MODE_APSTA\n");
+      WiFi.mode(WIFI_AP_STA);
+      WiFi.softAPConfig(IP, gateway, NMask);
+      WiFi.softAP(softApSsid, softApPassword);
+    }
+    //WiFi.scanNetworks(async, show_hidden)
+    //WiFi.disconnect();
+    const TickType_t xDelay = RECONNECT_DELAY / portTICK_PERIOD_MS;
+    vTaskDelay(xDelay);
+    Serial.printf("Scanning networks\n");
+    WiFi.scanNetworks(true);
+    //WiFi.scanNetworks(true, false, true, 300, 0, nullptr, nullptr);
+  }
+  /*if (inSetup) {
     WiFi.begin(ssid, password);
   } else {
     WiFi.begin(ssid, password);
+  }*/
+}
+void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info) {
+  Serial.printf("DEBUG: in WiFiScanComplete.\n");
+  //const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
+  
+  int n = WiFi.scanComplete();
+  if (n > 0) {
+    Serial.printf("Networks found: %d. Searching for ssid %s.\n", n, ssid);
+    for (int i = 0; i < n; i++) {
+      Serial.printf("Network: %s\n", WiFi.SSID(i).c_str());
+      if (strcmp(WiFi.SSID(i).c_str(), ssid) == 0) {
+        Serial.printf("Network Pepper found.\n");
+        WiFi.scanDelete();
+        wifiReconnectAttempts = 0;
+        WiFi.begin(ssid, password);
+        return;
+      }
+    }
   }
+  const TickType_t xDelay = RECONNECT_DELAY / portTICK_PERIOD_MS;
+  WiFi.scanDelete();
+  vTaskDelay(xDelay);
+  WiFi.scanNetworks(true);
 }
 

@@ -94,7 +94,9 @@ void ScheduledTask::initTaskState() {
     }
   }
 }
-
+void TimedTask::initTaskState() { 
+  //do nothing
+}
 void ScheduledTask::runF() {
   this->f();
 }

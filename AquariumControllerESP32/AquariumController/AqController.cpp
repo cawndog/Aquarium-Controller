@@ -106,6 +106,21 @@ Task* AqController::getTaskByName(String name) {
   }
   return NULL;
 }
+void AqController::determineTaskRunTimes() {
+  for (int i = 0; tasks[i] != NULL; i++) {
+    tasks[i]->determineNextRunTime();
+    if (tasks[i]->hasConnectedTask()) {
+      tasks[i]->connectedTask->determineNextRunTime();
+    }
+  }
+}
+void AqController::initSchedDeviceTasks() {
+  for (int i = 0; tasks[i] != NULL; i++) {
+    if (tasks[i]->taskType == SCHEDULED_DEVICE_TASK) {
+      tasks[i]->initTaskState();
+    }
+  }
+}
 void AqController::setNextTaskWithEvent() {
   if (tasks == NULL) {
     return;

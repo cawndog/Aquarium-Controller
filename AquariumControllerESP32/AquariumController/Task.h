@@ -24,7 +24,7 @@ class Task {
     virtual void doTask() = 0;
     virtual void determineNextRunTime() = 0;
     virtual void updateSettings(bool disabled, unsigned long time) = 0;
-    //virtual void initTaskState() = 0;
+    virtual void initTaskState() = 0;
     virtual void runF() = 0;
     virtual void attachConnectedTask(String name, String shortName, AqTaskFunction f = [](){}) = 0;
     virtual bool hasConnectedTask() = 0;
@@ -60,7 +60,7 @@ class TimedTask : public Task {
     bool hasConnectedTask();
     void determineNextRunTime();
     void updateSettings(bool disabled, unsigned long time);
-    //void initTaskState();
+    void initTaskState();
 };
 
 

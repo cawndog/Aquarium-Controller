@@ -130,3 +130,4 @@ iOSInjectionProject/
 AquariumControllerClient/AquariumControllerClient.xcodeproj/project.xcworkspace/xcuserdata/connorwilliams.xcuserdatad/UserInterfaceState.xcuserstate
 *.xcuserstate
 *.xcuserstate
+AquariumControllerESP32/AquariumController/Environment.h

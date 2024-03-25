@@ -116,6 +116,7 @@ class ControllerState: ObservableObject {
     @Published var devices: [Device]
     @Published var tasks: [Task]
     @Published var maintenanceMode: Bool
+    @Published var feedMode: Bool
     @Published var aqThermostat: Int
     init() {
         self.sensors = [Sensor.init("Aquarium Temperature"),
@@ -127,6 +128,7 @@ class ControllerState: ObservableObject {
                         Device.init("Heater")]
         self.tasks = []
         maintenanceMode = false
+        feedMode = false
         aqThermostat = 0
         
         

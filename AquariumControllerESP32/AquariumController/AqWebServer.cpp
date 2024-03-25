@@ -209,6 +209,15 @@ String authFailResponse = "Authentication Failed";
     
   });
   server->addHandler(setDeviceStateHandler);
+  sendMessageHandler = new AsyncCallbackJsonWebHandler("/sendMessage", [&](AsyncWebServerRequest *request, JsonVariant &json) {
+    bool authFailed = checkAuthorization(request);
+  if (authFailed) {
+      return;
+    }
+    //processAqControllerMessage(json);
+    request->send(200, "text/plain", "Message Received.");
+  });
+  server->addHandler(sendMessageHandler);
   server->onNotFound([&](AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
   });  
@@ -360,7 +369,7 @@ void AqWebServer::updateDynamicIP() {
   http.end();
 }
 bool processAqControllerMessage(JsonVariant &json) {
-  /*JsonObject body = json.as<JsonObject>();
+  JsonObject body = json.as<JsonObject>();
   if (body.containsKey("messageType")) {
     if (body["messageType"] == "StateUpdate") {
       if (body.containsKey("devices")) {
@@ -388,11 +397,24 @@ bool processAqControllerMessage(JsonVariant &json) {
           aqController.aqTemperature.readSensor();
         }
       }
+      if (body.containsKey("feedMode")) {
+        if (body["feedMode"] == true) {
+          aqController.maintMode = true;
+          
+          aqController.heater.setStateOff();
+        }
+        else {
+          aqController.maintMode = false;
+          aqController.filter.setStateOn();
+          aqController.aqTemperature.readSensor();
+        }
+      }
     }
     else if (body["messageType"] == "SettingsUpdate") {
       if (body.containsKey("aqThermostat")) {
         aqController.aqThermostat = short(body["aqThermostat"]);
-        aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
+        savedState.putShort("aqThermostat", aqController.aqThermostat);
+        aqController.aqTemperature.readSensor();
       }
       const int numTasks = body["tasks"].size();
       for (int i = 0; i < numTasks; i++) {
@@ -407,14 +429,13 @@ bool processAqControllerMessage(JsonVariant &json) {
           }
         } 
       }
-      aqController.aqTemperature.readSensor();
       aqController.scheduleNextTask();
     } else {
       return false;
     }
   } else {
     return false;
-  }*/
+  }
   return true;
 
 }

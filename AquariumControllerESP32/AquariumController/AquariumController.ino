@@ -1,3 +1,4 @@
+#include "Environment.h"
 #include "AquariumController.h"
 
 #include "AqController.h"
@@ -34,18 +35,18 @@ tm timeinfo;
 Preferences savedState;
 AqController aqController;
 AqWebServer aqWebServer;
-const char* ssid = "Pepper";
-const char* password = "unlawfulOwl69!";
-const char* softApSsid = "AqController";
-const char* softApPassword = "unlawfulOwl69!";
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+const char* softApSsid = SOFT_AP_SSID;
+const char* softApPassword = SOFT_AP_PASSWORD;
 volatile int wifiReconnectAttempts = 0;
 volatile int wifiReconnectMaxAttempts = 4; //Max wifi reconnect attempts before delay attemping to connect again.
 volatile int RECONNECT_DELAY = 90000;
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -25200;
 const int   daylightOffset_sec = 3600;
-IPAddress IP = {10, 0, 0, 96};
-IPAddress gateway = {10, 0, 0, 96};
+IPAddress IP = {192, 168, 0, 2};
+IPAddress gateway = {192, 168, 0, 2};
 IPAddress NMask = {255, 255, 255, 0};
 void setup() {
   inSetup = true;

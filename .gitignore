@@ -88,7 +88,7 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
-.DS_Store
+*.DS_Store
 *.xcuserstate
 
 
@@ -127,6 +127,7 @@ iOSInjectionProject/
 *.app
 
 *.xcuserstate
+*xcscheme
+*Environment.h
 AquariumControllerClient/AquariumControllerClient.xcodeproj/project.xcworkspace/xcuserdata/connorwilliams.xcuserdatad/UserInterfaceState.xcuserstate
-*.xcuserstate
-*.xcuserstate
+

@@ -1,0 +1,9 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild AquariumControllerClient.xcodeproj AquariumControllerClient "‘id=00008130-001424590AA0001C’"
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+
+Build settings from command line:
+    ‘id = 00008130-001424590AA0001C’
+

@@ -19,12 +19,14 @@
   extern BleSerial SerialBT;
 #endif
   extern AqController aqController;
+  extern Preferences savedState;
 class AqWebServer: public AqWebServerInterface {
   public: 
     AsyncWebServer* server;
     AsyncWebSocket* ws;
     AsyncCallbackJsonWebHandler* setSettingsHandler;
     AsyncCallbackJsonWebHandler* setDeviceStateHandler;
+    AsyncCallbackJsonWebHandler* sendMessageHandler;
     //AqWebServer(int port, const char* path);
     AqWebServer();
     void init();

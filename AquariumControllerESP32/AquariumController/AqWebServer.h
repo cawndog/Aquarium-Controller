@@ -1,6 +1,6 @@
 #ifndef AQ_WEB_SERVER_H
 #define AQ_WEB_SERVER_H
-
+#include "Environment.h"
 #include "AquariumController.h"
 #include "AqController.h"
 #include <Arduino.h>
@@ -34,8 +34,8 @@ class AqWebServer: public AqWebServerInterface {
     //void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
     //void webServerSetup();
     bool checkAuthorization(AsyncWebServerRequest *request);
-    void deviceStateUpdate(Device** devices, int numDevices);
-    void sensorReadingUpdate(Sensor* sensor);
+    void deviceStateUpdate(Device** devices, int numDevices); //Sends update to Web Socket clients when a device state changes.
+    void sensorReadingUpdate(Sensor* sensor); //Sends update to Web Socket clients when a sensor value changes.
     void updateDynamicIP();
     bool processAqControllerMessage(JsonVariant &json);
 

@@ -261,7 +261,7 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
   if (request->hasHeader("Authorization")) {
     AsyncWebHeader *header = request->getHeader("Authorization");
     String authString = header->value();
-    String requiredValue = "Bearer 31f18cfbab58825aedebf9d0e14057dc";
+    String requiredValue = API_KEY;
     if (authString != requiredValue) {
       #ifdef useSerial
         Serial.print("Auth failed. Bad auth string: ");

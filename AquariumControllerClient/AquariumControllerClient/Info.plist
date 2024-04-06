@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.developer.networking.wifi-info</key>
-	<true/>
-	<key>NSLocationUsageDescription</key>
-	<string>Your description here</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your description here</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -26,7 +20,16 @@
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
+			<key>aquariumcontroller.tplinkdns.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
 		</dict>
 	</dict>
+	<key>com.apple.developer.networking.wifi-info</key>
+	<true/>
 </dict>
 </plist>

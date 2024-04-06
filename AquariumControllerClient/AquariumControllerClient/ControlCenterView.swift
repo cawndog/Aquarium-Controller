@@ -21,6 +21,18 @@ struct ControlCenterView: View {
                     }   
                 }
                 Toggle(isOn: Binding(
+                    get:{controllerState.feedMode},
+                    set:{v in
+                        controllerState.feedMode = v
+                        Task {
+                            await aqController.network.feedModeToggleChange(state: v)
+                        }
+                        
+                    })) {
+                    Label("Feed Mode", systemImage: "fish")
+                    }
+                Divider()
+                Toggle(isOn: Binding(
                     get:{controllerState.maintenanceMode},
                     set:{v in
                         controllerState.maintenanceMode = v
@@ -29,7 +41,7 @@ struct ControlCenterView: View {
                         }
                         
                     })) {
-                      Text("Maintenance Mode")
+                        Label("Maintenance Mode", systemImage: "engine.combustion.badge.exclamationmark")
                     }
                 }.padding(.horizontal, 20)
                 

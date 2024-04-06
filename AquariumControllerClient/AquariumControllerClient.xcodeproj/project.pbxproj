@@ -383,6 +383,8 @@
 				INFOPLIST_FILE = AquariumControllerClient/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "AQ Controller";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationUsageDescription = "Your description here";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your description here";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -428,6 +430,8 @@
 				INFOPLIST_FILE = AquariumControllerClient/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "AQ Controller";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationUsageDescription = "Your description here";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Your description here";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

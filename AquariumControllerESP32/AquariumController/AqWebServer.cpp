@@ -209,6 +209,15 @@ String authFailResponse = "Authentication Failed";
     
   });
   server->addHandler(setDeviceStateHandler);
+    sendMessageHandler = new AsyncCallbackJsonWebHandler("/sendMessage", [&](AsyncWebServerRequest *request, JsonVariant &json) {
+    bool authFailed = checkAuthorization(request);
+  if (authFailed) {
+      return;
+    }
+    //processAqControllerMessage(json);
+    request->send(200, "text/plain", "Message Received.");
+  });
+  server->addHandler(sendMessageHandler);
   server->onNotFound([&](AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
   });  
@@ -252,7 +261,7 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
   if (request->hasHeader("Authorization")) {
     AsyncWebHeader *header = request->getHeader("Authorization");
     String authString = header->value();
-    String requiredValue = "Bearer 31f18cfbab58825aedebf9d0e14057dc";
+    String requiredValue = API_KEY;
     if (authString != requiredValue) {
       #ifdef useSerial
         Serial.print("Auth failed. Bad auth string: ");
@@ -267,34 +276,6 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
         Serial.println("Auth Succeeded.");
       #endif
     }
-
-    /*char *AuthStr = strdup(header->value().c_str());
-    char *savePtr;
-    char *token;
-    token = strtok_r(AuthStr, " ", &savePtr);
-    if (token != NULL) {
-      if (strcmp(token, "Bearer") == 0) {
-        token = strtok_r(NULL, " ", &savePtr);
-        if (token != NULL) {
-          if (strcmp(token, "31f18cfbab58825aedebf9d0e14057dc") != 0) {
-            authFailed = true;
-          }
-        } else {
-          authFailed = true; 
-        }
-      } else { 
-        authFailed = true; 
-      }
-    } else { 
-      authFailed = true; 
-    }
-  } else {
-    authFailed = true;
-  }
-  if (authFailed) {
-    request->send(401, "text/plain", "Authorization Failed.");
-  }
-  */
   } else {
     #ifdef useSerial
       Serial.println("Auth failed. No auth header.");
@@ -355,7 +336,7 @@ void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
 }
 void AqWebServer::updateDynamicIP() {
   HTTPClient http;
-  http.begin("http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller");
+  http.begin(DYNAMIC_IP_UPDATE_URL);
   http.GET();
   http.end();
 }
@@ -388,11 +369,24 @@ bool processAqControllerMessage(JsonVariant &json) {
           aqController.aqTemperature.readSensor();
         }
       }
+      if (body.containsKey("feedMode")) {
+        if (body["feedMode"] == true) {
+          aqController.maintMode = true;
+          
+          aqController.heater.setStateOff();
+        }
+        else {
+          aqController.maintMode = false;
+          aqController.filter.setStateOn();
+          aqController.aqTemperature.readSensor();
+        }
+      }
     }
     else if (body["messageType"] == "SettingsUpdate") {
       if (body.containsKey("aqThermostat")) {
         aqController.aqThermostat = short(body["aqThermostat"]);
-        aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
+        savedState.putShort("aqThermostat", aqController.aqThermostat);
+        aqController.aqTemperature.readSensor();
       }
       const int numTasks = body["tasks"].size();
       for (int i = 0; i < numTasks; i++) {
@@ -407,7 +401,6 @@ bool processAqControllerMessage(JsonVariant &json) {
           }
         } 
       }
-      aqController.aqTemperature.readSensor();
       aqController.scheduleNextTask();
     } else {
       return false;

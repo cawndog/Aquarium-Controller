@@ -34,22 +34,21 @@ tm timeinfo;
 Preferences savedState;
 AqController aqController;
 AqWebServer aqWebServer;
-const char* ssid = "Pepper";
-const char* password = "unlawfulOwl69!";
-const char* softApSsid = "AqController";
-const char* softApPassword = "unlawfulOwl69!";
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+const char* softApSsid = SOFT_AP_SSID;
+const char* softApPassword = SOFT_AP_PASSWORD;
 volatile int wifiReconnectAttempts = 0;
 volatile int wifiReconnectMaxAttempts = 4; //Max wifi reconnect attempts before delay attemping to connect again.
 volatile int RECONNECT_DELAY = 90000;
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -25200;
 const int   daylightOffset_sec = 3600;
-IPAddress IP = {10, 0, 0, 96};
-IPAddress gateway = {10, 0, 0, 96};
+IPAddress IP = {192, 168, 0, 2};
+IPAddress gateway = {192, 168, 0, 2};
 IPAddress NMask = {255, 255, 255, 0};
 void setup() {
   inSetup = true;
-  //http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller
   #ifdef useSerial
     //Serial.begin(9600);
   #endif
@@ -59,16 +58,11 @@ void setup() {
   #endif
   Serial.begin(115200);
   
-  //connect to WiFi
-  /*#ifdef useSerial
-    Serial.printf("Connecting to %s ", aqController.ssid);
-    SerialBT.printf("Connecting to %s ", aqController.ssid);
-  #endif*/
   #ifdef useSerial
-    Serial.printf("Connecting to %s ", "Pepper");
+    Serial.printf("Connecting to %s ", WIFI_SSID);
   #endif
   #ifdef useSerialBT
-    SerialBT.printf("Connecting to %s ", "Pepper");
+    SerialBT.printf("Connecting to %s ", WIFI_SSID);
   #endif
   WiFi.onEvent(WiFiStationHasIP, ARDUINO_EVENT_WIFI_STA_GOT_IP);
   WiFi.onEvent(WiFiStationDisconnect, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
@@ -88,31 +82,6 @@ void setup() {
   
   //const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
   xSemaphoreTake(asyncEventSemaphore, portMAX_DELAY);
-  /*if (WiFi.status() != WL_CONNECTED) {
-    #ifdef useSerial
-      Serial.printf("Failed to connect to WiFi network %s.\n", ssid);
-      //Serial.println(WiFi.localIP());
-    #endif
-    WiFi.mode(WIFI_AP);
-    //WiFi.mode(STA+AP);
-    WiFi.softAPConfig(IP, gateway, NMask);
-    WiFi.softAP("AqController", "unlawfulOwl69!");
-    printf("AP IP: %s\n", WiFi.softAPIP().toString());
-    rtc.setTime(0, 0, 0, 1, 1, 2023);
-  } else {
-    #ifdef useSerial
-      Serial.println(" CONNECTED");
-      Serial.println(WiFi.localIP());
-    #endif
-    //rtc.setTime(30, 24, 15, 17, 1, 2021);  // 17th Jan 2021 15:24:30
-    //rtc.setTime(1609459200);  // 1st Jan 2021 00:00:00
-    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-    if (getLocalTime(&timeinfo, 10000)) {
-      rtc.setTimeStruct(timeinfo);
-    } else {
-      rtc.setTime(0, 0, 0, 1, 1, 2023);
-    }
-  }  */
   if (WiFi.status() == WL_CONNECTED) {
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     if (getLocalTime(&timeinfo, 10000)) {

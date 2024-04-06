@@ -23,8 +23,6 @@ extern hw_timer_t* taskTimer;
 extern Preferences savedState;
 class AqController {
   public: 
-    const char* ssid = "Pepper";
-    const char* password = "unlawfulOwl69!";
     const char* ntpServer = "pool.ntp.org";
     const long  gmtOffset_sec = -25200;
     const int   daylightOffset_sec = 3600;

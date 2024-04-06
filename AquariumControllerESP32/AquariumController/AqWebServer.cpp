@@ -211,11 +211,11 @@ String authFailResponse = "Authentication Failed";
   server->addHandler(setDeviceStateHandler);
     sendMessageHandler = new AsyncCallbackJsonWebHandler("/sendMessage", [&](AsyncWebServerRequest *request, JsonVariant &json) {
     bool authFailed = checkAuthorization(request);
-  if (authFailed) {
-      return;
-    }
-    //processAqControllerMessage(json);
-    request->send(200, "text/plain", "Message Received.");
+    if (authFailed) {
+        return;
+      }
+      processAqControllerMessage(json);
+      request->send(200, "text/plain", "Message Received.");
   });
   server->addHandler(sendMessageHandler);
   server->onNotFound([&](AsyncWebServerRequest *request) {
@@ -340,8 +340,8 @@ void AqWebServer::updateDynamicIP() {
   http.GET();
   http.end();
 }
-bool processAqControllerMessage(JsonVariant &json) {
-  /*JsonObject body = json.as<JsonObject>();
+bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
+  JsonObject body = json.as<JsonObject>();
   if (body.containsKey("messageType")) {
     if (body["messageType"] == "StateUpdate") {
       if (body.containsKey("devices")) {
@@ -407,7 +407,7 @@ bool processAqControllerMessage(JsonVariant &json) {
     }
   } else {
     return false;
-  }*/
+  }
   return true;
 
 }

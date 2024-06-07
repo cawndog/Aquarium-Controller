@@ -13,6 +13,7 @@
 void printLocalTime();
 void IRAM_ATTR taskTimerInterrupt();
 void IRAM_ATTR asyncEventInterrupt();
+void IRAM_ATTR waterSensorEventInterrupt();
 void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStaConnectedToSoftAP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info);
@@ -22,6 +23,7 @@ void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info);
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
+volatile SemaphoreHandle_t waterSensorEventSemaphore;
 volatile SemaphoreHandle_t asyncEventSemaphore;
 hw_timer_t* taskTimer;
 hw_timer_t* asyncEventTimer;
@@ -34,22 +36,21 @@ tm timeinfo;
 Preferences savedState;
 AqController aqController;
 AqWebServer aqWebServer;
-const char* ssid = "Pepper";
-const char* password = "unlawfulOwl69!";
-const char* softApSsid = "AqController";
-const char* softApPassword = "unlawfulOwl69!";
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+const char* softApSsid = SOFT_AP_SSID;
+const char* softApPassword = SOFT_AP_PASSWORD;
 volatile int wifiReconnectAttempts = 0;
 volatile int wifiReconnectMaxAttempts = 4; //Max wifi reconnect attempts before delay attemping to connect again.
 volatile int RECONNECT_DELAY = 90000;
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -25200;
 const int   daylightOffset_sec = 3600;
-IPAddress IP = {10, 0, 0, 96};
-IPAddress gateway = {10, 0, 0, 96};
+IPAddress IP = {192, 168, 0, 2};
+IPAddress gateway = {192, 168, 0, 2};
 IPAddress NMask = {255, 255, 255, 0};
 void setup() {
   inSetup = true;
-  //http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller
   #ifdef useSerial
     //Serial.begin(9600);
   #endif
@@ -59,16 +60,11 @@ void setup() {
   #endif
   Serial.begin(115200);
   
-  //connect to WiFi
-  /*#ifdef useSerial
-    Serial.printf("Connecting to %s ", aqController.ssid);
-    SerialBT.printf("Connecting to %s ", aqController.ssid);
-  #endif*/
   #ifdef useSerial
-    Serial.printf("Connecting to %s ", "Pepper");
+    Serial.printf("Connecting to %s ", WIFI_SSID);
   #endif
   #ifdef useSerialBT
-    SerialBT.printf("Connecting to %s ", "Pepper");
+    SerialBT.printf("Connecting to %s ", WIFI_SSID);
   #endif
   WiFi.onEvent(WiFiStationHasIP, ARDUINO_EVENT_WIFI_STA_GOT_IP);
   WiFi.onEvent(WiFiStationDisconnect, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
@@ -85,34 +81,7 @@ void setup() {
   //timerAlarmEnable(asyncEventTimer);
   WiFi.setAutoReconnect(false);
   WiFi.begin(ssid, password);
-  
-  //const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
   xSemaphoreTake(asyncEventSemaphore, portMAX_DELAY);
-  /*if (WiFi.status() != WL_CONNECTED) {
-    #ifdef useSerial
-      Serial.printf("Failed to connect to WiFi network %s.\n", ssid);
-      //Serial.println(WiFi.localIP());
-    #endif
-    WiFi.mode(WIFI_AP);
-    //WiFi.mode(STA+AP);
-    WiFi.softAPConfig(IP, gateway, NMask);
-    WiFi.softAP("AqController", "unlawfulOwl69!");
-    printf("AP IP: %s\n", WiFi.softAPIP().toString());
-    rtc.setTime(0, 0, 0, 1, 1, 2023);
-  } else {
-    #ifdef useSerial
-      Serial.println(" CONNECTED");
-      Serial.println(WiFi.localIP());
-    #endif
-    //rtc.setTime(30, 24, 15, 17, 1, 2021);  // 17th Jan 2021 15:24:30
-    //rtc.setTime(1609459200);  // 1st Jan 2021 00:00:00
-    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-    if (getLocalTime(&timeinfo, 10000)) {
-      rtc.setTimeStruct(timeinfo);
-    } else {
-      rtc.setTime(0, 0, 0, 1, 1, 2023);
-    }
-  }  */
   if (WiFi.status() == WL_CONNECTED) {
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
     if (getLocalTime(&timeinfo, 10000)) {
@@ -123,26 +92,43 @@ void setup() {
   } else {
     rtc.setTime(0, 0, 0, 1, 1, 2023);
   }
- 
   savedState.begin("aqController", false);
-  //AqWebServer aqWebServer(80, "/ws");
   aqWebServer.init();
-  
-  
   aqController.init(&aqWebServer);
-  
   aqWebServer.updateDynamicIP();
-
   syncSemaphore = xSemaphoreCreateBinary();
   taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
   timerAttachInterrupt(taskTimer, &taskTimerInterrupt, true);
   aqController.scheduleNextTask();
+  waterSensorEventSemaphore = xSemaphoreCreateBinary();
+  TaskHandle_t xHandle = NULL;
+  xTaskCreate([](void* pvParameters) {
+    while (true) {
+      xSemaphoreTake(waterSensorEventSemaphore, portMAX_DELAY);
+        Serial.printf("Water Sensor triggered interrupt. Shutting off water.\n");
+        aqController.heater.setStateOff();
+        aqController.filter.setStateOff();
+        aqController.waterValve.setStateOff();
+        int ws_val = 0;
+        ws_val = analogRead(WATER_SENSOR_PIN);
+        while (ws_val > 0) {
+          Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
+          const TickType_t xDelay = 6000 / portTICK_PERIOD_MS;
+          vTaskDelay(xDelay);
+          ws_val = analogRead(WATER_SENSOR_PIN);
+        }
+        attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);
+    }
+
+  },"WS_Event_Task", uxTaskGetStackHighWaterMark(NULL), (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+  configASSERT(xHandle);
+  pinMode(WATER_SENSOR_PIN, INPUT_PULLUP);
+  attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);
   inSetup = false;
 }
 
 void loop() {
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
-  //timeinfo = rtc.getTimeStruct();
   printLocalTime();
   
   portENTER_CRITICAL(&timerMux);
@@ -160,7 +146,10 @@ void loop() {
   aqController.scheduleNextTask();
 }
 
-
+void IRAM_ATTR waterSensorEventInterrupt() {
+  detachInterrupt(WATER_SENSOR_PIN);
+  xSemaphoreGiveFromISR(waterSensorEventSemaphore, NULL);
+}
 void IRAM_ATTR taskTimerInterrupt() {
   taskInterruptCounter++;
   #ifdef useSerial

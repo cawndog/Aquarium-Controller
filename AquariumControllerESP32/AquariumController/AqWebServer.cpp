@@ -32,6 +32,30 @@ String authFailResponse = "Authentication Failed";
     //request->send(200, "text/plain", "Temp: " + String(aquariumTemp) + " TDS: " + String(tdsVal));
     //request->send(200, "text/html", HTML_home);
   //});
+  server->on("/wv_on", HTTP_POST, [&](AsyncWebServerRequest *request) {
+    bool authFailed = checkAuthorization(request);
+    if (authFailed) {
+      request->send(401);
+      return;
+    }
+    request->send(200);
+    Device* deviceToSet = aqController.getDeviceByName("Water Valve");
+    if (deviceToSet != NULL) {
+      deviceToSet->setStateOn();
+    }
+  });
+  server->on("/wv_off", HTTP_POST, [&](AsyncWebServerRequest *request) {
+    bool authFailed = checkAuthorization(request);
+    if (authFailed) {
+      request->send(401);
+      return;
+    }
+    request->send(200);
+    Device* deviceToSet = aqController.getDeviceByName("Water Valve");
+    if (deviceToSet != NULL) {
+      deviceToSet->setStateOff();
+    }
+  });
   server->on("/restart", HTTP_GET, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
@@ -73,6 +97,15 @@ String authFailResponse = "Authentication Failed";
     DynamicJsonDocument body(1024);
     body["messageType"] = "StateUpdate";
     body["maintenanceMode"] = aqController.maintMode;
+    for (int i = 0; i < sizeof(aqController.sensors)/sizeof(Sensor*);i++) {
+      body["sensors"][i]["name"] = aqController.sensors[i]->name;
+      body["sensors"][i]["value"] = aqController.sensors[i]->getValue();
+    }
+    for (int i = 0; i < sizeof(aqController.devices)/sizeof(Device*);i++) {
+      body["devices"][i]["name"] = aqController.devices[i]->name;
+      body["devices"][i]["state"] = aqController.devices[i]->getStateBool();
+    }
+    /*
     body["sensors"][0]["name"] = aqController.aqTemperature.name;
     body["sensors"][0]["value"] = aqController.aqTemperature.getValue();
     body["sensors"][1]["name"] = aqController.tds.name;
@@ -87,6 +120,7 @@ String authFailResponse = "Authentication Failed";
     body["devices"][3]["state"] = aqController.filter.getStateBool();
     body["devices"][4]["name"] = aqController.heater.name;
     body["devices"][4]["state"] = aqController.heater.getStateBool();
+    */
     String response;
     serializeJson(body, response);
     body.clear();
@@ -209,6 +243,15 @@ String authFailResponse = "Authentication Failed";
     
   });
   server->addHandler(setDeviceStateHandler);
+    sendMessageHandler = new AsyncCallbackJsonWebHandler("/sendMessage", [&](AsyncWebServerRequest *request, JsonVariant &json) {
+    bool authFailed = checkAuthorization(request);
+    if (authFailed) {
+        return;
+      }
+      processAqControllerMessage(json);
+      request->send(200, "text/plain", "Message Received.");
+  });
+  server->addHandler(sendMessageHandler);
   server->onNotFound([&](AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
   });  
@@ -252,7 +295,7 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
   if (request->hasHeader("Authorization")) {
     AsyncWebHeader *header = request->getHeader("Authorization");
     String authString = header->value();
-    String requiredValue = "Bearer 31f18cfbab58825aedebf9d0e14057dc";
+    String requiredValue = API_KEY;
     if (authString != requiredValue) {
       #ifdef useSerial
         Serial.print("Auth failed. Bad auth string: ");
@@ -267,34 +310,6 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
         Serial.println("Auth Succeeded.");
       #endif
     }
-
-    /*char *AuthStr = strdup(header->value().c_str());
-    char *savePtr;
-    char *token;
-    token = strtok_r(AuthStr, " ", &savePtr);
-    if (token != NULL) {
-      if (strcmp(token, "Bearer") == 0) {
-        token = strtok_r(NULL, " ", &savePtr);
-        if (token != NULL) {
-          if (strcmp(token, "31f18cfbab58825aedebf9d0e14057dc") != 0) {
-            authFailed = true;
-          }
-        } else {
-          authFailed = true; 
-        }
-      } else { 
-        authFailed = true; 
-      }
-    } else { 
-      authFailed = true; 
-    }
-  } else {
-    authFailed = true;
-  }
-  if (authFailed) {
-    request->send(401, "text/plain", "Authorization Failed.");
-  }
-  */
   } else {
     #ifdef useSerial
       Serial.println("Auth failed. No auth header.");
@@ -355,12 +370,12 @@ void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
 }
 void AqWebServer::updateDynamicIP() {
   HTTPClient http;
-  http.begin("http://api.dynu.com/nic/update?username=cawndog&password=aqcontroller");
+  http.begin(DYNAMIC_IP_UPDATE_URL);
   http.GET();
   http.end();
 }
-bool processAqControllerMessage(JsonVariant &json) {
-  /*JsonObject body = json.as<JsonObject>();
+bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
+  JsonObject body = json.as<JsonObject>();
   if (body.containsKey("messageType")) {
     if (body["messageType"] == "StateUpdate") {
       if (body.containsKey("devices")) {
@@ -388,11 +403,24 @@ bool processAqControllerMessage(JsonVariant &json) {
           aqController.aqTemperature.readSensor();
         }
       }
+      if (body.containsKey("feedMode")) {
+        if (body["feedMode"] == true) {
+          aqController.maintMode = true;
+          
+          aqController.heater.setStateOff();
+        }
+        else {
+          aqController.maintMode = false;
+          aqController.filter.setStateOn();
+          aqController.aqTemperature.readSensor();
+        }
+      }
     }
     else if (body["messageType"] == "SettingsUpdate") {
       if (body.containsKey("aqThermostat")) {
         aqController.aqThermostat = short(body["aqThermostat"]);
-        aqController.savedState.putShort("aqThermostat", aqController.aqThermostat);
+        savedState.putShort("aqThermostat", aqController.aqThermostat);
+        aqController.aqTemperature.readSensor();
       }
       const int numTasks = body["tasks"].size();
       for (int i = 0; i < numTasks; i++) {
@@ -407,14 +435,13 @@ bool processAqControllerMessage(JsonVariant &json) {
           }
         } 
       }
-      aqController.aqTemperature.readSensor();
       aqController.scheduleNextTask();
     } else {
       return false;
     }
   } else {
     return false;
-  }*/
+  }
   return true;
 
 }

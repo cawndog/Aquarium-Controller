@@ -24,12 +24,12 @@ class Network: ObservableObject {
     //var currentStateJSON: CurrentStateJSON
     //var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
-    let bearerToken: String = "31f18cfbab58825aedebf9d0e14057dc"
-    //var AqControllerIP: String = "AquariumController.freeddns.org:8008"
-    //var AqControllerIP: String = "67.164.168.211:8008"
-    var AqControllerIP: String = "10.0.0.96:8008"
+    //let bearerToken = ProcessInfo.processInfo.environment["API_KEY"] ?? ""
+let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"  
+    var AqControllerIP: String = "192.168.0.2:8008"
+    //var publicIpDNS: String = "aquariumcontroller.tplinkdns.com:8008"
     let publicIpDNS: String = "AquariumController.freeddns.org:8008"
-    let privateIp: String = "10.0.0.96:8008"
+    let privateIp: String = "192.168.0.2:8008"
     init() {
         //let authorizationStatus: CLAuthorizationStatus
         
@@ -137,6 +137,9 @@ class Network: ObservableObject {
         if (decodedMessage.messageType == .StateUpdate) {
             if let maintMode = decodedMessage.maintenanceMode {
                 controllerState.maintenanceMode = maintMode
+            }
+            if let feedMode = decodedMessage.feedMode {
+                controllerState.feedMode = feedMode
             }
             if let sensors = decodedMessage.sensors {
                 for sensor in sensors {
@@ -446,6 +449,9 @@ class Network: ObservableObject {
                             if let maintMode = decodedMessage.maintenanceMode {
                                 controllerState.maintenanceMode = maintMode
                             }
+                            if let feedMode = decodedMessage.feedMode {
+                                controllerState.feedMode = feedMode
+                            }
                             if let sensors = decodedMessage.sensors {
                                 for sensor in sensors {
                                     var s = controllerState.getSensorByName(sensor.name)
@@ -469,6 +475,27 @@ class Network: ObservableObject {
         
         dataTask.resume()
     }
+    func feedModeToggleChange(state: Bool) async {
+        let newMessage = AqControllerMessage()
+        newMessage.messageType = .StateUpdate
+        newMessage.feedMode = state
+        guard let encoded = try? JSONEncoder().encode(newMessage) else {
+            print("Failed to encode JSON")
+            return
+        }
+        var urlString: String = "http://\(AqControllerIP)/sendMessage"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            // handle the result
+        } catch {
+            print("Feed Mode state change failed.")
+        }
+    }
     func maintenanceToggleChange(state: Bool) async {
         print("maintenanceStateChange() called")
         guard let encoded = try? JSONEncoder().encode("") else {
@@ -491,7 +518,7 @@ class Network: ObservableObject {
             let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
             // handle the result
         } catch {
-            print("Device state change failed.")
+            print("Maint Mode state change failed.")
         }
     }
     func deviceToggleChange(device: ControllerState.Device) async {

@@ -57,6 +57,7 @@ class AqControllerMessage: Codable {
     var message: String?
     var aqThermostat: Int?
     var maintenanceMode: Bool?
+    var feedMode: Bool?
     var sensors: [Sensor]?
     var devices: [Device]?
     var tasks: [Task]?

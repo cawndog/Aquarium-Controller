@@ -22,7 +22,18 @@ struct DeviceView: View {
         }
     }
 
-    
+    func labelLookup(deviceName: String) -> String {
+        switch (deviceName) {
+            case "Lights":
+                return "lightbulb"
+            case "CO2":
+                return "carbon.dioxide.cloud"
+        case "Air Pump":
+                return "bubbles.and.sparkles"
+            default:
+                return ""
+        }
+    }
     var body: some View {
         if (device.name == "Heater") {
             LabeledContent(device.name) {
@@ -44,7 +55,7 @@ struct DeviceView: View {
                         await aqController.network.deviceToggleChange(device: device)
                     }
                 })) {
-                    Text(device.name)
+                    Label(device.name, systemImage: labelLookup(deviceName: device.name))
                 }
         }
         

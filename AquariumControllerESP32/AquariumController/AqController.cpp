@@ -28,6 +28,9 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   filter.init("Filter", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
+  waterValve.init("Water Valve", &hardwareInterface, [this](Device** devices, int numDevices) {
+    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
+  });
   co2.attachConnectedDevice(&airPump);
   airPump.attachConnectedDevice(&co2);
   aqTemperature.init("Aquarium Temperature", &hardwareInterface, [this](Sensor* sensor) {
@@ -89,6 +92,18 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   tasks[6] = new TimedTask ("Update Dynamic IP", "Up_Dyn_IP", TIMED_TASK, [this](){
     this->aqWebServerInterface->updateDynamicIP();
   });
+  tasks[7] = new TimedTask ("Read Water Sensor", "Rd_Ws", TIMED_TASK, [this](){
+    int ws_val = 0;
+    ws_val = analogRead(WATER_SENSOR_PIN);
+    Serial.printf("Water Sensor Pin Value: %d\n", ws_val);
+    if (ws_val > 20) {
+      heater.setStateOff();
+      filter.setStateOff();
+      waterValve.setStateOff();
+    }
+
+  });
+  tasks[7]->updateSettings(false, 6);
 }
 
 Task* AqController::getTaskByName(String name) {

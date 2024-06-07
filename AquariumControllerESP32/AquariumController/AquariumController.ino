@@ -13,6 +13,7 @@
 void printLocalTime();
 void IRAM_ATTR taskTimerInterrupt();
 void IRAM_ATTR asyncEventInterrupt();
+void IRAM_ATTR waterSensorEventInterrupt();
 void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStaConnectedToSoftAP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info);
@@ -22,6 +23,7 @@ void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info);
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
+volatile SemaphoreHandle_t waterSensorEventSemaphore;
 volatile SemaphoreHandle_t asyncEventSemaphore;
 hw_timer_t* taskTimer;
 hw_timer_t* asyncEventTimer;
@@ -79,8 +81,6 @@ void setup() {
   //timerAlarmEnable(asyncEventTimer);
   WiFi.setAutoReconnect(false);
   WiFi.begin(ssid, password);
-  
-  //const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
   xSemaphoreTake(asyncEventSemaphore, portMAX_DELAY);
   if (WiFi.status() == WL_CONNECTED) {
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
@@ -92,26 +92,43 @@ void setup() {
   } else {
     rtc.setTime(0, 0, 0, 1, 1, 2023);
   }
- 
   savedState.begin("aqController", false);
-  //AqWebServer aqWebServer(80, "/ws");
   aqWebServer.init();
-  
-  
   aqController.init(&aqWebServer);
-  
   aqWebServer.updateDynamicIP();
-
   syncSemaphore = xSemaphoreCreateBinary();
   taskTimer = timerBegin(0, 40000, true); //counter will increment 2,000 times/second
   timerAttachInterrupt(taskTimer, &taskTimerInterrupt, true);
   aqController.scheduleNextTask();
+  waterSensorEventSemaphore = xSemaphoreCreateBinary();
+  TaskHandle_t xHandle = NULL;
+  xTaskCreate([](void* pvParameters) {
+    while (true) {
+      xSemaphoreTake(waterSensorEventSemaphore, portMAX_DELAY);
+        Serial.printf("Water Sensor triggered interrupt. Shutting off water.\n");
+        aqController.heater.setStateOff();
+        aqController.filter.setStateOff();
+        aqController.waterValve.setStateOff();
+        int ws_val = 0;
+        ws_val = analogRead(WATER_SENSOR_PIN);
+        while (ws_val > 0) {
+          Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
+          const TickType_t xDelay = 6000 / portTICK_PERIOD_MS;
+          vTaskDelay(xDelay);
+          ws_val = analogRead(WATER_SENSOR_PIN);
+        }
+        attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);
+    }
+
+  },"WS_Event_Task", uxTaskGetStackHighWaterMark(NULL), (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+  configASSERT(xHandle);
+  pinMode(WATER_SENSOR_PIN, INPUT_PULLUP);
+  attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);
   inSetup = false;
 }
 
 void loop() {
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
-  //timeinfo = rtc.getTimeStruct();
   printLocalTime();
   
   portENTER_CRITICAL(&timerMux);
@@ -129,7 +146,10 @@ void loop() {
   aqController.scheduleNextTask();
 }
 
-
+void IRAM_ATTR waterSensorEventInterrupt() {
+  detachInterrupt(WATER_SENSOR_PIN);
+  xSemaphoreGiveFromISR(waterSensorEventSemaphore, NULL);
+}
 void IRAM_ATTR taskTimerInterrupt() {
   taskInterruptCounter++;
   #ifdef useSerial

@@ -17,7 +17,8 @@
 
 
 class Sensor;
-
+static void WV_Pins_Low(void * pvParameters);
+static volatile SemaphoreHandle_t waterValveSemaphore;
 class HardwareInterface {
   private: 
     Switch1 switch1; //air switch

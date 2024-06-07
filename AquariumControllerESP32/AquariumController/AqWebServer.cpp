@@ -32,6 +32,30 @@ String authFailResponse = "Authentication Failed";
     //request->send(200, "text/plain", "Temp: " + String(aquariumTemp) + " TDS: " + String(tdsVal));
     //request->send(200, "text/html", HTML_home);
   //});
+  server->on("/wv_on", HTTP_POST, [&](AsyncWebServerRequest *request) {
+    bool authFailed = checkAuthorization(request);
+    if (authFailed) {
+      request->send(401);
+      return;
+    }
+    request->send(200);
+    Device* deviceToSet = aqController.getDeviceByName("Water Valve");
+    if (deviceToSet != NULL) {
+      deviceToSet->setStateOn();
+    }
+  });
+  server->on("/wv_off", HTTP_POST, [&](AsyncWebServerRequest *request) {
+    bool authFailed = checkAuthorization(request);
+    if (authFailed) {
+      request->send(401);
+      return;
+    }
+    request->send(200);
+    Device* deviceToSet = aqController.getDeviceByName("Water Valve");
+    if (deviceToSet != NULL) {
+      deviceToSet->setStateOff();
+    }
+  });
   server->on("/restart", HTTP_GET, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
@@ -73,6 +97,15 @@ String authFailResponse = "Authentication Failed";
     DynamicJsonDocument body(1024);
     body["messageType"] = "StateUpdate";
     body["maintenanceMode"] = aqController.maintMode;
+    for (int i = 0; i < sizeof(aqController.sensors)/sizeof(Sensor*);i++) {
+      body["sensors"][i]["name"] = aqController.sensors[i]->name;
+      body["sensors"][i]["value"] = aqController.sensors[i]->getValue();
+    }
+    for (int i = 0; i < sizeof(aqController.devices)/sizeof(Device*);i++) {
+      body["devices"][i]["name"] = aqController.devices[i]->name;
+      body["devices"][i]["state"] = aqController.devices[i]->getStateBool();
+    }
+    /*
     body["sensors"][0]["name"] = aqController.aqTemperature.name;
     body["sensors"][0]["value"] = aqController.aqTemperature.getValue();
     body["sensors"][1]["name"] = aqController.tds.name;
@@ -87,6 +120,7 @@ String authFailResponse = "Authentication Failed";
     body["devices"][3]["state"] = aqController.filter.getStateBool();
     body["devices"][4]["name"] = aqController.heater.name;
     body["devices"][4]["state"] = aqController.heater.getStateBool();
+    */
     String response;
     serializeJson(body, response);
     body.clear();

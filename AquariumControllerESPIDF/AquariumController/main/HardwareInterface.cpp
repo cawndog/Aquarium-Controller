@@ -82,7 +82,7 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
           digitalWrite(WATER_VALVE_R_PIN, LOW);
         xSemaphoreGive(waterValveSemaphore);
         vTaskDelete(NULL);
-      },"WV_On", uxTaskGetStackHighWaterMark(NULL), (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+      },"WV_On", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
       configASSERT(xHandle);
     }
     else {
@@ -100,7 +100,7 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
           digitalWrite(WATER_VALVE_R_PIN, LOW);
         xSemaphoreGive(waterValveSemaphore);
         vTaskDelete(NULL);
-      },"WV_Off", uxTaskGetStackHighWaterMark(NULL), (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+      },"WV_Off", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
       configASSERT(xHandle);
     }
   }

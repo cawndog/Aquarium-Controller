@@ -8,9 +8,6 @@ AqController::AqController() {
 void AqController::init(AqWebServerInterface* aqWebServerInterface) {
     //Setup real time clock
   this->aqWebServerInterface = aqWebServerInterface;
-
-  //rtc.setTime(30, 24, 15, 17, 1, 2021);  // 17th Jan 2021 15:24:30
-  
   this->aqThermostat = savedState.getShort("aqThermostat", 82);
   hardwareInterface.init();
   heater.init("Heater", &hardwareInterface, [this](Device** devices, int numDevices) {
@@ -76,8 +73,6 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   tasks[2]->attachConnectedTask("Air Pump Off", "Ar_Off", [this]() {
     airPump.setStateOff();
   });
-  //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, NULL, NULL, &aqTemperature);
-  //tasks[4] = new TimedTask ("Read TDS", SENSOR_READ, [&](){}, NULL, &tds);
   tasks[3] = new TimedTask ("Read Aquarium Temp", "Rd_Aq_Tmp", TIMED_TASK, [this](){
     aqTemperature.readSensor();
   });
@@ -96,14 +91,16 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
     int ws_val = 0;
     ws_val = analogRead(WATER_SENSOR_PIN);
     Serial.printf("Water Sensor Pin Value: %d\n", ws_val);
-    if (ws_val > 20) {
+    if (ws_val > 60) {
       heater.setStateOff();
       filter.setStateOff();
+      airPump.setStateOn();
       waterValve.setStateOff();
+      maintMode = true;
     }
 
   });
-  tasks[7]->updateSettings(false, 6);
+  //tasks[7]->updateSettings(false, 10);
 }
 
 Task* AqController::getTaskByName(String name) {
@@ -140,7 +137,7 @@ void AqController::setNextTaskWithEvent() {
   //if (tasks == NULL) {
   //  return;
   //}
-  Task* nextTaskWithEventLocal = tasks[0];
+  Task* nextTaskWithEventLocal = NULL;
   for (int i = 0; tasks[i] != NULL; i++) {
     //Serial.printf("Checking tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
     if (tasks[i]->getDisabled()) {
@@ -150,15 +147,23 @@ void AqController::setNextTaskWithEvent() {
     if (tasks[i]->hasConnectedTask()) {
       //Serial.printf("Checking task[%d]'s connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
       //Task* connectedTask = tasks[i]->connectedTask;
-      if (tasks[i]->connectedTask->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
-        //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]->connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
-        //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->connectedTask->getName().c_str(), tasks[i]->connectedTask->nextRunTime);
+      if (nextTaskWithEventLocal != NULL) {
+        if (tasks[i]->connectedTask->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
+          //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]->connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
+          //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->connectedTask->getName().c_str(), tasks[i]->connectedTask->nextRunTime);
+          nextTaskWithEventLocal = tasks[i]->connectedTask;
+        }
+      } else {
         nextTaskWithEventLocal = tasks[i]->connectedTask;
       }
     }
-    if (tasks[i]->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
-      //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
-      //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->getName().c_str(), tasks[i]->nextRunTime);
+    if (nextTaskWithEventLocal != NULL) {
+      if (tasks[i]->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
+        //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
+        //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->getName().c_str(), tasks[i]->nextRunTime);
+        nextTaskWithEventLocal = tasks[i];
+      }
+    } else {
       nextTaskWithEventLocal = tasks[i];
     }
   }

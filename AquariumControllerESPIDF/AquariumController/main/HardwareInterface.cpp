@@ -18,6 +18,8 @@ void HardwareInterface::init() {
   this->oneWire = new OneWire(TEMP_SENSOR_PIN);
   this->tempSensors = new DallasTemperature(this->oneWire);
   tempSensors->begin();
+  tempSensors->setWaitForConversion(true);
+  
   pinMode(TDS_SENSOR_PIN,INPUT);
   waterValveSemaphore = xSemaphoreCreateBinary();
   xSemaphoreGive(waterValveSemaphore);
@@ -39,7 +41,7 @@ uint8_t HardwareInterface::initDeviceState(String deviceName) {
   if (deviceName == "Filter") {
     return (switch4.getSwitchState() == ON) ? 1 : 0;
   }
-  if (deviceName == "Water Valve"){
+  if (deviceName == "Water Valve") {
     return (savedState.getUChar(deviceName.c_str(), 0));
   }
   return 0;

@@ -47,7 +47,11 @@ void TdsSensor::readSensor() {
 }
 void AquariumTemperatureSensor::readSensor() {
     prevValue = this->value;
-    this->value = String(this->hardwareInterface->readAquariumTemperatureSensor(), 1);
+    float fval = this->hardwareInterface->readAquariumTemperatureSensor();
+    Serial.printf("AqTemp as float: %f\n", fval);
+    this->value = String(fval, 1);
+    Serial.printf("AqTemp as String: %s\n", this->value.c_str());
+    //this->value = String(this->hardwareInterface->readAquariumTemperatureSensor(), 1);
     this->webSocketUpdateState(this);
 }
 

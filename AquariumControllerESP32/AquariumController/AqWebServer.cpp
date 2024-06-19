@@ -94,7 +94,7 @@ String authFailResponse = "Authentication Failed";
       return;
     }
 
-    DynamicJsonDocument body(1024);
+    DynamicJsonDocument body(2048);
     body["messageType"] = "StateUpdate";
     body["maintenanceMode"] = aqController.maintMode;
     for (int i = 0; i < sizeof(aqController.sensors)/sizeof(Sensor*);i++) {
@@ -139,7 +139,7 @@ String authFailResponse = "Authentication Failed";
       return;
     }
 
-    DynamicJsonDocument body(1024);
+    DynamicJsonDocument body(2048);
     body["messageType"] = "SettingsUpdate";
     body["aqThermostat"] = aqController.aqThermostat;
   

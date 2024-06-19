@@ -144,37 +144,25 @@ void AqController::setNextTaskWithEvent() {
       //Serial.printf("tasks[%d]. Task name: %s is disabled. Continuing.\n", i, tasks[i]->getName().c_str());
       continue;
     }
+    if (nextTaskWithEventLocal == NULL) {
+      nextTaskWithEventLocal = tasks[i];
+    }
     if (tasks[i]->hasConnectedTask()) {
       //Serial.printf("Checking task[%d]'s connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
       //Task* connectedTask = tasks[i]->connectedTask;
-      if (nextTaskWithEventLocal != NULL) {
-        if (tasks[i]->connectedTask->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
-          //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]->connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
-          //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->connectedTask->getName().c_str(), tasks[i]->connectedTask->nextRunTime);
-          nextTaskWithEventLocal = tasks[i]->connectedTask;
-        }
-      } else {
+      if (tasks[i]->connectedTask->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
+        //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]->connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
+        //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->connectedTask->getName().c_str(), tasks[i]->connectedTask->nextRunTime);
         nextTaskWithEventLocal = tasks[i]->connectedTask;
       }
     }
-    if (nextTaskWithEventLocal != NULL) {
-      if (tasks[i]->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
-        //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
-        //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->getName().c_str(), tasks[i]->nextRunTime);
-        nextTaskWithEventLocal = tasks[i];
-      }
-    } else {
+    if (tasks[i]->nextRunTime < nextTaskWithEventLocal->nextRunTime) {
+      //Serial.printf("Setting nextTaskWithEventLocal to tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
+      //Serial.printf("nextTaskWithEventLocal = %s Time: %d  -->  %s Time: %d\n", nextTaskWithEventLocal->getName().c_str(), nextTaskWithEventLocal->nextRunTime, tasks[i]->getName().c_str(), tasks[i]->nextRunTime);
       nextTaskWithEventLocal = tasks[i];
     }
   }
-  if (nextTaskWithEventLocal != NULL) { 
-    if (nextTaskWithEventLocal->getDisabled() == true) {
-      //Serial.print("nextTaskWithEventLocal was disabled. Setting nextTaskWithEventLocal to NULL.");
-      nextTaskWithEventLocal = NULL;
-    }
-  }
   this->nextTaskWithEvent = nextTaskWithEventLocal;
-
 }
 void AqController::scheduleNextTask() {
 

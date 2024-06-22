@@ -4,16 +4,89 @@
 #include "AqWebServer.h"
 #include <WiFi.h>
 
+#include <stdio.h>
+#include <string.h>
+#include <inttypes.h>
+#include "esp_sleep.h"
+#include "soc/rtc_cntl_reg.h"
+#include "soc/sens_reg.h"
+#include "driver/gpio.h"
+#include "driver/rtc_io.h"
+#include "ulp.h"
+#include "ulp_main.h"
+#include "esp_adc/adc_oneshot.h"
+#include "ulp/ulp_config.h"
+#include "ulp_adc.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+extern const uint8_t ulp_main_bin_start[] asm("_binary_ulp_main_bin_start");
+extern const uint8_t ulp_main_bin_end[]   asm("_binary_ulp_main_bin_end");
+/* This function is called once after power-on reset, to load ULP program into
+ * RTC memory and configure the ADC.
+ */
+static void init_ulp_program(void);
+
+/* This function is called every time before going into deep sleep.
+ * It starts the ULP program and resets measurement counter.
+ */
+static void start_ulp_program(void);
 extern "C" void app_main()
 {
-    initArduino();
-    pinMode(4, OUTPUT);
-    digitalWrite(4, HIGH);
-    setup();
-    while(true) {
-      loop();
-    }
-    // Do your own thing
+  esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
+  if (cause != ESP_SLEEP_WAKEUP_ULP) {
+    init_ulp_program();
+  }
+  initArduino();
+  pinMode(4, OUTPUT);
+  digitalWrite(4, HIGH);
+  setup();
+  start_ulp_program();
+  while(true) {
+    loop();
+  }
+  // Do your own thing
+}
+static void init_ulp_program(void)
+{
+    esp_err_t err = ulp_load_binary(0, ulp_main_bin_start,
+            (ulp_main_bin_end - ulp_main_bin_start) / sizeof(uint32_t));
+    ESP_ERROR_CHECK(err);
+
+    ulp_adc_cfg_t cfg = {
+        .adc_n    = (adc_unit_t)ADC_UNIT,
+        .channel  = (adc_channel_t)ADC_CHANNEL,
+        .atten    = (adc_atten_t)ADC_ATTEN,
+        .width    = (adc_bitwidth_t)ADC_WIDTH,
+        .ulp_mode = ADC_ULP_MODE_FSM,
+    };
+
+    ESP_ERROR_CHECK(ulp_adc_init(&cfg));
+
+    ulp_high_thr = ADC_HIGH_TRESHOLD;
+
+    /* Set ULP wake up period to 200ms */
+    ulp_set_wakeup_period(0, 200000);
+
+#if CONFIG_IDF_TARGET_ESP32
+    /* Disconnect GPIO17 to remove current drain through
+     * pullup/pulldown resistors on modules which have these (e.g. ESP32-WROVER)
+     * GPIO12 may be pulled high to select flash voltage.
+     */
+    rtc_gpio_isolate(GPIO_NUM_17);
+#endif // CONFIG_IDF_TARGET_ESP32
+
+    esp_deep_sleep_disable_rom_logging(); // suppress boot messages
+}
+static void start_ulp_program(void)
+{
+    /* Reset sample counter */
+    ulp_sample_counter = 0;
+
+    /* Start the program */
+    esp_err_t err = ulp_run(&ulp_entry - RTC_SLOW_MEM);
+    ESP_ERROR_CHECK(err);
 }
 //-----------------------------Function Declarations-----------------------------
 void printLocalTime();
@@ -113,25 +186,27 @@ void setup() {
     xTaskCreate([](void* pvParameters) {
         while (true) {
         xSemaphoreTake(waterSensorEventSemaphore, portMAX_DELAY);
-            Serial.printf("Water Sensor triggered interrupt. Shutting off water.\n");
-            aqController.heater.setStateOff();
-            aqController.filter.setStateOff();
-            aqController.waterValve.setStateOff();
-            int ws_val = 0;
-            ws_val = analogRead(WATER_SENSOR_PIN);
-            while (ws_val > 0) {
-            Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
-            const TickType_t xDelay = 6000 / portTICK_PERIOD_MS;
-            vTaskDelay(xDelay);
-            ws_val = analogRead(WATER_SENSOR_PIN);
-            }
-            attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);
+          Serial.printf("Water Sensor triggered interrupt. Shutting off water.\n");
+          aqController.heater.setStateOff();
+          aqController.filter.setStateOff();
+          aqController.airPump.setStateOn();
+          aqController.waterValve.setStateOff();
+          int ws_val = 0;
+          ws_val = analogRead(WATER_SENSOR_PIN);
+          while (ws_val > 30) {
+          Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
+          const TickType_t xDelay = 6000 / portTICK_PERIOD_MS;
+          vTaskDelay(xDelay);
+          ws_val = analogRead(WATER_SENSOR_PIN);
+          }
+          pinMode(17, INPUT_PULLDOWN);
+          attachInterrupt(17, waterSensorEventInterrupt, HIGH);
         }
 
     },"WS_Event_Task", uxTaskGetStackHighWaterMark(NULL), (void *) NULL, tskIDLE_PRIORITY, &xHandle);
     configASSERT(xHandle);
-    pinMode(WATER_SENSOR_PIN, INPUT_PULLUP);
-    attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);
+    pinMode(17, INPUT_PULLDOWN);
+    attachInterrupt(17, waterSensorEventInterrupt, HIGH);
     inSetup = false;
 }
 

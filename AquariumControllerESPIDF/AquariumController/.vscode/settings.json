@@ -16,7 +16,11 @@
   "idf.toolsPath": "/Users/connorwilliams/.espressif",
   "files.associations": {
     "esp32-hal-ledc.h": "c",
-    "regex": "cpp"
+    "regex": "cpp",
+    "*.S": "c",
+    "rtc_cntl_reg.h": "c",
+    "soc_ulp.h": "c",
+    "ulp.h": "c"
   },
   "idf.flashType": "UART",
   "cmake.configureOnOpen": false

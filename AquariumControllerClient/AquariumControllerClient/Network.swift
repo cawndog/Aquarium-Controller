@@ -27,9 +27,10 @@ class Network: ObservableObject {
     //let bearerToken = ProcessInfo.processInfo.environment["API_KEY"] ?? ""
 let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"  
     var AqControllerIP: String = "192.168.0.2:8008"
-    //var publicIpDNS: String = "aquariumcontroller.tplinkdns.com:8008"
-    let publicIpDNS: String = "AquariumController.freeddns.org:8008"
-    let privateIp: String = "192.168.0.2:8008"
+    var publicIpDNS: String = "aquariumcontroller.tplinkdns.com:8008"
+    let privateIp: String = "aquariumcontroller.tplinkdns.com:8008"
+    //let publicIpDNS: String = "AquariumController.freeddns.org:8008"
+    //let privateIp: String = "192.168.0.2:8008"
     init() {
         //let authorizationStatus: CLAuthorizationStatus
         

@@ -194,18 +194,19 @@ void setup() {
           int ws_val = 0;
           ws_val = analogRead(WATER_SENSOR_PIN);
           while (ws_val > 30) {
-          Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
-          const TickType_t xDelay = 6000 / portTICK_PERIOD_MS;
-          vTaskDelay(xDelay);
-          ws_val = analogRead(WATER_SENSOR_PIN);
+            Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
+            const TickType_t xDelay = 6000 / portTICK_PERIOD_MS;
+            vTaskDelay(xDelay);
+            ws_val = analogRead(WATER_SENSOR_PIN);
           }
-          pinMode(17, INPUT_PULLDOWN);
+          analogWrite(17, 0);
+          pinMode(17, INPUT);
           attachInterrupt(17, waterSensorEventInterrupt, HIGH);
         }
 
-    },"WS_Event_Task", uxTaskGetStackHighWaterMark(NULL), (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+    },"WS_Event_Task", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
     configASSERT(xHandle);
-    pinMode(17, INPUT_PULLDOWN);
+    pinMode(17, INPUT);
     attachInterrupt(17, waterSensorEventInterrupt, HIGH);
     inSetup = false;
 }
@@ -230,7 +231,7 @@ void loop() {
 }
 
 void waterSensorEventInterrupt() {
-  detachInterrupt(WATER_SENSOR_PIN);
+  detachInterrupt(17);
   xSemaphoreGiveFromISR(waterSensorEventSemaphore, NULL);
 }
 void taskTimerInterrupt() {

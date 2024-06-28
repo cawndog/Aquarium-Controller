@@ -32,6 +32,37 @@ String authFailResponse = "Authentication Failed";
     //request->send(200, "text/plain", "Temp: " + String(aquariumTemp) + " TDS: " + String(tdsVal));
     //request->send(200, "text/html", HTML_home);
   //});
+  MailClient.networkReconnect(true);
+  smtp.debug(1);
+  smtp.callback(smtpCallback);
+  Session_Config config;
+  config.server.host_name = SMTP_HOST;
+  config.server.port = SMTP_PORT;
+  config.login.email = AUTHOR_EMAIL;
+  config.login.password = AUTHOR_PASSWORD;
+  config.login.user_domain = "";
+  //config.secure.mode = esp_mail_secure_mode_nonsecure;
+  config.time.ntp_server = F("pool.ntp.org,time.nist.gov");
+  config.time.gmt_offset = 18;
+  config.time.day_light_offset = 0;
+  SMTP_Message message;
+  message.sender.name = F("AqController");
+  message.sender.email = AUTHOR_EMAIL;
+  message.subject = "Test Subject";
+  message.addRecipient(F("Someone"), RECIPIENT_EMAIL);
+  message.text.content = "Test Message Content";
+  message.text.transfer_encoding = "base64"; 
+  message.text.charSet = F("utf-8");
+  message.priority = esp_mail_smtp_priority::esp_mail_smtp_priority_low;
+  message.addHeader(F("Message-ID: <c.jwilliams0332@gmail.com>"));
+  if (!smtp.connect(&config))
+  {
+    MailClient.printf("Connection error, Status Code: %d, Error Code: %d, Reason: %s\n", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
+    return;
+  }
+  if (!MailClient.sendMail(&smtp, &message))
+    MailClient.printf("Error, Status Code: %d, Error Code: %d, Reason: %s\n", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
+
   server->on("/wv_on", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {

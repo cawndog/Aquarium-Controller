@@ -32,4 +32,13 @@ class TdsSensor : public Sensor {
     void readSensor();
     String getValue();
 };
+class WaterSensor : public Sensor {
+  public:
+    int value;
+    WaterSensor();
+    void init(String name);
+    void readSensor();
+    String getValue();
+    int getValueInt();
+};
 #endif

@@ -28,8 +28,10 @@ struct DeviceView: View {
                 return "lightbulb"
             case "CO2":
                 return "carbon.dioxide.cloud"
-        case "Air Pump":
+            case "Air Pump":
                 return "bubbles.and.sparkles"
+            case "Water Valve":
+                return "water.waves"
             default:
                 return ""
         }

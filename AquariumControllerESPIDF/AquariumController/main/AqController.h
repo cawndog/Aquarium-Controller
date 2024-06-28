@@ -42,6 +42,7 @@ class AqController {
     TdsSensor tds;
     AquariumTemperatureSensor aqTemperature;
     Sensor* sensors[2] = {&aqTemperature, &tds};
+    WaterSensor waterSensor;
     short aqThermostat;
     Task* tasks[NUM_TASKS];
     Task* nextTaskWithEvent;

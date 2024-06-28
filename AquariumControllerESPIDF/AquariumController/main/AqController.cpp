@@ -53,6 +53,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
       this->aqWebServerInterface->sensorReadingUpdate(sensor);
     }
   });
+  waterSensor.init("Water Sensor");
   aqTemperature.readSensor();
   tds.readSensor();
   tasks[0] = new ScheduledTask("Lights On", "Lt_On", SCHEDULED_DEVICE_TASK, [this]() {
@@ -79,15 +80,10 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   tasks[4] = new TimedTask ("Read TDS", "Rd_Tds", TIMED_TASK, [this](){
     tds.readSensor();
   });
-  tasks[5] = new TimedTask ("Check WiFi Connection", "Ck_Wifi", TIMED_TASK, [this](){
-    if (WiFi.status() != WL_CONNECTED) {
-      WiFi.reconnect();
-    }       
-  });
-  tasks[6] = new TimedTask ("Update Dynamic IP", "Up_Dyn_IP", TIMED_TASK, [this](){
+  /*tasks[5] = new TimedTask ("Update Dynamic IP", "Up_Dyn_IP", TIMED_TASK, [this](){
     this->aqWebServerInterface->updateDynamicIP();
   });
-  tasks[7] = new TimedTask ("Read Water Sensor", "Rd_Ws", TIMED_TASK, [this](){
+  tasks[6] = new TimedTask ("Read Water Sensor", "Rd_Ws", TIMED_TASK, [this](){
     int ws_val = 0;
     ws_val = analogRead(WATER_SENSOR_PIN);
     Serial.printf("Water Sensor Pin Value: %d\n", ws_val);
@@ -100,7 +96,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
     }
 
   });
-  //tasks[7]->updateSettings(false, 10);
+  //tasks[7]->updateSettings(false, 10);*/
 }
 
 Task* AqController::getTaskByName(String name) {

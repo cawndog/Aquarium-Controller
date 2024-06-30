@@ -74,12 +74,10 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
       TaskHandle_t xHandle = NULL;
       xTaskCreate([](void* pvParameters) {
         xSemaphoreTake(waterValveSemaphore, portMAX_DELAY);
-          Serial.printf("Turning water valve on\n");
           digitalWrite(WATER_VALVE_R_PIN, HIGH);
           digitalWrite(WATER_VALVE_Y_PIN, HIGH);
           const TickType_t xDelay = 7000 / portTICK_PERIOD_MS;
           vTaskDelay(xDelay);
-          Serial.printf("Turning all water valve pins off\n");
           digitalWrite(WATER_VALVE_Y_PIN, LOW);
           digitalWrite(WATER_VALVE_R_PIN, LOW);
         xSemaphoreGive(waterValveSemaphore);
@@ -92,12 +90,10 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
       TaskHandle_t xHandle = NULL;
       xTaskCreate([](void* pvParameters) {
         xSemaphoreTake(waterValveSemaphore, portMAX_DELAY);
-          Serial.printf("Turning water valve off\n");
           digitalWrite(WATER_VALVE_R_PIN, LOW);
           digitalWrite(WATER_VALVE_Y_PIN, HIGH);
-          const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
+          const TickType_t xDelay = 8500 / portTICK_PERIOD_MS;
           vTaskDelay(xDelay);
-          Serial.printf("Turning all water valve pins off\n");
           digitalWrite(WATER_VALVE_Y_PIN, LOW);
           digitalWrite(WATER_VALVE_R_PIN, LOW);
         xSemaphoreGive(waterValveSemaphore);
@@ -129,12 +125,9 @@ float HardwareInterface::readTdsSensor(float temperature) {
     if(analogBufferIndex == SCOUNT){ 
       analogBufferIndex = 0;
     }
-    delay(40);
-  }    
-  
-  /*for(copyIndex=0; copyIndex<SCOUNT; copyIndex++)
-    analogBufferTemp[copyIndex] = analogBuffer[copyIndex];*/
-    
+    const TickType_t xDelay = 40 / portTICK_PERIOD_MS;
+    vTaskDelay(xDelay);
+  }
   // read the analog value more stable by the median filtering algorithm, and convert to voltage value
   averageVoltage = getMedianNum(analogBuffer,SCOUNT) * (float)VREF / 4096.0;
   //temperature compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.02*(fTP-25.0)); 

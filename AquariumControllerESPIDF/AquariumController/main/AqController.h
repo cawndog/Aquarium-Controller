@@ -29,9 +29,7 @@ class AqController {
 
     AqWebServerInterface* aqWebServerInterface = NULL;
     bool maintMode;
-    
     HardwareInterface hardwareInterface;
-
     Device heater;
     Device lights;
     Device co2;

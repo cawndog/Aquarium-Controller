@@ -182,14 +182,14 @@ String authFailResponse = "Authentication Failed";
     #ifdef useSerial
       Serial.printf("numTasksInMsg %d\n", numTasksInMsg);
     #endif
-    Task* task;
-    Task* connectedTask;
+    Task* task = NULL;
+    Task* connectedTask = NULL;
     bool isDisabled = true;
     unsigned long time = 0;
     for (int i = 0; i < numTasksInMsg; i++) {
       const char* taskName = body["tasks"][i]["name"];
       if (taskName != NULL) {
-        Task* task = aqController.getTaskByName(taskName);
+        task = aqController.getTaskByName(taskName);
         if (task != NULL) {
           const char* connectedTaskName = body["tasks"][i]["connectedTask"]["name"];
           if (connectedTaskName != NULL) {

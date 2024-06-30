@@ -1,85 +1,99 @@
 #include "Device.h"
 
 Device::Device() {
-    this->name = "";
-    this->state = DEVICE_OFF;
-    this->connectedDevice = NULL;
-    this->hardwareInterface = NULL;
-    webSocketUpdateState = [](Device** devices, int numDevices){};
+  this->name = "";
+  this->state = DEVICE_OFF;
+  this->connectedDevice = NULL;
+  this->hardwareInterface = NULL;
+  webSocketUpdateState = [](Device** devices, int numDevices){};
 }
 void Device::init(String name, HardwareInterface* hardwareInterface, AqWebServerDevFunction webSocketUpdateState) {
-    this->name = name;
-    this->hardwareInterface = hardwareInterface;
-    this->state = intToDeviceState(hardwareInterface->initDeviceState(this->name));
-    this->webSocketUpdateState = webSocketUpdateState;
+  this->name = name;
+  this->hardwareInterface = hardwareInterface;
+  this->state = intToDeviceState(hardwareInterface->initDeviceState(this->name));
+  this->webSocketUpdateState = webSocketUpdateState;
 }
 void Device::attachConnectedDevice(Device* device) {
-    this->connectedDevice = device;
+  this->connectedDevice = device;
 }
 void Device::setStateOn() {
-    if (this->state != DEVICE_ON) {
-        this->state = DEVICE_ON; 
-        Device* devicesUpdated[2];
-        devicesUpdated[0] = this;
-        if (this->connectedDevice != NULL) {
-            if(this->connectedDevice->state == DEVICE_ON) {
-                this->connectedDevice->state = DEVICE_OFF;
-                devicesUpdated[1] = this->connectedDevice;
-                this->webSocketUpdateState(devicesUpdated, 2);
-            }
-            else {
-                this->webSocketUpdateState(devicesUpdated, 1);
-            }     
-        }else {
-            this->webSocketUpdateState(devicesUpdated, 1);
+  TaskHandle_t xHandle = NULL;
+  xTaskCreate([](void* pvParameters) {
+    Device* device = (Device*) pvParameters;
+    if (device->state != DEVICE_ON) {
+      device->state = DEVICE_ON; 
+      Device* devicesUpdated[2];
+      devicesUpdated[0] = device;
+      if (device->connectedDevice != NULL) {
+        if(device->connectedDevice->state == DEVICE_ON) {
+          device->connectedDevice->state = DEVICE_OFF;
+          devicesUpdated[1] = device->connectedDevice;
+          device->webSocketUpdateState(devicesUpdated, 2);
         }
-        this->hardwareInterface->powerControl(this->name, deviceStateToInt(this->state));
+        else {
+          device->webSocketUpdateState(devicesUpdated, 1);
+        }     
+      }else {
+        device->webSocketUpdateState(devicesUpdated, 1);
+      }
+      device->hardwareInterface->powerControl(device->name, deviceStateToInt(device->state));
     }
-    
+    Serial.printf("DEVICE_ON high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+    vTaskDelete(NULL);
+  },"DEVICE_ON", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+  //},"DEVICE_ON", configMINIMAL_STACK_SIZE, (void *) this, tskIDLE_PRIORITY, &xHandle);
+  configASSERT(xHandle);
 }
 void Device::setStateOff() {
-    if (this->state != DEVICE_OFF) {
-        this->state = DEVICE_OFF;
-        Device* devicesUpdated[2];
-        devicesUpdated[0] = this; 
-        this->webSocketUpdateState(devicesUpdated, 1);
-        /*if (this->connectedDevice) {
-            if(this->connectedDevice->state == DEVICE_ON) {
-                this->connectedDevice->state = DEVICE_OFF;
-                this->connectedDevice->stateUpdatedByConnectedDevice = true;
-            }     
-        }*/
-        this->hardwareInterface->powerControl(this->name, deviceStateToInt(this->state));
+  TaskHandle_t xHandle = NULL;
+  xTaskCreate([](void* pvParameters) {
+    Device* device = (Device*) pvParameters;
+    if (device->state != DEVICE_OFF) {
+      device->state = DEVICE_OFF;
+      Device* devicesUpdated[2];
+      devicesUpdated[0] = device; 
+      device->webSocketUpdateState(devicesUpdated, 1);
+      /*if (device->connectedDevice) {
+        if(device->connectedDevice->state == DEVICE_ON) {
+          device->connectedDevice->state = DEVICE_OFF;
+          device->connectedDevice->stateUpdatedByConnectedDevice = true;
+        }     
+      }*/
+      device->hardwareInterface->powerControl(device->name, deviceStateToInt(device->state));
     }
+    Serial.printf("DEVICE_OFF high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+    vTaskDelete(NULL);
+  },"DEVICE_ON", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+  //},"DEVICE_OFF", configMINIMAL_STACK_SIZE, (void *) this, tskIDLE_PRIORITY, &xHandle);
+  configASSERT(xHandle);
 }
 bool Device::getStateBool() {
-    if (this->state == DEVICE_ON) {
-        return true;
-    }
-    else {
-        return false; 
-    }
+  if (this->state == DEVICE_ON) {
+    return true;
+  }
+  else {
+    return false; 
+  }
 }
 uint8_t Device::deviceStateToInt(DeviceState state) {
-    switch(state) {
-        case DEVICE_OFF: {
-            return 0;
-        }
-        case DEVICE_ON: {
-            return 1;
-        }
-        default: 
-            return 0;
+  switch(state) {
+    case DEVICE_OFF: {
+        return 0;
     }
+    case DEVICE_ON: {
+        return 1;
+    }
+    default: 
+        return 0;
+  }
 }
 DeviceState Device::intToDeviceState(uint8_t stateInt) {
-    switch(stateInt) {
-        case 0:
-            return DEVICE_OFF;
-        case 1: 
-            return DEVICE_ON;
-        default: 
-            return DEVICE_OFF;
-    }
-
+  switch(stateInt) {
+    case 0:
+        return DEVICE_OFF;
+    case 1: 
+        return DEVICE_ON;
+    default: 
+        return DEVICE_OFF;
+  }
 }

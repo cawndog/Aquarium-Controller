@@ -2,9 +2,11 @@
 #include "Switch.h"
 
 void Switch::init(String name) {
+  if (switchSemaphore == NULL) {
+    switchSemaphore = xSemaphoreCreateBinary();
+    xSemaphoreGive(switchSemaphore);
+  }
   this->name = name;
-  //const char* namePtr = &(this->name[0]);
-  //this->state = this->IntToSwitchState(savedState.getUChar(namePtr, 0));
   String switchStateKey = this->name + "_SW";
   this->state = this->IntToSwitchState(savedState.getUChar(switchStateKey.c_str(), 0));
 }
@@ -22,7 +24,7 @@ uint8_t Switch::SwitchStateToInt() {
   };
   return 0;
 }
-SwitchState Switch::IntToSwitchState (uint8_t state) {
+SwitchState Switch::IntToSwitchState(uint8_t state) {
   switch (state) {
     case 0:
       return OFF;
@@ -34,15 +36,15 @@ SwitchState Switch::IntToSwitchState (uint8_t state) {
       return OFF;
   };
 }
-void Switch::setSwitchState(SwitchState state) {
-  this->state = state;
+void Switch::setSwitchState(SwitchState newState) {
+  this->state = newState;
   //const char* namePtr = &(this->name[0]);
   //savedState.putUChar(namePtr, this->SwitchStateToInt());
   String switchStateKey = this->name + "_SW";
   savedState.putUChar(switchStateKey.c_str(), this->SwitchStateToInt());
   return;
 }
-void Switch1::powerControl(SwitchState state) { //air control switch
+void Switch1::powerControl(SwitchState newState) { //air control switch
   //ON POS is 70 (POS1)
   //AUXON POS is 110 (POS2)
   //ON POS = Air Pump on
@@ -51,31 +53,35 @@ void Switch1::powerControl(SwitchState state) { //air control switch
   #define ON_OFFSET_1 0
   #define AUXON_OFFSET_1 -9
 
-  if (this->state != state) {
-    this->setSwitchState(state);
+  if (this->state != newState) {
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    this->setSwitchState(newState);
     this->controllerServo.attach(AIR_SRVO_PIN);
-    if (state == OFF) {
+    if (newState == OFF) {
       this->controllerServo.write(OFF_POS + OFF_OFFSET_1);
-      delay(200);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
       this->controllerServo.detach();
-      return;
     }
-    if (state == ON) { //Air Pump
+    else if (newState == ON) { //Air Pump
       this->controllerServo.write(POS1 + ON_OFFSET_1);
-      delay(200);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
       this->controllerServo.detach();
-      return;
     }
-    if (state == AUXON) { //CO2
+    else if (newState == AUXON) { //CO2
       this->controllerServo.write(POS2 + AUXON_OFFSET_1);
-      delay(200);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
       this->controllerServo.detach();
-      return;
     }
+    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+    vTaskDelay(xDelay);
+    xSemaphoreGive(switchSemaphore);
   }
   return;
 }
-void Switch2::powerControl(SwitchState state) { //light control switch
+void Switch2::powerControl(SwitchState newState) { //light control switch
   //ON POS is 110 (POS2) 
   //AUXON POS is 70 (POS1)
   //On POS = Lights on
@@ -83,29 +89,35 @@ void Switch2::powerControl(SwitchState state) { //light control switch
   #define OFF_OFFSET_2 1
   #define ON_OFFSET_2 -2
   #define AUXON_OFFSET_2 3
-  this->setSwitchState(state);
-  this->controllerServo.attach(LIGHT_SRVO_PIN);
-  if (state == OFF) {
-    this->controllerServo.write(OFF_POS + OFF_OFFSET_2);
-    delay(200);
-    this->controllerServo.detach();
-    return;
+  if (this->state != newState) {
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    this->setSwitchState(newState);
+    this->controllerServo.attach(LIGHT_SRVO_PIN);
+    if (newState == OFF) {
+      this->controllerServo.write(OFF_POS + OFF_OFFSET_2);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }
+    else if (newState == ON) { 
+      this->controllerServo.write(POS2 + ON_OFFSET_2);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }
+    /*else if (newState == AUXON) { 
+      this->controllerServo.write(POS1 + AUXON_OFFSET_2);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }*/
+    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+    vTaskDelay(xDelay);
+    xSemaphoreGive(switchSemaphore);
   }
-  if (state == ON) { 
-    this->controllerServo.write(POS2 + ON_OFFSET_2);
-    delay(200);
-    this->controllerServo.detach();
-    return;
-  }
-  /*if (state == AUXON) { 
-    this->controllerServo.write(POS1 + AUXON_OFFSET_2);
-    delay(200);
-    this->controllerServo.detach();
-    return;
-  }*/
   return;
 }
-void Switch3::powerControl(SwitchState state) { //heater control switch
+void Switch3::powerControl(SwitchState newState) { //heater control switch
   //ON POS is 70 (POS1)
   //AUXON POS is 110 (POS2)
   //On POS = Heater on
@@ -113,29 +125,35 @@ void Switch3::powerControl(SwitchState state) { //heater control switch
   #define OFF_OFFSET_3 0
   #define ON_OFFSET_3 0
   #define AUXON_OFFSET_3 -2
-  this->setSwitchState(state);
-  this->controllerServo.attach(HEATER_SRVO_PIN);
-  if (state == OFF) {
-    this->controllerServo.write(OFF_POS + OFF_OFFSET_3);
-    delay(200);
-    this->controllerServo.detach();
-    return;
+  if (this->state != newState) {
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    this->setSwitchState(newState);
+    this->controllerServo.attach(HEATER_SRVO_PIN);
+    if (newState == OFF) {
+      this->controllerServo.write(OFF_POS + OFF_OFFSET_3);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }
+    else if (newState == ON) { 
+      this->controllerServo.write(POS1 + ON_OFFSET_3);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }
+    /*else if (newState == AUXON) { 
+      this->controllerServo.write(POS2 + AUXON_OFFSET_3);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }*/
+    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+    vTaskDelay(xDelay);
+    xSemaphoreGive(switchSemaphore);
   }
-  if (state == ON) { 
-    this->controllerServo.write(POS1 + ON_OFFSET_3);
-    delay(200);
-    this->controllerServo.detach();
-    return;
-  }
-  /*if (state == AUXON) { 
-    this->controllerServo.write(POS2 + AUXON_OFFSET_3);
-    delay(200);
-    this->controllerServo.detach();
-    return;
-  }*/
   return;
 }
-void Switch4::powerControl(SwitchState state) { //filter control switch
+void Switch4::powerControl(SwitchState newState) { //filter control switch
   //ON POS is 110 (POS2) 
   //AUXON POS is 70 (POS1)
   //On POS = Filter on
@@ -143,25 +161,31 @@ void Switch4::powerControl(SwitchState state) { //filter control switch
   #define OFF_OFFSET_4 10
   #define ON_OFFSET_4 10
   #define AUXON_OFFSET_4 10
-  this->setSwitchState(state);
-  this->controllerServo.attach(FILTER_SRVO_PIN);
-  if (state == OFF) {
-    this->controllerServo.write(OFF_POS + OFF_OFFSET_4);
-    delay(200);
-    this->controllerServo.detach();
-    return;
+  if (this->state != newState) {
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    this->setSwitchState(newState);
+    this->controllerServo.attach(FILTER_SRVO_PIN);
+    if (newState == OFF) {
+      this->controllerServo.write(OFF_POS + OFF_OFFSET_4);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }
+    else if (newState == ON) {
+      this->controllerServo.write(POS2 + ON_OFFSET_4);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }
+    /*else if (newState == AUXON) { 
+      this->controllerServo.write(POS1 + AUXON_OFFSET_4);
+      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      this->controllerServo.detach();
+    }*/
+    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+    vTaskDelay(xDelay);
+    xSemaphoreGive(switchSemaphore);
   }
-  if (state == ON) {
-    this->controllerServo.write(POS2 + ON_OFFSET_4);
-    delay(200);
-    this->controllerServo.detach();
-    return;
-  }
-  /*if (state == AUXON) { 
-    this->controllerServo.write(POS1 + AUXON_OFFSET_4);
-    delay(200);
-    this->controllerServo.detach();
-    return;
-  }*/
   return;
 }

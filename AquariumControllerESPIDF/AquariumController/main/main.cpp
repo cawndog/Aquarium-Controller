@@ -13,13 +13,10 @@ extern "C" void app_main()
     while(true) {
       loop();
     }
-    // Do your own thing
 }
 //-----------------------------Function Declarations-----------------------------
 void printLocalTime();
 void IRAM_ATTR taskTimerInterrupt();
-void IRAM_ATTR asyncEventInterrupt();
-void IRAM_ATTR waterSensorEventInterrupt();
 void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStaConnectedToSoftAP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info);
@@ -28,13 +25,10 @@ void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info);
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
-//volatile SemaphoreHandle_t waterSensorEventSemaphore;
-volatile SemaphoreHandle_t asyncEventSemaphore;
+volatile SemaphoreHandle_t wifiEventSemaphore;
 hw_timer_t* taskTimer;
-hw_timer_t* asyncEventTimer;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint8_t taskInterruptCounter = 0;
-volatile uint8_t asyncEventCounter = 0;
 volatile bool inSetup = true;
 ESP32Time rtc; //Real time clock
 tm timeinfo;
@@ -46,8 +40,8 @@ const char* password = WIFI_PASSWORD;
 const char* softApSsid = SOFT_AP_SSID;
 const char* softApPassword = SOFT_AP_PASSWORD;
 volatile int wifiReconnectAttempts = 0;
-volatile int wifiReconnectMaxAttempts = 4; //Max wifi reconnect attempts before delay attemping to connect again.
-volatile int RECONNECT_DELAY = 90000;
+volatile int wifiReconnectMaxAttempts = 4; //Max WiFi reconnect attempts before setting up SoftAP and hosting AqController Wifi Network.
+volatile int RECONNECT_DELAY = 90000; //Interval to attempt connecting to WiFi when in SoftAP mode.
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = -25200;
 const int   daylightOffset_sec = 3600;
@@ -81,14 +75,10 @@ void setup() {
   WiFi.setHostname("AquariumController");
   WiFi.mode(WIFI_STA);
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
-  asyncEventSemaphore = xSemaphoreCreateBinary();
-  //asyncEventTimer = timerBegin(1, 40000, true); //counter will increment 2,000 times/second
-  //timerAttachInterrupt(asyncEventTimer, &asyncEventInterrupt, true);
-  //timerAlarmWrite(asyncEventTimer, 10 * 2000, false);
-  //timerAlarmEnable(asyncEventTimer);
+  wifiEventSemaphore = xSemaphoreCreateBinary();
   WiFi.setAutoReconnect(false);
   WiFi.begin(ssid, password);
-  xSemaphoreTake(asyncEventSemaphore, portMAX_DELAY);
+  xSemaphoreTake(wifiEventSemaphore, portMAX_DELAY);
   if (WiFi.status() == WL_CONNECTED) {
       configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
       if (getLocalTime(&timeinfo, 10000)) {
@@ -104,33 +94,9 @@ void setup() {
   aqController.init(&aqWebServer);
   aqWebServer.updateDynamicIP();
   syncSemaphore = xSemaphoreCreateBinary();
-  //taskTimer = timerBegin(40000); //counter will increment 2,000 times/second. Arduino 2.0.1.1
   taskTimer = timerBegin(2000); //counter will increment 2,000 times/second
   timerAttachInterrupt(taskTimer, &taskTimerInterrupt);
   aqController.scheduleNextTask();
-  //waterSensorEventSemaphore = xSemaphoreCreateBinary();
-  /*TaskHandle_t xHandle = NULL;
-  xTaskCreate([](void* pvParameters) {
-    while (true) {
-    xSemaphoreTake(waterSensorEventSemaphore, portMAX_DELAY);
-      Serial.printf("Water Sensor triggered interrupt. Shutting off water.\n");
-      aqController.heater.setStateOff();
-      aqController.filter.setStateOff();
-      aqController.waterValve.setStateOff();
-      int ws_val = 0;
-      ws_val = analogRead(WATER_SENSOR_PIN);
-      while (ws_val > 0) {
-      Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
-      const TickType_t xDelay = 6000 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-      ws_val = analogRead(WATER_SENSOR_PIN);
-      }
-      attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);
-    }
-  },"WS_Event_Task", uxTaskGetStackHighWaterMark(NULL), (void *) NULL, tskIDLE_PRIORITY, &xHandle);
-  configASSERT(xHandle);
-  pinMode(WATER_SENSOR_PIN, INPUT_PULLUP);
-  attachInterrupt(WATER_SENSOR_PIN, waterSensorEventInterrupt, HIGH);*/
 
   pinMode(WATER_SENSOR_PIN, INPUT);
   TaskHandle_t xHandle = NULL;
@@ -145,6 +111,7 @@ void setup() {
         aqController.waterValve.setStateOff();
       }
       Serial.printf("Water Sensor Pin Value: %d\n", aqController.waterSensor.getValueInt());
+      Serial.printf("WS_READ high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
       const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
       /*while (ws_val > WATER_SENSOR_ALARM_THRESHOLD) {
@@ -154,7 +121,7 @@ void setup() {
         ws_val = analogRead(WATER_SENSOR_PIN);
       }*/
     }
-  },"WS_Event_Task", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+  },"WS_READ", 2500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
   configASSERT(xHandle);
   inSetup = false;
 }
@@ -177,11 +144,6 @@ void loop() {
   }    
   aqController.scheduleNextTask();
 }
-
-/*void waterSensorEventInterrupt() {
-  detachInterrupt(WATER_SENSOR_PIN);
-  xSemaphoreGiveFromISR(waterSensorEventSemaphore, NULL);
-}*/
 void taskTimerInterrupt() {
     taskInterruptCounter++;
     #ifdef useSerial
@@ -191,10 +153,6 @@ void taskTimerInterrupt() {
     SerialBT.println("In taskTimerInterrupt(). Task event triggered.");
     #endif
     xSemaphoreGiveFromISR(syncSemaphore, NULL);
-}
-void asyncEventInterrupt() {
- // timerAlarmDisable(asyncEventTimer);
-  //xSemaphoreGiveFromISR(asyncEventSemaphore, NULL);
 }
 void printLocalTime()
 { 
@@ -215,14 +173,13 @@ void printLocalTime()
     SerialBT.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
   #endif
 }
-
 void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   #ifdef useSerial
     Serial.println("WiFiStationHasIP() Got IP.");
   #endif
   wifiReconnectAttempts = 0;
   if (inSetup) {
-    xSemaphoreGive(asyncEventSemaphore);
+    xSemaphoreGive(wifiEventSemaphore);
   } else {
     if (getLocalTime(&timeinfo, 8000)) {
       rtc.setTimeStruct(timeinfo);
@@ -242,10 +199,9 @@ void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
 }
 void WiFiStaConnectedToSoftAP(WiFiEvent_t event, WiFiEventInfo_t info) {
   if (inSetup) {
-    xSemaphoreGive(asyncEventSemaphore);
+    xSemaphoreGive(wifiEventSemaphore);
   }
 }
-
 void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info) {
   #ifdef useSerial
     Serial.printf("WiFiStationDisconnect() WiFi disconnected. ReconnectAttempts: %d\n", wifiReconnectAttempts);

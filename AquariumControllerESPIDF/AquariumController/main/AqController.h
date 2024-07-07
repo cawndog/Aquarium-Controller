@@ -11,6 +11,8 @@
 #include "Device.h"
 #include "Sensor.h"
 #include "Task.h"
+#include "Setting.h"
+#include "Alarm.h"
 #include "AqWebServerInterface.h"
 
 
@@ -30,6 +32,12 @@ class AqController {
     AqWebServerInterface* aqWebServerInterface = NULL;
     bool maintMode;
     HardwareInterface hardwareInterface;
+    GeneralSetting thermostat;
+    GeneralSetting maintenanceMode;
+    GeneralSetting feedMode;
+    GeneralSetting* settings[3] = {&thermostat, &maintenanceMode, &feedMode};
+    Alarm waterSensorAlarm;
+    Alarm* alarms[1] = {&waterSensorAlarm};
     Device heater;
     Device lights;
     Device co2;
@@ -41,6 +49,7 @@ class AqController {
     AquariumTemperatureSensor aqTemperature;
     Sensor* sensors[2] = {&aqTemperature, &tds};
     WaterSensor waterSensor;
+
     short aqThermostat;
     Task* tasks[NUM_TASKS];
     Task* nextTaskWithEvent;
@@ -53,6 +62,8 @@ class AqController {
     void scheduleNextTask();
     Device* getDeviceByName(String devName);
     Sensor* getSensorByName(String sensorName);
+    Alarm* getAlarmByName(String alarmName);
+    GeneralSetting* getSettingByName(String settingName);
     void setAqWebServerInterface(AqWebServerInterface* aqWebServerInterface);
   };
 

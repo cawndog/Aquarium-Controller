@@ -14,9 +14,11 @@ struct ParametersView: View {
             VStack {
                 ForEach(controllerState.sensors, id: \.name) { sensor in
                     SensorView(sensor: sensor)
-                    Divider()
+                    if sensor.name != controllerState.sensors.last?.name {
+                        Divider()
+                    }
+                    
                 }
-                DeviceView(device: controllerState.getDeviceByName("Heater"))
               /*  SensorView(sensor: currentState.sensors[currentState.getSensorPosByName("Temperature")])
                 Divider()
                 SensorView(sensor: currentState.sensors[currentState.getSensorPosByName("TDS")])*/

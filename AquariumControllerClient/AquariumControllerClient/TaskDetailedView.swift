@@ -82,7 +82,7 @@ struct TaskDetailedView: View {
                 Button("Save", action: {
                     Task{
                         task.copyFromTask(taskToCopy: detailedTask)
-                        await aqController.network.setSettingsState(task: task)
+                        await aqController.network.setTaskState(task: task)
                     }
                 })
             }

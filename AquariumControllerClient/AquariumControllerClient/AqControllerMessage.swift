@@ -8,12 +8,7 @@
 import Foundation
 
 class AqControllerMessage: Codable {
-    enum MessageType: String, Codable {
-        case Alert, Information, StateUpdate, SettingsUpdate, Unknown
-        init () {
-            self = .Unknown
-        }
-    }
+
     class Sensor: Codable {
         var name: String = ""
         var value: String = "0"
@@ -26,58 +21,75 @@ class AqControllerMessage: Codable {
         var name: String = ""
         var state: Bool = false
     }
-    class Task: Codable {
-        enum TaskType: String, Codable {
-            case SCHEDULED_TASK, SCHEDULED_DEVICE_TASK, TIMED_TASK, Unknown
-            init () {
-                self = .Unknown
+    class Settings: Codable {
+        class GeneralSetting: Codable  {
+            var name: String = ""
+            var value: Int = 0
+        }
+        class Alarm: Codable  {
+            var name: String = ""
+            var alarmState: Int = 0
+        }
+        class Task: Codable {
+            enum TaskType: String, Codable {
+                case SCHEDULED_TASK, SCHEDULED_DEVICE_TASK, TIMED_TASK, Unknown
+                init () {
+                    self = .Unknown
+                }
+            }
+            var name: String = ""
+            var taskType: TaskType = .Unknown
+            var time: Int = 0
+            var isDisabled: Bool = true
+            var connectedTask: Task?
+            func setTaskTypeWithString(_ type: String) {
+                switch (type) {
+                    case "SCHEDULED_TASK":
+                        self.taskType = .SCHEDULED_TASK
+                    case "SCHEDULED_DEVICE_TASK":
+                        self.taskType = .SCHEDULED_DEVICE_TASK
+                    case "TIMED_TASK":
+                        self.taskType = .TIMED_TASK
+                    default:
+                        self.taskType = .Unknown
+                }
             }
         }
-        var name: String = ""
-        var taskType: TaskType = .Unknown
-        var time: Int = 0
-        var isDisabled: Bool = true
-        var connectedTask: Task?
-        
-        func setTaskTypeWithString(_ type: String) {
-            switch (type) {
-                case "SCHEDULED_TASK":
-                    self.taskType = .SCHEDULED_TASK
-                case "SCHEDULED_DEVICE_TASK":
-                    self.taskType = .SCHEDULED_DEVICE_TASK
-                case "TIMED_TASK":
-                    self.taskType = .TIMED_TASK
-                default:
-                    self.taskType = .Unknown
+        var generalSettings: [GeneralSetting]?
+        var alarms: [Alarm]?
+        var tasks: [Task]?
+        func addGeneralSetting(_ newSetting: AqControllerMessage.Settings.GeneralSetting) {
+            if (generalSettings?.append(newSetting) == nil) {
+                generalSettings = [newSetting]
             }
         }
-        
+        func addAlarm(_ newAlarm: AqControllerMessage.Settings.Alarm) {
+            if (alarms?.append(newAlarm) == nil) {
+                alarms = [newAlarm]
+            }
+        }
+        func addTask(_ newTask: AqControllerMessage.Settings.Task) {
+            if (tasks?.append(newTask) == nil) {
+                tasks = [newTask]
+            }
+        }
     }
-    var messageType: MessageType? = .Unknown
-    var message: String?
-    var aqThermostat: Int?
-    var maintenanceMode: Bool?
-    var feedMode: Bool?
+    
     var sensors: [Sensor]?
     var devices: [Device]?
-    var tasks: [Task]?
-    
-    func addSensor() {
-        //self.sensors.append(Sensor())
+    var settings: Settings?
+
+    func addSensor(_ newSensor: AqControllerMessage.Sensor) {
+        if (sensors?.append(newSensor) == nil) {
+            sensors = [newSensor]
+        }
     }
     func addDevice(_ newDevice: AqControllerMessage.Device) {
         if (devices?.append(newDevice) == nil) {
             devices = [newDevice]
         }
     }
-    func addTask(_ newTask: AqControllerMessage.Task) {
-        if (tasks?.append(newTask) == nil) {
-            tasks = [newTask]
-        }
-        
+    func addSettings(_ newSettings: AqControllerMessage.Settings) {
+        settings = newSettings
     }
-    /*init(messageType: MessageType) {
-        self.messageType = messageType
-    }*/
-    
 }

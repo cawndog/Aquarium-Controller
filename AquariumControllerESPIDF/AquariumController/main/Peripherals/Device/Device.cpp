@@ -53,12 +53,6 @@ void Device::setStateOff() {
       Device* devicesUpdated[2];
       devicesUpdated[0] = device; 
       device->webSocketUpdateState(devicesUpdated, 1);
-      /*if (device->connectedDevice) {
-        if(device->connectedDevice->state == DEVICE_ON) {
-          device->connectedDevice->state = DEVICE_OFF;
-          device->connectedDevice->stateUpdatedByConnectedDevice = true;
-        }     
-      }*/
       device->hardwareInterface->powerControl(device->name, deviceStateToInt(device->state));
     }
     Serial.printf("DEVICE_OFF high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));

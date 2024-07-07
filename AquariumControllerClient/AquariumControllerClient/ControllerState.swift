@@ -51,8 +51,27 @@ class ControllerState: ObservableObject {
             self.value = "NULL"
         }
     }
+    class GeneralSetting: HashableClass, Identifiable, ObservableObject {
+        var id: String
+        var name: String
+        @Published var value: Int
+        init(_ name: String) {
+            self.id = name
+            self.name = name
+            self.value = 0
+        }
+    }
+    class Alarm: HashableClass, Identifiable, ObservableObject {
+        var id: String
+        var name: String
+        @Published var alarmState: Int
+        init(_ name: String) {
+            self.id = name
+            self.name = name
+            self.alarmState = 0
+        }
+    }
     class Task: HashableClass, Identifiable, ObservableObject {
-       
         enum TaskType: String {
             case SCHEDULED_TASK, SCHEDULED_DEVICE_TASK, TIMED_TASK, Unknown
             init () {
@@ -114,25 +133,24 @@ class ControllerState: ObservableObject {
     //@Published var tds: String
     @Published var sensors: [Sensor]
     @Published var devices: [Device]
+    @Published var settings: [GeneralSetting]
+    @Published var alarms: [Alarm]
     @Published var tasks: [Task]
-    @Published var maintenanceMode: Bool
-    @Published var feedMode: Bool
-    @Published var aqThermostat: Int
+
     init() {
         self.sensors = [Sensor.init("Aquarium Temperature"),
                         Sensor.init("TDS")]
         self.devices = [Device.init("Lights"),
+                        Device.init("Heater"),
                         Device.init("Filter"),
                         Device.init("CO2"),
-                        Device.init("Air Pump"),
-                        Device.init("Heater")]
+                        Device.init("Air Pump")]
+                        
+        self.settings = [GeneralSetting.init("Maintenance Mode"), GeneralSetting.init("Thermostat")]
+        self.alarms = [Alarm.init("Water Sensor Alarm")]
         self.tasks = []
-        maintenanceMode = false
-        feedMode = false
-        aqThermostat = 0
-        
-        
     }
+    
     func getDeviceByName(_ name:String) -> Device {
         for device in devices {
             if (device.name == name) {
@@ -150,6 +168,24 @@ class ControllerState: ObservableObject {
         }
         self.sensors.append(Sensor.init(name))
         return getSensorByName(name)
+    }
+    func getGeneralSettingByName(_ name:String) -> GeneralSetting {
+        for setting in settings {
+            if (setting.name == name) {
+                return setting
+            }
+        }
+        self.settings.append(GeneralSetting.init(name))
+        return getGeneralSettingByName(name)
+    }
+    func getAlarmByName(_ name:String) -> Alarm {
+        for alarm in alarms {
+            if (alarm.name == name) {
+                return alarm
+            }
+        }
+        self.alarms.append(Alarm.init(name))
+        return getAlarmByName(name)
     }
     func getTaskByName(_ name:String) -> Task {
         for task in tasks {

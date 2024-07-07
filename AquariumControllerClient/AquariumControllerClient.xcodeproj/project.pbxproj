@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D80FB85E2C37033000975D90 /* GeneralSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80FB85D2C37033000975D90 /* GeneralSettingView.swift */; };
+		D80FB8622C3722D100975D90 /* GeneralSettingEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80FB8612C3722D100975D90 /* GeneralSettingEditView.swift */; };
+		D80FB8642C3722E400975D90 /* AlarmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80FB8632C3722E400975D90 /* AlarmView.swift */; };
+		D80FB8662C3722F400975D90 /* AlarmEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80FB8652C3722F400975D90 /* AlarmEditView.swift */; };
 		D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D812DD5C2A9A66370034ACBA /* HomeView.swift */; };
 		D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */; };
 		D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB5D2A0828F700E1C157 /* AquariumControllerClientApp.swift */; };
@@ -33,6 +37,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D80FB85D2C37033000975D90 /* GeneralSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingView.swift; sourceTree = "<group>"; };
+		D80FB8612C3722D100975D90 /* GeneralSettingEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingEditView.swift; sourceTree = "<group>"; };
+		D80FB8632C3722E400975D90 /* AlarmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmView.swift; sourceTree = "<group>"; };
+		D80FB8652C3722F400975D90 /* AlarmEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmEditView.swift; sourceTree = "<group>"; };
 		D812DD5C2A9A66370034ACBA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiComponentPicker.swift; sourceTree = "<group>"; };
 		D864CB5A2A0828F700E1C157 /* AquariumControllerClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AquariumControllerClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,6 +81,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D80FB85C2C37028F00975D90 /* Tasks */ = {
+			isa = PBXGroup;
+			children = (
+				D8C862622A9D7334006217F6 /* TaskSummaryView.swift */,
+				D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */,
+				D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */,
+				D898A2EB2AAE1B600061A234 /* DatePickerView.swift */,
+				D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */,
+			);
+			name = Tasks;
+			sourceTree = "<group>";
+		};
+		D80FB85F2C37228200975D90 /* Alarms */ = {
+			isa = PBXGroup;
+			children = (
+				D80FB8632C3722E400975D90 /* AlarmView.swift */,
+				D80FB8652C3722F400975D90 /* AlarmEditView.swift */,
+			);
+			name = Alarms;
+			sourceTree = "<group>";
+		};
+		D80FB8602C37228D00975D90 /* GeneralSettings */ = {
+			isa = PBXGroup;
+			children = (
+				D80FB85D2C37033000975D90 /* GeneralSettingView.swift */,
+				D80FB8612C3722D100975D90 /* GeneralSettingEditView.swift */,
+			);
+			name = GeneralSettings;
+			sourceTree = "<group>";
+		};
 		D81EFC4B2A9AC7540072F292 /* HomeView */ = {
 			isa = PBXGroup;
 			children = (
@@ -143,12 +181,10 @@
 		D8C8625D2A9D0EC8006217F6 /* SettingsView */ = {
 			isa = PBXGroup;
 			children = (
+				D80FB8602C37228D00975D90 /* GeneralSettings */,
+				D80FB85F2C37228200975D90 /* Alarms */,
+				D80FB85C2C37028F00975D90 /* Tasks */,
 				D864CB6C2A082A1600E1C157 /* SettingsView.swift */,
-				D8C862622A9D7334006217F6 /* TaskSummaryView.swift */,
-				D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */,
-				D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */,
-				D898A2EB2AAE1B600061A234 /* DatePickerView.swift */,
-				D8481DAB2AAD61360081288B /* MultiComponentPicker.swift */,
 				D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */,
 			);
 			name = SettingsView;
@@ -230,15 +266,19 @@
 				D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */,
 				D864CB722A082A1700E1C157 /* Network.swift in Sources */,
 				D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */,
+				D80FB85E2C37033000975D90 /* GeneralSettingView.swift in Sources */,
 				D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */,
+				D80FB8662C3722F400975D90 /* AlarmEditView.swift in Sources */,
 				D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */,
 				D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */,
+				D80FB8642C3722E400975D90 /* AlarmView.swift in Sources */,
 				D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */,
 				D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
 				D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */,
 				D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */,
 				D864CB602A0828F700E1C157 /* ContentView.swift in Sources */,
+				D80FB8622C3722D100975D90 /* GeneralSettingEditView.swift in Sources */,
 				D889B9422A4670820083FA0A /* DeviceView.swift in Sources */,
 				D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */,
 				D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */,

@@ -25,13 +25,11 @@ struct ContentView: View {
 
         TabView (selection: $selectedTab) {
             HomeView()
-                //.environmentObject(aqController)
                 .tabItem {
                     Image(systemName: "house.fill")
                     Text("Home")
                 }.tag("One")
             SettingsView(controllerState: aqController.controllerState)
-                //.environmentObject(aqController)
                 .tabItem {
                     Image(systemName: "gearshape.fill")
                     Text("Settings")
@@ -39,10 +37,7 @@ struct ContentView: View {
                 }.tag("Two")
         }
         .onAppear {
-            //aqController.network.getCurrentState()
-            //aqController.network.getSettingsState()
-            //aqController.network.connectWebSocket()
-            //network.getCurrentState(currentState: currentState)
+            //
         }
         .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
             if (newPhase == .active) {

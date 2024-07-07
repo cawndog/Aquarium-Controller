@@ -10,6 +10,61 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   this->aqWebServerInterface = aqWebServerInterface;
   this->aqThermostat = savedState.getShort("aqThermostat", 82);
   hardwareInterface.init();
+  thermostat.init("Thermostat", "TSTAT", [this](GeneralSetting* setting) {
+    this->aqTemperature.readSensor();
+    this->aqWebServerInterface->settingUpdate(setting);
+  });
+  maintenanceMode.init("Maintenance Mode", "MT_MD", [this](GeneralSetting* setting) {
+    if (setting->getValue() == 1) {
+      this->filter.setStateOff();
+      this->heater.setStateOff();
+    } else {
+      this->filter.setStateOn();
+      this->aqTemperature.readSensor();
+    }
+    this->aqWebServerInterface->settingUpdate(setting);
+  });
+  feedMode.init("Feed Mode", "FD_MD", [this](GeneralSetting* setting) {
+    if (setting->getValue() == 1) {
+      this->filter.setStateOff();
+      this->heater.setStateOff();
+      TaskHandle_t xHandle = NULL;
+      xTaskCreate([](void* pvParameters) {
+        AqController* aqController= (AqController*) pvParameters;
+        //Feed Mode delay before turning filter and heater (if necessary) back on.
+        //600000 ms for 10 minutes
+        const TickType_t xDelay = 600000 / portTICK_PERIOD_MS;
+        vTaskDelay(xDelay);
+        aqController->feedMode.setValue(0);
+        /*if (aqController->maintenanceMode.getValue() != 1) {
+          aqController->filter.setStateOn();
+          aqController->aqTemperature.readSensor(); 
+        }
+        aqController->aqWebServerInterface->settingUpdate(setting);*/
+        Serial.printf("FEED_MD high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+        vTaskDelete(NULL);
+      },"FEED_MD", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+    } else {
+      if (this->maintenanceMode.getValue() != 1) {
+        this->filter.setStateOn();
+        this->aqTemperature.readSensor();
+      }
+    }
+    this->aqWebServerInterface->settingUpdate(setting);
+  });
+  waterSensorAlarm.init("Water Sensor Alarm", "WS_ALM", [this](Alarm* alarm) {
+    if (alarm->getAlarmState() == 1) {
+      this->heater.setStateOff();
+      this->filter.setStateOff();
+      this->airPump.setStateOn();
+      this->waterValve.setStateOff();
+    } else {
+      this->waterValve.setStateOn();
+      this->filter.setStateOn();
+      this->aqTemperature.readSensor();
+    }
+    this->aqWebServerInterface->alarmUpdate(alarm);
+  });
   heater.init("Heater", &hardwareInterface, [this](Device** devices, int numDevices) {
     this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
@@ -33,10 +88,10 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   aqTemperature.init("Aquarium Temperature", &hardwareInterface, [this](Sensor* sensor) {
     if (this->maintMode != true) {
       float valAsFloat = sensor->getValue().toFloat();
-      if (valAsFloat < (aqThermostat - 0.5)) {
+      if (valAsFloat < (this->thermostat.getValue() - 0.5)) {
         heater.setStateOn();
       }
-      else if (valAsFloat > (aqThermostat + 0.5)) {
+      else if (valAsFloat > (this->thermostat.getValue() + 0.5)) {
         heater.setStateOff();
       }
     }
@@ -161,13 +216,6 @@ void AqController::setNextTaskWithEvent() {
   this->nextTaskWithEvent = nextTaskWithEventLocal;
 }
 void AqController::scheduleNextTask() {
-
-  //timerAlarmWrite(taskTimer, 20000, true);
-  //timerAlarmEnable(taskTimer);
-  //if (tasks == NULL) {
-  //  return;
-  //}
-
   setNextTaskWithEvent();
   if (nextTaskWithEvent != NULL) { 
     unsigned long currentLocalEpoch = rtc.getLocalEpoch();
@@ -200,6 +248,22 @@ Sensor* AqController::getSensorByName(String sensorName) {
   for (int i = 0; i < sizeof(sensors) / sizeof(Sensor*); i++) {
     if (sensors[i]->name == sensorName) {
       return sensors[i];
+    }
+  }
+  return NULL;
+}
+Alarm* AqController::getAlarmByName(String alarmName) {
+  for (int i = 0; i < sizeof(alarms) / sizeof(Alarm*); i++) {
+    if (alarms[i]->name == alarmName) {
+      return alarms[i];
+    }
+  }
+  return NULL;
+}
+GeneralSetting* AqController::getSettingByName(String settingName) {
+  for (int i = 0; i < sizeof(settings) / sizeof(GeneralSetting*); i++) {
+    if (settings[i]->name == settingName) {
+      return settings[i];
     }
   }
   return NULL;

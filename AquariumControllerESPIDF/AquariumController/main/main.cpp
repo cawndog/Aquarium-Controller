@@ -51,6 +51,11 @@ IPAddress NMask = {255, 255, 255, 0};
 
 
 void setup() {
+  Serial.begin(115200);
+  //Serial.printf("\nTotal heap: %lu\n", ESP.getHeapSize());
+  //Serial.printf("Free heap: %lu\n", ESP.getFreeHeap());
+  //Serial.printf("Total PSRAM: %lu\n", ESP.getPsramSize());
+  //Serial.printf("Free PSRAM: %lu\n", ESP.getFreePsram());
   inSetup = true;
   #ifdef useSerial
       //Serial.begin(9600);
@@ -59,7 +64,7 @@ void setup() {
       //SerialBT.setPin("0228");
       //SerialBT.begin("AqController");
   #endif
-  Serial.begin(115200);
+  
 
   #ifdef useSerial
       Serial.printf("Connecting to %s ", WIFI_SSID);
@@ -105,10 +110,11 @@ void setup() {
       aqController.waterSensor.readSensor();
       if (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
         Serial.printf("****** Water Sensor Alarm ******\nShutting off water.\n");
-        aqController.heater.setStateOff();
+        /*aqController.heater.setStateOff();
         aqController.filter.setStateOff();
         aqController.airPump.setStateOn();
-        aqController.waterValve.setStateOff();
+        aqController.waterValve.setStateOff();*/
+        aqController.waterSensorAlarm.setAlarmState(1);
       }
       Serial.printf("Water Sensor Pin Value: %d\n", aqController.waterSensor.getValueInt());
       Serial.printf("WS_READ high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
@@ -123,6 +129,11 @@ void setup() {
     }
   },"WS_READ", 2500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
   configASSERT(xHandle);
+  //Serial.printf("*************End Setup()*************\n");
+  //Serial.printf("\nTotal heap: %lu\n", ESP.getHeapSize());
+  //Serial.printf("Free heap: %lu\n", ESP.getFreeHeap());
+  //Serial.printf("Total PSRAM: %lu\n", ESP.getPsramSize());
+  //Serial.printf("Free PSRAM: %lu\n", ESP.getFreePsram());
   inSetup = false;
 }
 

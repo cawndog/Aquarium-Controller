@@ -1,23 +1,12 @@
 #include <string.h>
 #include "AqWebServer.h"
 
-// Set web server port number to 80
-//WiFiServer server(80);
 
 //const char HTML_home[] PROGMEM = "<!DOCTYPE html><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0\"><html> <head> <style>/* The switch - the box around the slider */ .switch{position: relative; display: inline-block; width: 60px; height: 34px;}/* Hide default HTML checkbox */ .switch input{opacity: 0; width: 0; height: 0;}/* The slider */ .slider{position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .3s; transition: .3s;}.slider:before{position: absolute; content: \"\"; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: rgb(255, 255, 255); -webkit-transition: .3s; transition: .3s;}input:checked + .slider{background-color: #5BC236;}input:focus + .slider{box-shadow: 0 0 1px rgb(232, 232, 232);}input:checked + .slider:before{-webkit-transform: translateX(26px); -ms-transform: translateX(26px); transform: translateX(26px);}input:disabled + .slider:before{background-color: #ccc;}/* Rounded sliders */ .slider.round{border-radius: 34px;}.slider.round:before{border-radius: 50%;}.center{margin-left: auto; margin-right: auto;}.center-text{text-align: center;}.left-text{text-align: left; padding-left:5%; padding-top: 5%;}.right-text{text-align: right; padding-right:5%; padding-top: 5%;}.unselectable{-webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}</style> </head> <body class=\"unselectable\" style=\"background-color: rgb(232, 232, 232);\"> <table class=\"center center-text\" style=\"table-layout: fixed; padding-top: 5%;\"> <tr> <td colspan=\"2\"> <h1 style=\"color: rgb(5, 164, 244)\">Aquarium Controller</h1> </td></tr><tr> <td style=\"width: 50%;\">Temperature<br><div id=\"tempDiv\" style=\"font-size:large;font-weight: bold; visibility: hidden;\"><span id=\"temp\"></span></div></td><td style=\"width: 50%;\">TDS<br><div id=\"tdsDiv\" style=\"font-size:large;font-weight: bold; visibility: hidden;\"><span style=\"font-size:large;font-weight: bold;\"id=\"tds\"></span></div></td></tr><tr> <td class=\"right-text\">Lights</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"lights\" type=\"checkbox\" onclick=\"checkClickFunc('lights')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">Filter</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"filter\" type=\"checkbox\" onclick=\"checkClickFunc('filter')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">CO2</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"co2\" type=\"checkbox\" onclick=\"checkClickFunc('co2')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">Air Pump</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"air\" type=\"checkbox\" onclick=\"checkClickFunc('air')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">Maintenance Mode</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"maint\" type=\"checkbox\" onclick=\"checkClickFunc('maint')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"center-text\" style=\"padding-top: 10%;\"><div id=\"heaterStateDiv\" style=\"visibility: hidden;\">Heater: <span id=\"heaterState\"></span></div></td></tr></table> <script>window.addEventListener(\"DOMContentLoaded\", (event)=>{getCurrentState(); let timer=setTimeout(function refreshState(){getCurrentState(); timer=setTimeout(refreshState, 5000);}, 5000);}); function checkClickFunc(device){var checkbox=document.getElementById(device); if (checkbox.checked==true){if (device=='air'){document.getElementById('co2').checked=false;}if (device=='co2'){document.getElementById('air').checked=false;}if (device=='maint'){filter=document.getElementById('filter'); filter.checked=false; filter.disabled=true; document.getElementById('heaterState').innerHTML=\"OFF\";}fetch('http://10.0.0.96/'+device+'On',{method: 'POST', headers:{'Content-Type': 'application/json'}, body: JSON.stringify({\"id\": 78912})}) .then (response=>{console.log(response.status);});}else{fetch('http://10.0.0.96/'+device+'Off',{method: 'POST', headers:{'Content-Type': 'application/json'}, body: JSON.stringify({\"id\": 78913})}) .then (response=>{console.log(response.status); if (response.status==200){if (device=='maint'){filter=document.getElementById('filter'); filter.checked=true; filter.disabled=false;}}});}}function getCurrentState(){fetch('http://10.0.0.96/getCurrentState') .then((response)=> response.json()) .then((json)=>{console.log(json); document.getElementById('temp').innerHTML=json.temp; document.getElementById('tds').innerHTML=json.tds; document.getElementById(\"tempDiv\").style.visibility=\"visible\"; document.getElementById(\"tdsDiv\").style.visibility=\"visible\"; document.getElementById('lights').checked=json.lights; document.getElementById('filter').checked=json.filter; document.getElementById('co2').checked=json.co2; document.getElementById('air').checked=json.air; document.getElementById('maint').checked=json.maint; if (json.heater){document.getElementById('heaterState').innerHTML=\"ON\";}else{document.getElementById('heaterState').innerHTML=\"OFF\";}document.getElementById(\"heaterStateDiv\").style.visibility=\"visible\";});}</script> </body></html>";
 // Variable to store the HTTP request
 
-
-//const char* http_username = "admin";
-//const char* http_password = "esp32";
-// allows you to set the realm of authentication Default:"Login Required"
-//const char* www_realm = "Custom Auth Realm";
-// the Content of the HTML response in case of Unautherized Access Default:empty
 String authFailResponse = "Authentication Failed";
-//String header;
 
-
-//AqWebServer::AqWebServer(int port, const char* path): server(port), ws(path) {
   AqWebServer::AqWebServer() {
     this->server = new AsyncWebServer(8008);
     this->ws = new AsyncWebSocket("/ws");
@@ -36,7 +25,6 @@ String authFailResponse = "Authentication Failed";
   server->on("/wv_on", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
-      request->send(401);
       return;
     }
     request->send(200);
@@ -48,7 +36,6 @@ String authFailResponse = "Authentication Failed";
   server->on("/wv_off", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
     if (authFailed) {
-      request->send(401);
       return;
     }
     request->send(200);
@@ -94,10 +81,8 @@ String authFailResponse = "Authentication Failed";
     if (authFailed) {
       return;
     }
-
     DynamicJsonDocument body(2048);
-    body["messageType"] = "StateUpdate";
-    body["maintenanceMode"] = aqController.maintMode;
+    //continue writing here
     for (int i = 0; i < sizeof(aqController.sensors)/sizeof(Sensor*);i++) {
       body["sensors"][i]["name"] = aqController.sensors[i]->name;
       body["sensors"][i]["value"] = aqController.sensors[i]->getValue();
@@ -106,22 +91,6 @@ String authFailResponse = "Authentication Failed";
       body["devices"][i]["name"] = aqController.devices[i]->name;
       body["devices"][i]["state"] = aqController.devices[i]->getStateBool();
     }
-    /*
-    body["sensors"][0]["name"] = aqController.aqTemperature.name;
-    body["sensors"][0]["value"] = aqController.aqTemperature.getValue();
-    body["sensors"][1]["name"] = aqController.tds.name;
-    body["sensors"][1]["value"] = aqController.tds.getValue();
-    body["devices"][0]["name"] = aqController.lights.name;
-    body["devices"][0]["state"] = aqController.lights.getStateBool();
-    body["devices"][1]["name"] = aqController.airPump.name;
-    body["devices"][1]["state"] = aqController.airPump.getStateBool();
-    body["devices"][2]["name"] = aqController.co2.name;
-    body["devices"][2]["state"] = aqController.co2.getStateBool();
-    body["devices"][3]["name"] = aqController.filter.name;
-    body["devices"][3]["state"] = aqController.filter.getStateBool();
-    body["devices"][4]["name"] = aqController.heater.name;
-    body["devices"][4]["state"] = aqController.heater.getStateBool();
-    */
     String response;
     serializeJson(body, response);
     body.clear();
@@ -141,19 +110,24 @@ String authFailResponse = "Authentication Failed";
     }
 
     DynamicJsonDocument body(2048);
-    body["messageType"] = "SettingsUpdate";
-    body["aqThermostat"] = aqController.aqThermostat;
-  
+    for (int i = 0; i < sizeof(aqController.settings)/sizeof(GeneralSetting*);i++) {
+      body["settings"]["generalSettings"][i]["name"] = aqController.settings[i]->getName();
+      body["settings"]["generalSettings"][i]["value"] = aqController.settings[i]->getValue();
+    }
+    for (int i = 0; i < sizeof(aqController.alarms)/sizeof(Alarm*);i++) {
+      body["settings"]["alarms"][i]["name"] = aqController.alarms[i]->getName();
+      body["settings"]["alarms"][i]["alarmState"] = aqController.alarms[i]->getAlarmState();
+    }
     for (int i = 0; aqController.tasks[i] != NULL; i++) {
-      body["tasks"][i]["name"] = aqController.tasks[i]->getName();
-      body["tasks"][i]["taskType"] = aqController.tasks[i]->taskTypeToString();
-      body["tasks"][i]["time"] = aqController.tasks[i]->getTime();
-      body["tasks"][i]["isDisabled"] = aqController.tasks[i]->getDisabled();
+      body["settings"]["tasks"][i]["name"] = aqController.tasks[i]->getName();
+      body["settings"]["tasks"][i]["taskType"] = aqController.tasks[i]->taskTypeToString();
+      body["settings"]["tasks"][i]["time"] = aqController.tasks[i]->getTime();
+      body["settings"]["tasks"][i]["isDisabled"] = aqController.tasks[i]->getDisabled();
       if (aqController.tasks[i]->hasConnectedTask()) {
-        body["tasks"][i]["connectedTask"]["name"] = aqController.tasks[i]->connectedTask->getName();
-        body["tasks"][i]["connectedTask"]["taskType"] = aqController.tasks[i]->connectedTask->taskTypeToString();
-        body["tasks"][i]["connectedTask"]["time"] = aqController.tasks[i]->connectedTask->getTime();
-        body["tasks"][i]["connectedTask"]["isDisabled"] = aqController.tasks[i]->connectedTask->getDisabled();
+        body["settings"]["tasks"][i]["connectedTask"]["name"] = aqController.tasks[i]->connectedTask->getName();
+        body["settings"]["tasks"][i]["connectedTask"]["taskType"] = aqController.tasks[i]->connectedTask->taskTypeToString();
+        body["settings"]["tasks"][i]["connectedTask"]["time"] = aqController.tasks[i]->connectedTask->getTime();
+        body["settings"]["tasks"][i]["connectedTask"]["isDisabled"] = aqController.tasks[i]->connectedTask->getDisabled();
       }
     }
 
@@ -172,6 +146,8 @@ String authFailResponse = "Authentication Failed";
     if (authFailed) {
       return;
     }
+    processAqControllerMessageNew(json);
+    /*
     JsonObject body = json.as<JsonObject>();
     if (body.containsKey("aqThermostat")) {
       aqController.aqThermostat = body["aqThermostat"];
@@ -215,7 +191,7 @@ String authFailResponse = "Authentication Failed";
         } 
       }
     }
-    aqController.scheduleNextTask();
+    aqController.scheduleNextTask();*/
 
     request->send(200, "application/text", "setSettingsState succeeded.");
     
@@ -226,6 +202,8 @@ String authFailResponse = "Authentication Failed";
     if (authFailed) {
       return;
     }
+    processAqControllerMessageNew(json);
+    /*
     JsonObject body = json.as<JsonObject>();
     if (body.containsKey("devices")) {
       if (body["devices"].size() > 0) {
@@ -239,7 +217,7 @@ String authFailResponse = "Authentication Failed";
           }
         }
       }
-    }
+    }*/
     request->send(200, "text/plain", "setDeviceOn Succeeded");
     
   });
@@ -249,7 +227,7 @@ String authFailResponse = "Authentication Failed";
     if (authFailed) {
         return;
       }
-      processAqControllerMessage(json);
+      processAqControllerMessageNew(json);
       request->send(200, "text/plain", "Message Received.");
   });
   server->addHandler(sendMessageHandler);
@@ -332,7 +310,6 @@ AqWebServer::~AqWebServer() {
 }*/
 void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
   DynamicJsonDocument body(1024);
-  body["messageType"] = "StateUpdate";
   for (int i = 0; i < numDevices; i++) {
     body["devices"][i]["name"] = devices[i]->name;
     body["devices"][i]["state"] = devices[i]->getStateBool();
@@ -368,6 +345,38 @@ void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
   #endif
   ws->textAll(message);
   
+}
+void AqWebServer::settingUpdate(GeneralSetting* setting) {
+  DynamicJsonDocument body(1024);
+  body["settings"]["generalSettings"][0]["name"] = setting->getName();
+  body["settings"]["generalSettings"][0]["value"] = setting->getValue();
+  String message;
+  serializeJson(body, message);
+  body.clear();
+  #ifdef useSerial
+    Serial.println("In settingUpdate()");
+    Serial.println(message);
+  #endif
+  #ifdef useSerialBT
+    SerialBT.println(message);
+  #endif
+  ws->textAll(message);
+}
+void AqWebServer::alarmUpdate(Alarm* alarm) {
+  DynamicJsonDocument body(1024);
+  body["settings"]["alarms"][0]["name"] = alarm->getName();
+  body["settings"]["alarms"][0]["alarmState"] = alarm->getAlarmState();
+  String message;
+  serializeJson(body, message);
+  body.clear();
+  #ifdef useSerial
+    Serial.println("In alarmUpdate()");
+    Serial.println(message);
+  #endif
+  #ifdef useSerialBT
+    SerialBT.println(message);
+  #endif
+  ws->textAll(message);
 }
 void AqWebServer::updateDynamicIP() {
   HTTPClient http;
@@ -443,6 +452,66 @@ bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
   } else {
     return false;
   }
+  return true;
+
+}
+bool AqWebServer::processAqControllerMessageNew(JsonVariant &json) {
+  JsonObject body = json.as<JsonObject>();
+        const int numDevices = body["devices"].size();
+        for (int i = 0; i < numDevices; i++) {
+          Device* deviceToSet = aqController.getDeviceByName(body["devices"][i]["name"]);
+          if (deviceToSet != NULL) {
+            if (body["devices"][i]["state"] == true) {
+              deviceToSet->setStateOn();
+            }
+            else {
+              deviceToSet->setStateOff();
+            }
+          }
+        }
+        if (body["sensors"].size() > 0) { 
+          const int numSensors = body["sensors"].size();
+          for (int i = 0; i < numSensors; i++) {
+            Sensor* sensorToRead = aqController.getSensorByName(body["sensors"][i]["name"]);
+            if (sensorToRead != NULL) {
+              sensorToRead->readSensor();
+            }
+          }
+        }
+        if (body.containsKey("settings")) {
+          const int numSettings = body["settings"]["generalSettings"].size();
+          for (int i = 0; i < numSettings; i++) {
+            GeneralSetting* settingToUpdate = aqController.getSettingByName(body["settings"]["generalSettings"][i]["name"]);
+            if (settingToUpdate != NULL) {
+              settingToUpdate->setValue(body["settings"]["generalSettings"][i]["value"]);
+            }
+          }
+          const int numAlarms = body["settings"]["alarms"].size();
+          for (int i = 0; i < numAlarms; i++) {
+            Alarm* alarmToUpdate = aqController.getAlarmByName(body["settings"]["alarms"][i]["name"]);
+            if (alarmToUpdate != NULL) {
+              alarmToUpdate->setAlarmState(body["settings"]["alarms"][i]["alarmState"]);
+            }
+          }
+          const int numTasks = body["settings"]["tasks"].size();
+          if (numTasks > 0) {
+            for (int i = 0; i < numTasks; i++) {
+              Task* task = aqController.getTaskByName(body["settings"]["tasks"][i]["name"]);
+              if (task != NULL) {
+                task->updateSettings(body["settings"]["tasks"][i]["isDisabled"], body["settings"]["tasks"][i]["time"]);
+                if (body["tasks"][i].containsKey("connectedTask")) {
+                  task = aqController.getTaskByName(body["settings"]["tasks"][i]["connectedTask"]["name"]);
+                  if (task != NULL) {
+                    task->updateSettings(body["settings"]["tasks"][i]["connectedTask"]["isDisabled"], body["settings"]["tasks"][i]["connectedTask"]["time"]);
+                  }
+                }
+              } 
+            }
+            aqController.scheduleNextTask();
+          }
+        }
+    //-------
+
   return true;
 
 }

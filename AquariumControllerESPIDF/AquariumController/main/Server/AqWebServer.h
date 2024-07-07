@@ -37,9 +37,11 @@ class AqWebServer: public AqWebServerInterface {
     bool checkAuthorization(AsyncWebServerRequest *request);
     void deviceStateUpdate(Device** devices, int numDevices); //Sends update to Web Socket clients when a device state changes.
     void sensorReadingUpdate(Sensor* sensor); //Sends update to Web Socket clients when a sensor value changes.
+    void settingUpdate(GeneralSetting* setting);
+    void alarmUpdate(Alarm* alarm);
     void updateDynamicIP();
     bool processAqControllerMessage(JsonVariant &json);
-
+    bool processAqControllerMessageNew(JsonVariant &json);
     //void updateSensorValsOnClients(Sensor* sensors[]);
     //void updateDeviceStatesOnClients(TimedDevice* devices[]);
 };
@@ -50,20 +52,9 @@ class AqWebServerDummy: public AqWebServerInterface {
     virtual void deviceStateUpdate(Device** devices, int numDevices) {};
     virtual void sensorReadingUpdate(Sensor* sensor) {};
     virtual void updateDynamicIP() {};
+    virtual void settingUpdate(GeneralSetting* setting) {};
+    virtual void alarmUpdate(Alarm* alarm) {};
     ~AqWebServerDummy() {};
 };
 
-/*
-
-AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len);
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len);
-void webServerSetup();
-bool checkAuthorization(AsyncWebServerRequest *request);
-void notFound(AsyncWebServerRequest *request);
-void updateDDNS();
-void updateSensorValsOnClients(Sensor* sensors[]);
-void updateDeviceStatesOnClients(TimedDevice* devices[]);
-*/
 #endif

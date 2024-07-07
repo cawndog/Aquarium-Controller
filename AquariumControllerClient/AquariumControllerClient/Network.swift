@@ -25,13 +25,14 @@ class Network: ObservableObject {
     //var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
     //let bearerToken = ProcessInfo.processInfo.environment["API_KEY"] ?? ""
-let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"  
-    var AqControllerIP: String = "192.168.0.2:8008"
-    var publicIpDNS: String = "aquariumcontroller.tplinkdns.com:8008"
-    let privateIp: String = "aquariumcontroller.tplinkdns.com:8008"
-    //let publicIpDNS: String = "AquariumController.freeddns.org:8008"
-    //let privateIp: String = "192.168.0.2:8008"
+    let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
+    let publicDNS: String = "aquariumcontroller.tplinkdns.com:8008"
+    let privateIP: String = "192.168.0.2:8008"
+    var aqConnectionString: String    
+    //let publicDNS: String = "AquariumController.freeddns.org:8008"
+    
     init() {
+        aqConnectionString = publicDNS
         //let authorizationStatus: CLAuthorizationStatus
         
         //self.controllerState = nil
@@ -65,7 +66,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
     }
     
     func connectWebSocket() {
-        guard let url = URL(string: "ws://\(AqControllerIP)/ws") else { return }
+        guard let url = URL(string: "ws://\(aqConnectionString)/ws") else { return }
         let request = URLRequest(url: url)
         webSocketTask = URLSession.shared.webSocketTask(with: request)
         webSocketTask?.resume()
@@ -81,28 +82,31 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
         print("WebSocket disconnected.")
     }
     func determineIP() async {
-        var urlString: String = "http://\(privateIp)/esp_alv"
+        var urlString: String = "http://\(publicDNS)/esp_alv"
 
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         //request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         //request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "GET"
-        request.timeoutInterval = 2
+        request.timeoutInterval = 20
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 204 {
-                    print("Setting AqControllerIP to privateIp.")
-                    AqControllerIP = privateIp
+                    //Server was reachable by the DNS alias pointing to its public IP. App will use DNS alias.
+                    print("Setting aqConnectionString to publicDNS.")
+                    aqConnectionString = publicDNS
                 } else {
-                    print("Setting AqControllerIP to publicIpDNS.")
-                    AqControllerIP = publicIpDNS
+                    //Server was not reachable by the DNS alias pointing to its public IP. App will switch to using the server's private IP Address.
+                    print("Setting aqConnectionString to privateIP.")
+                    aqConnectionString = privateIP
                 }
             }
         } catch {
-            print("Setting AqControllerIP to publicIpDNS")
-            AqControllerIP = publicIpDNS
+            //Server was not reachable by the DNS alias pointing to its public IP. App will switch to using the server's private IP Address.
+            print("Setting aqConnectionString to privateIP")
+            aqConnectionString = privateIP
         }
     }
     func receiveMessage() {
@@ -135,32 +139,33 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
         guard let controllerState = controllerState else { return }
         let jsonMessage = WebSocketMessage.data(using: .utf8)!
         let decodedMessage = try! JSONDecoder().decode(AqControllerMessage.self, from: jsonMessage)
-        if (decodedMessage.messageType == .StateUpdate) {
-            if let maintMode = decodedMessage.maintenanceMode {
-                controllerState.maintenanceMode = maintMode
-            }
-            if let feedMode = decodedMessage.feedMode {
-                controllerState.feedMode = feedMode
-            }
-            if let sensors = decodedMessage.sensors {
-                for sensor in sensors {
-                    var s = controllerState.getSensorByName(sensor.name)
-                    s.value = sensor.value
-                }
-            }
-            if let devices = decodedMessage.devices {
-                for device in devices {
-                    let d = controllerState.getDeviceByName(device.name)
-                    d.stateUpdatedByController = true
-                    d.state = device.state
-                }
+        if let sensors = decodedMessage.sensors {
+            for sensor in sensors {
+                var s = controllerState.getSensorByName(sensor.name)
+                s.value = sensor.value
             }
         }
-        if (decodedMessage.messageType == .SettingsUpdate) {
-            if let thermostat = decodedMessage.aqThermostat {
-                controllerState.aqThermostat = thermostat
+        if let devices = decodedMessage.devices {
+            for device in devices {
+                let d = controllerState.getDeviceByName(device.name)
+                d.stateUpdatedByController = true
+                d.state = device.state
             }
-            if let tasks = decodedMessage.tasks {
+        }
+        if let settings = decodedMessage.settings {
+            if let generalSettings = settings.generalSettings {
+                for setting in generalSettings {
+                    let s = controllerState.getGeneralSettingByName(setting.name)
+                    s.value = setting.value
+                }
+            }
+            if let alarms = settings.alarms{
+                for alarm in alarms {
+                    let a = controllerState.getAlarmByName(alarm.name)
+                    a.alarmState = alarm.alarmState
+                }
+            }
+            if let tasks = settings.tasks {
                 var dateComps = DateComponents()
                 var hours: Int
                 var minutes: Int
@@ -210,7 +215,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
     func getSettingsState() {
         print("getSettingsState() called.")
         guard let controllerState = self.controllerState else { return }
-        guard let url = URL(string: "http://\(AqControllerIP)/getSettingsState") else { fatalError("Missing URL") }
+        guard let url = URL(string: "http://\(aqConnectionString)/getSettingsState") else { fatalError("Missing URL") }
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         let dataTask = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
@@ -224,8 +229,10 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
                 guard let data = data else { return }
                 DispatchQueue.main.async {
                     do {
-                        //let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
-                        //print(jsonString)
+                        let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+                        print(jsonString!)
+                        self.processStringMessage(WebSocketMessage: jsonString! as String)
+                        /*
                         let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
                         //if (decodedMessage.messageType == .SettingsUpdate) {
                         if let thermostat = decodedMessage.aqThermostat {
@@ -270,6 +277,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
                                 }
                             }
                         }
+                         */
                         //}
                         //------------airPump
                         
@@ -290,7 +298,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
         dataTask.resume()
         
     }
-    func setSettingsState() async {
+    func setSettingsState() async {/*
         guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
         newMessage.messageType = .SettingsUpdate
@@ -329,7 +337,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
         //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
         print("In setSettingsState()")
         //print(jsonString)
-        let urlString: String = "http://\(AqControllerIP)/setSettingsState"
+        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -340,15 +348,13 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
             // handle the result
         } catch {
             print("setSettingsState() failed.")
-        }
+        }*/
     }
-    func setSettingsState(task: ControllerState.Task) async {
+    func setTaskState(task: ControllerState.Task) async {
         guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
-        newMessage.messageType = .SettingsUpdate
-        
-        
-        var newTask = AqControllerMessage.Task()
+        var newSettings = AqControllerMessage.Settings()
+        var newTask = AqControllerMessage.Settings.Task()
         newTask.name = task.name
         newTask.isDisabled = task.isDisabled
         //newTask.time = taskTime
@@ -364,7 +370,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
             taskTime += taskDateComp.second!
             newTask.time = taskTime
             if (task.connectedTask != nil) {
-                newTask.connectedTask = AqControllerMessage.Task()
+                newTask.connectedTask = AqControllerMessage.Settings.Task()
                 newTask.connectedTask!.name = task.connectedTask.name
                 newTask.connectedTask!.isDisabled = task.isDisabled
                 taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
@@ -374,17 +380,16 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
                 newTask.connectedTask!.time = taskTime
             }
         }
-        
-        newMessage.addTask(newTask)
-        
+        newSettings.addTask(newTask)
+        newMessage.addSettings(newSettings)
         guard let encoded = try? JSONEncoder().encode(newMessage) else {
             print("Failed to encode JSON")
             return
         }
         //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
-        print("In setSettingsState()")
+        print("In setTaskState(task)")
         //print(jsonString)
-        let urlString: String = "http://\(AqControllerIP)/setSettingsState"
+        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -394,10 +399,70 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
             let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
             // handle the result
         } catch {
-            print("setSettingsState(task) failed.")
+            print("setTaskState(task) failed.")
         }
     }
-    func setSettingsState(aqThermostat: Int) async {
+    func setGeneralSettingState (generalSetting: ControllerState.GeneralSetting) async {
+        guard let controllerState = self.controllerState else { return }
+        var newMessage = AqControllerMessage()
+        var newSettings = AqControllerMessage.Settings()
+        var newGeneralSetting = AqControllerMessage.Settings.GeneralSetting()
+        newGeneralSetting.name = generalSetting.name
+        newGeneralSetting.value = generalSetting.value
+        newSettings.addGeneralSetting(newGeneralSetting)
+        newMessage.addSettings(newSettings)
+        guard let encoded = try? JSONEncoder().encode(newMessage) else {
+            print("Failed to encode JSON")
+            return
+        }
+        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        print("In setGeneralSettingState(generalSetting)")
+        //print(jsonString)
+        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            // handle the result
+        } catch {
+            print("setGeneralSettingState(generalSetting) failed.")
+        }
+        
+    }
+    func setAlarmState (alarm: ControllerState.Alarm) async {
+        guard let controllerState = self.controllerState else { return }
+        var newMessage = AqControllerMessage()
+        var newSettings = AqControllerMessage.Settings()
+        var newAlarm = AqControllerMessage.Settings.Alarm()
+        newAlarm.name = alarm.name
+        newAlarm.alarmState = alarm.alarmState
+        newSettings.addAlarm(newAlarm)
+        newMessage.addSettings(newSettings)
+        guard let encoded = try? JSONEncoder().encode(newMessage) else {
+            print("Failed to encode JSON")
+            return
+        }
+        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        print("In setAlarmState(alarm)")
+        //print(jsonString)
+        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            // handle the result
+        } catch {
+            print("setAlarmState(alarm) failed.")
+        }
+        
+    }
+    func setSettingsState(aqThermostat: Int) async {/*
         guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
         newMessage.messageType = .SettingsUpdate
@@ -410,7 +475,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
         //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
         print("In setSettingsState()")
         //print(jsonString)
-        let urlString: String = "http://\(AqControllerIP)/setSettingsState"
+        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -421,11 +486,11 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
             // handle the result
         } catch {
             print("setSettingsState(aqThermostat) failed.")
-        }
+        }*/
     }
     func getCurrentState() {
         guard let controllerState = self.controllerState else { return }
-        guard let url = URL(string: "http://\(AqControllerIP)/getCurrentState") else { fatalError("Missing URL") }
+        guard let url = URL(string: "http://\(aqConnectionString)/getCurrentState") else { fatalError("Missing URL") }
         
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
@@ -444,7 +509,10 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
                     do {
                         //let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
                         //print(jsonString)
-                        let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
+                        let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+                        print(jsonString!)
+                        self.processStringMessage(WebSocketMessage: jsonString! as String)
+                        /*let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
                         
                         if (decodedMessage.messageType == .StateUpdate) {
                             if let maintMode = decodedMessage.maintenanceMode {
@@ -466,7 +534,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
                                     d.state = device.state
                                 }
                             }
-                        }
+                        }*/
                     } catch let error {
                         print("Error decoding: ", error)
                     }
@@ -476,58 +544,12 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
         
         dataTask.resume()
     }
-    func feedModeToggleChange(state: Bool) async {
-        let newMessage = AqControllerMessage()
-        newMessage.messageType = .StateUpdate
-        newMessage.feedMode = state
-        guard let encoded = try? JSONEncoder().encode(newMessage) else {
-            print("Failed to encode JSON")
-            return
-        }
-        var urlString: String = "http://\(AqControllerIP)/sendMessage"
-        let url = URL(string: urlString)!
-        var request = URLRequest(url: url)
-        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "POST"
-        do {
-            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
-            // handle the result
-        } catch {
-            print("Feed Mode state change failed.")
-        }
-    }
-    func maintenanceToggleChange(state: Bool) async {
-        print("maintenanceStateChange() called")
-        guard let encoded = try? JSONEncoder().encode("") else {
-            print("Failed to encode JSON")
-            return
-        }
-        var urlString: String = "http://\(AqControllerIP)/maint"
-        if (state == true) {
-            urlString = urlString + "On"
-            
-        } else {
-            urlString = urlString + "Off"
-        }
-        let url = URL(string: urlString)!
-        var request = URLRequest(url: url)
-        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "POST"
-        do {
-            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
-            // handle the result
-        } catch {
-            print("Maint Mode state change failed.")
-        }
-    }
+
     func deviceToggleChange(device: ControllerState.Device) async {
         //print("deviceToggleChange() called for " + device.name)
         guard let controllerState = self.controllerState else { return }
         //guard (!device.stateUpdatedByController) else {device.stateUpdatedByController = false; return}
         var newMessage = AqControllerMessage()
-        newMessage.messageType = .StateUpdate
         var newDevice = AqControllerMessage.Device()
         newDevice.name = device.name
         newDevice.state = device.state
@@ -537,7 +559,7 @@ let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
             return
         }
         
-        var urlString: String = "http://\(AqControllerIP)/setDeviceState"
+        let urlString: String = "http://\(aqConnectionString)/setDeviceState"
         if (device.state == true) {
             if (device.name == "CO2") {
                 //print("setting Air Pump to false")

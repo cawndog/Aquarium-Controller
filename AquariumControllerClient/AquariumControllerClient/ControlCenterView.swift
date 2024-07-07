@@ -16,36 +16,14 @@ struct ControlCenterView: View {
             VStack {
                 ForEach(controllerState.devices, id: \.name) { device in
                     if (device.name != "Filter" && device.name != "Heater") {
-                        DeviceView(device: device)
-                        Divider()
-                    }   
+                        DeviceView(device: device).padding(0.0)
+                        if (device.name != controllerState.devices.last?.name) {
+                            Divider()
+                        }
+                    }
                 }
-                Toggle(isOn: Binding(
-                    get:{controllerState.feedMode},
-                    set:{v in
-                        controllerState.feedMode = v
-                        Task {
-                            await aqController.network.feedModeToggleChange(state: v)
-                        }
-                        
-                    })) {
-                    Label("Feed Mode", systemImage: "fish")
-                    }
-                Divider()
-                Toggle(isOn: Binding(
-                    get:{controllerState.maintenanceMode},
-                    set:{v in
-                        controllerState.maintenanceMode = v
-                        Task {
-                            await aqController.network.maintenanceToggleChange(state: v)
-                        }
-                        
-                    })) {
-                        Label("Maintenance Mode", systemImage: "engine.combustion.badge.exclamationmark")
-                    }
-                }.padding(.horizontal, 20)
-                
-            }.padding(/*@START_MENU_TOKEN@*/.vertical, 10.0/*@END_MENU_TOKEN@*/).padding(.horizontal, 20)
+            }.padding(.horizontal, 20)
+        }.padding(/*@START_MENU_TOKEN@*/.vertical, 10.0/*@END_MENU_TOKEN@*/).padding(.horizontal, 20)
     }
 }
 

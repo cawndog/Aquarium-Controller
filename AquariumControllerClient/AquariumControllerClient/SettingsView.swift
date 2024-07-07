@@ -76,11 +76,12 @@ struct SettingsView: View {
             }
             .navigationDestination(for: ControllerState.GeneralSetting.self) { generalSetting in
                 GeneralSettingEditView(generalSetting: generalSetting)
-                    .navigationTitle(generalSetting.name)
+                    //.navigationTitle(generalSetting.name)
+                    .navigationBarTitleDisplayMode(.inline)
             }
             .navigationDestination(for: ControllerState.Alarm.self) { alarm in
                 AlarmEditView(alarm: alarm)
-                    .navigationTitle(alarm.name)
+                    .navigationBarTitleDisplayMode(.inline)
             }
             .navigationDestination(for: ControllerState.Task.self) { task in
                 TaskDetailedView(task: task)
@@ -109,15 +110,6 @@ struct SettingsView: View {
             
             //.listStyle(.insetGrouped)
             .navigationTitle("Settings")
-        }
-        .onAppear {
-            //aqController.network.getSettingsState()
-        }
-        .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
-            if (newPhase == .active) {
-                print("SettingsView is now active")
-                //aqController.network.getSettingsState()
-            }
         }
     }
 }

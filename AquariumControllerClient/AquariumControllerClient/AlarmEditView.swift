@@ -30,15 +30,17 @@ struct AlarmEditView: View {
                     }
                 }
 
+            }
+            Section {
+                Button("Reset Alarm", action: {
+                    Task{
+                        alarm.alarmState = editableAlarmValue
+                        await aqController.network.setAlarmState(alarm: alarm)
+                    }
+                })
             } header: {
                 Text("Reset " + alarm.name).textCase(nil).bold()
             }
-            Button("Reset Alarm", action: {
-                Task{
-                    alarm.alarmState = editableAlarmValue
-                    await aqController.network.setAlarmState(alarm: alarm)
-                }
-            })
         }
     }
 }

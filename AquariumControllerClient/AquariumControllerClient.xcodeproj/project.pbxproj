@@ -22,7 +22,6 @@
 		D864CB722A082A1700E1C157 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6E2A082A1600E1C157 /* Network.swift */; };
 		D864CB732A082A1700E1C157 /* SettingsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D864CB6F2A082A1700E1C157 /* SettingsState.swift */; };
 		D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */; };
-		D87BC3F82AB21552003D5916 /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87BC3F72AB21552003D5916 /* LocationModel.swift */; };
 		D889B9422A4670820083FA0A /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D889B9412A4670820083FA0A /* DeviceView.swift */; };
 		D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D898A2EB2AAE1B600061A234 /* DatePickerView.swift */; };
 		D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862592A9AD30C006217F6 /* ParametersView.swift */; };
@@ -54,7 +53,6 @@
 		D864CB6E2A082A1600E1C157 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		D864CB6F2A082A1700E1C157 /* SettingsState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsState.swift; sourceTree = "<group>"; };
 		D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AqControllerMessage.swift; sourceTree = "<group>"; };
-		D87BC3F72AB21552003D5916 /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
 		D87BC3F92AB222D1003D5916 /* AquariumControllerClientDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AquariumControllerClientDebug.entitlements; sourceTree = "<group>"; };
 		D889B9412A4670820083FA0A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
 		D898A2EB2AAE1B600061A234 /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
@@ -150,7 +148,6 @@
 				D864CB6D2A082A1600E1C157 /* ControllerState.swift */,
 				D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
-				D87BC3F72AB21552003D5916 /* LocationModel.swift */,
 				D864CB6F2A082A1700E1C157 /* SettingsState.swift */,
 				D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */,
 				D864CB612A0828F800E1C157 /* Assets.xcassets */,
@@ -283,7 +280,6 @@
 				D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */,
 				D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */,
 				D8E5715F2A9FC0D000B8EC07 /* HashableClass.swift in Sources */,
-				D87BC3F82AB21552003D5916 /* LocationModel.swift in Sources */,
 				D864CB5E2A0828F700E1C157 /* AquariumControllerClientApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -407,8 +403,9 @@
 		D864CB6A2A0828F800E1C157 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = GreenFishWhiteBackground;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = AquariumControllerClient/AquariumControllerClientDebug.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -454,8 +451,9 @@
 		D864CB6B2A0828F800E1C157 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = GreenFishWhiteBackground;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = AquariumControllerClient/AquariumControllerClient.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

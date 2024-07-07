@@ -51,16 +51,7 @@ struct ContentView: View {
                 aqController.network.disconnectWebSocket()
             }
               
-        }
-        /*.onChange(of: locationModel.authorisationStatus) {
-            print("Auth status changed.")
-            if locationModel.authorisationStatus == .notDetermined {
-                print("authorization status not determined")
-            } else {
-                print("authorization status determined")
-            }
-        }*/
-       
+        }   
     }
     
     

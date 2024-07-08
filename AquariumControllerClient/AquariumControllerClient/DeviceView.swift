@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct DeviceView: View {
-    @ObservedObject var device: ControllerState.Device
-    var connectedDevice: ControllerState.Device?
+    @ObservedObject var device: Device
+    var connectedDevice: Device?
     @EnvironmentObject var aqController: AqController
     var disabled: Bool = false
-    init(device: ControllerState.Device, connectedDevice: ControllerState.Device? = nil) {
+    init(device: Device, connectedDevice: Device? = nil) {
         self.device = device
         if (connectedDevice != nil) {
             self.connectedDevice = connectedDevice
         }
-        if (device.name == "Heater") {
+        if (device.getName() == "Heater") {
             disabled = true
         }
     }
@@ -52,12 +52,12 @@ struct DeviceView: View {
             Toggle(isOn: Binding(
                 get:{device.state},
                 set:{v in
-                    device.state = v
+                    device.setState(newState: v)
                     Task {
                         await aqController.network.deviceToggleChange(device: device)
                     }
                 })) {
-                    Label(device.name, systemImage: labelLookup(deviceName: device.name))
+                    Label(device.getName(), systemImage: labelLookup(deviceName: device.getName()))
                 }
         }
         
@@ -65,6 +65,6 @@ struct DeviceView: View {
 }
 
 #Preview {
-    DeviceView(device: ControllerState.Device("Test Device"), connectedDevice: nil)
+    DeviceView(device: Device("Test Device"), connectedDevice: nil)
         .environmentObject(AqController())
 }

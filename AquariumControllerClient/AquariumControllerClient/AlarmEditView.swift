@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct AlarmEditView: View {
-    @ObservedObject var alarm: ControllerState.Alarm
+    @ObservedObject var alarm: Alarm
     @EnvironmentObject var aqController: AqController
     @State var editableAlarmValue: Int
     let step = 1
     let range = 66...93
-    init(alarm: ControllerState.Alarm) {
+    init(alarm: Alarm) {
         self.alarm = alarm
-        self.editableAlarmValue = alarm.alarmState
+        self.editableAlarmValue = alarm.getAlarmState()
     }
     var body: some View {
         List {
@@ -34,17 +34,17 @@ struct AlarmEditView: View {
             Section {
                 Button("Reset Alarm", action: {
                     Task{
-                        alarm.alarmState = editableAlarmValue
+                        alarm.setAlarmState(newState: editableAlarmValue)
                         await aqController.network.setAlarmState(alarm: alarm)
                     }
                 })
             } header: {
-                Text("Reset " + alarm.name).textCase(nil).bold()
+                Text("Reset " + alarm.getName()).textCase(nil).bold()
             }
         }
     }
 }
 
 #Preview {
-    AlarmEditView(alarm: ControllerState.Alarm("Test Alarm"))
+    AlarmEditView(alarm: Alarm("Test Alarm"))
 }

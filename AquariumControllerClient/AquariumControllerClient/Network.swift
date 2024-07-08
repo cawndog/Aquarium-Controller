@@ -28,7 +28,7 @@ class Network: ObservableObject {
     let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
     let publicDNS: String = "aquariumcontroller.tplinkdns.com:8008"
     let privateIP: String = "192.168.0.2:8008"
-    var aqConnectionString: String    
+    var aqConnectionString: String
     //let publicDNS: String = "AquariumController.freeddns.org:8008"
     
     init() {
@@ -83,7 +83,7 @@ class Network: ObservableObject {
     }
     func determineIP() async {
         var urlString: String = "http://\(publicDNS)/esp_alv"
-
+        
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
         //request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
@@ -139,55 +139,42 @@ class Network: ObservableObject {
         guard let controllerState = controllerState else { return }
         let jsonMessage = WebSocketMessage.data(using: .utf8)!
         let decodedMessage = try! JSONDecoder().decode(AqControllerMessage.self, from: jsonMessage)
-        if let sensors = decodedMessage.sensors {
-            for sensor in sensors {
-                var s = controllerState.getSensorByName(sensor.name)
-                s.value = sensor.value
-            }
-        }
-        if let devices = decodedMessage.devices {
-            for device in devices {
-                let d = controllerState.getDeviceByName(device.name)
-                d.stateUpdatedByController = true
-                d.state = device.state
-            }
-        }
-        if let settings = decodedMessage.settings {
-            if let generalSettings = settings.generalSettings {
-                for setting in generalSettings {
-                    let s = controllerState.getGeneralSettingByName(setting.name)
-                    s.value = setting.value
+        DispatchQueue.main.async {
+            if let sensors = decodedMessage.sensors {
+                for sensor in sensors {
+                    var s = controllerState.getSensorByName(sensor.name)
+                    s.value = sensor.value
                 }
             }
-            if let alarms = settings.alarms{
-                for alarm in alarms {
-                    let a = controllerState.getAlarmByName(alarm.name)
-                    a.alarmState = alarm.alarmState
+            if let devices = decodedMessage.devices {
+                for device in devices {
+                    let d = controllerState.getDeviceByName(device.name)
+                    d.setState(newState: device.state)
+                    //d.stateUpdatedByController = true
                 }
             }
-            if let tasks = settings.tasks {
-                var dateComps = DateComponents()
-                var hours: Int
-                var minutes: Int
-                var seconds: Int
-                var taskTime: Int
-                for task in tasks {
-                    var t = controllerState.getTaskByName(task.name)
-                    taskTime = task.time
-                    seconds = taskTime%60
-                    taskTime -= seconds
-                    minutes = (taskTime%3600)/60
-                    taskTime -= (minutes*60)
-                    hours = taskTime/3600
-                    dateComps.hour = hours
-                    dateComps.minute = minutes
-                    dateComps.second = seconds
-                    t.time = Calendar.current.date(from: dateComps)!
-                    t.setTaskTypeWithString(task.taskType.rawValue)
-                    t.isDisabled = task.isDisabled
-                    if let connectedTask = task.connectedTask {
-                        t.connectedTask = ControllerState.Task(connectedTask.name)
-                        taskTime = connectedTask.time
+            if let settings = decodedMessage.settings {
+                if let generalSettings = settings.generalSettings {
+                    for setting in generalSettings {
+                        let s = controllerState.getGeneralSettingByName(setting.name)
+                        s.setValue(newValue: setting.value)
+                    }
+                }
+                if let alarms = settings.alarms{
+                    for alarm in alarms {
+                        let a = controllerState.getAlarmByName(alarm.name)
+                        a.setAlarmState(newState: alarm.alarmState)
+                    }
+                }
+                if let tasks = settings.tasks {
+                    var dateComps = DateComponents()
+                    var hours: Int
+                    var minutes: Int
+                    var seconds: Int
+                    var taskTime: Int
+                    for task in tasks {
+                        let t = controllerState.getTaskByName(task.name)
+                        taskTime = task.time
                         seconds = taskTime%60
                         taskTime -= seconds
                         minutes = (taskTime%3600)/60
@@ -196,9 +183,24 @@ class Network: ObservableObject {
                         dateComps.hour = hours
                         dateComps.minute = minutes
                         dateComps.second = seconds
-                        t.connectedTask.time = Calendar.current.date(from: dateComps)!
-                        t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
-                        t.connectedTask.isDisabled = connectedTask.isDisabled
+                        t.time = Calendar.current.date(from: dateComps)!
+                        t.setTaskTypeWithString(task.taskType.rawValue)
+                        t.isDisabled = task.isDisabled
+                        if let connectedTask = task.connectedTask {
+                            t.connectedTask = AqTask(connectedTask.name)
+                            taskTime = connectedTask.time
+                            seconds = taskTime%60
+                            taskTime -= seconds
+                            minutes = (taskTime%3600)/60
+                            taskTime -= (minutes*60)
+                            hours = taskTime/3600
+                            dateComps.hour = hours
+                            dateComps.minute = minutes
+                            dateComps.second = seconds
+                            t.connectedTask.time = Calendar.current.date(from: dateComps)!
+                            t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
+                            t.connectedTask.isDisabled = connectedTask.isDisabled
+                        }
                     }
                 }
             }
@@ -228,69 +230,9 @@ class Network: ObservableObject {
             if response.statusCode == 200 {
                 guard let data = data else { return }
                 DispatchQueue.main.async {
-                    do {
-                        let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
-                        print(jsonString!)
-                        self.processStringMessage(WebSocketMessage: jsonString! as String)
-                        /*
-                        let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
-                        //if (decodedMessage.messageType == .SettingsUpdate) {
-                        if let thermostat = decodedMessage.aqThermostat {
-                            controllerState.aqThermostat = thermostat
-                        }
-                        if let tasks = decodedMessage.tasks {
-                            var dateComps = DateComponents()
-                            var hours: Int
-                            var minutes: Int
-                            var seconds: Int
-                            var taskTime: Int
-                            for task in tasks {
-                                var t = controllerState.getTaskByName(task.name)
-                                t.timeInSeconds = task.time
-                                taskTime = task.time
-                                seconds = taskTime%60
-                                taskTime -= seconds
-                                minutes = (taskTime%3600)/60
-                                taskTime -= (minutes*60)
-                                hours = taskTime/3600
-                                dateComps.hour = hours
-                                dateComps.minute = minutes
-                                dateComps.second = seconds
-                                t.time = Calendar.current.date(from: dateComps)!
-                                t.setTaskTypeWithString(task.taskType.rawValue)
-                                t.isDisabled = task.isDisabled
-                                
-                                if let connectedTask = task.connectedTask {
-                                    t.connectedTask = ControllerState.Task(connectedTask.name)
-                                    taskTime = connectedTask.time
-                                    seconds = taskTime%60
-                                    taskTime -= seconds
-                                    minutes = (taskTime%3600)/60
-                                    taskTime -= (minutes*60)
-                                    hours = taskTime/3600
-                                    dateComps.hour = hours
-                                    dateComps.minute = minutes
-                                    dateComps.second = seconds
-                                    t.connectedTask.time = Calendar.current.date(from: dateComps)!
-                                    t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
-                                    t.connectedTask.isDisabled = connectedTask.isDisabled
-                                }
-                            }
-                        }
-                         */
-                        //}
-                        //------------airPump
-                        
-                        /*self.comps.hour = self.settingsStateJSON.timers.airPump.onHr
-                         self.comps.minute = self.settingsStateJSON.timers.airPump.onMin
-                         self.settingsState.timers.airPump.onTime = Calendar.current.date(from: self.comps)!
-                         self.comps.hour = self.settingsStateJSON.timers.airPump.offHr
-                         self.comps.minute = self.settingsStateJSON.timers.airPump.offMin
-                         self.settingsState.timers.airPump.offTime = Calendar.current.date(from: self.comps)!*/
-                        
-                    } catch let error {
-                        print("Error decoding: ", error)
-                    }
+                    let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+                    print(jsonString!)
+                    self.processStringMessage(WebSocketMessage: jsonString! as String)
                 }
             }
         }
@@ -299,58 +241,58 @@ class Network: ObservableObject {
         
     }
     func setSettingsState() async {/*
-        guard let controllerState = self.controllerState else { return }
-        var newMessage = AqControllerMessage()
-        newMessage.messageType = .SettingsUpdate
-        newMessage.aqThermostat = controllerState.aqThermostat
-        
-        for task in controllerState.tasks {
-            
-            var taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.time)
-            var taskTime: Int = 0
-            var newTask = AqControllerMessage.Task()
-            newTask.name = task.name
-            newTask.isDisabled = task.isDisabled
-            taskTime = taskDateComp.hour! * 3600
-            taskTime += taskDateComp.minute! * 60
-            taskTime += taskDateComp.second!
-            newTask.time = taskTime
-            
-            if (task.connectedTask != nil) {
-                newTask.connectedTask = AqControllerMessage.Task()
-                newTask.connectedTask!.name = task.connectedTask.name
-                newTask.connectedTask!.isDisabled = task.isDisabled
-                taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
-                taskTime = taskDateComp.hour! * 3600
-                taskTime += taskDateComp.minute! * 60
-                taskTime += taskDateComp.second!
-                newTask.connectedTask!.time = taskTime
-            }
-            newMessage.addTask(newTask)
-        }
-        
-        guard let encoded = try? JSONEncoder().encode(newMessage) else {
-            print("Failed to encode JSON")
-            return
-        }
-        
-        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
-        print("In setSettingsState()")
-        //print(jsonString)
-        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
-        let url = URL(string: urlString)!
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        do {
-            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
-            // handle the result
-        } catch {
-            print("setSettingsState() failed.")
-        }*/
+                                    guard let controllerState = self.controllerState else { return }
+                                    var newMessage = AqControllerMessage()
+                                    newMessage.messageType = .SettingsUpdate
+                                    newMessage.aqThermostat = controllerState.aqThermostat
+                                    
+                                    for task in controllerState.tasks {
+                                    
+                                    var taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.time)
+                                    var taskTime: Int = 0
+                                    var newTask = AqControllerMessage.AqTask()
+                                    newTask.name = task.name
+                                    newTask.isDisabled = task.isDisabled
+                                    taskTime = taskDateComp.hour! * 3600
+                                    taskTime += taskDateComp.minute! * 60
+                                    taskTime += taskDateComp.second!
+                                    newTask.time = taskTime
+                                    
+                                    if (task.connectedTask != nil) {
+                                    newTask.connectedTask = AqControllerMessage.AqTask()
+                                    newTask.connectedTask!.name = task.connectedTask.name
+                                    newTask.connectedTask!.isDisabled = task.isDisabled
+                                    taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
+                                    taskTime = taskDateComp.hour! * 3600
+                                    taskTime += taskDateComp.minute! * 60
+                                    taskTime += taskDateComp.second!
+                                    newTask.connectedTask!.time = taskTime
+                                    }
+                                    newMessage.addTask(newTask)
+                                    }
+                                    
+                                    guard let encoded = try? JSONEncoder().encode(newMessage) else {
+                                    print("Failed to encode JSON")
+                                    return
+                                    }
+                                    
+                                    //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+                                    print("In setSettingsState()")
+                                    //print(jsonString)
+                                    let urlString: String = "http://\(aqConnectionString)/setSettingsState"
+                                    let url = URL(string: urlString)!
+                                    var request = URLRequest(url: url)
+                                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                                    request.httpMethod = "POST"
+                                    request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+                                    do {
+                                    let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+                                    // handle the result
+                                    } catch {
+                                    print("setSettingsState() failed.")
+                                    }*/
     }
-    func setTaskState(task: ControllerState.Task) async {
+    func setTaskState(task: AqTask) async {
         guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
         var newSettings = AqControllerMessage.Settings()
@@ -402,7 +344,7 @@ class Network: ObservableObject {
             print("setTaskState(task) failed.")
         }
     }
-    func setGeneralSettingState (generalSetting: ControllerState.GeneralSetting) async {
+    func setGeneralSettingState (generalSetting: GeneralSetting) async {
         guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
         var newSettings = AqControllerMessage.Settings()
@@ -432,7 +374,7 @@ class Network: ObservableObject {
         }
         
     }
-    func setAlarmState (alarm: ControllerState.Alarm) async {
+    func setAlarmState (alarm: Alarm) async {
         guard let controllerState = self.controllerState else { return }
         var newMessage = AqControllerMessage()
         var newSettings = AqControllerMessage.Settings()
@@ -462,36 +404,9 @@ class Network: ObservableObject {
         }
         
     }
-    func setSettingsState(aqThermostat: Int) async {/*
-        guard let controllerState = self.controllerState else { return }
-        var newMessage = AqControllerMessage()
-        newMessage.messageType = .SettingsUpdate
-        newMessage.aqThermostat = aqThermostat
-        
-        guard let encoded = try? JSONEncoder().encode(newMessage) else {
-            print("Failed to encode JSON")
-            return
-        }
-        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
-        print("In setSettingsState()")
-        //print(jsonString)
-        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
-        let url = URL(string: urlString)!
-        var request = URLRequest(url: url)
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        do {
-            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
-            // handle the result
-        } catch {
-            print("setSettingsState(aqThermostat) failed.")
-        }*/
-    }
     func getCurrentState() {
         guard let controllerState = self.controllerState else { return }
         guard let url = URL(string: "http://\(aqConnectionString)/getCurrentState") else { fatalError("Missing URL") }
-        
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
         let dataTask = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
@@ -506,47 +421,17 @@ class Network: ObservableObject {
                 print("in getCurrentState()")
                 
                 DispatchQueue.main.async {
-                    do {
-                        //let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
-                        //print(jsonString)
-                        let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
-                        print(jsonString!)
-                        self.processStringMessage(WebSocketMessage: jsonString! as String)
-                        /*let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: data)
-                        
-                        if (decodedMessage.messageType == .StateUpdate) {
-                            if let maintMode = decodedMessage.maintenanceMode {
-                                controllerState.maintenanceMode = maintMode
-                            }
-                            if let feedMode = decodedMessage.feedMode {
-                                controllerState.feedMode = feedMode
-                            }
-                            if let sensors = decodedMessage.sensors {
-                                for sensor in sensors {
-                                    var s = controllerState.getSensorByName(sensor.name)
-                                    s.value = sensor.value
-                                }
-                            }
-                            if let devices = decodedMessage.devices {
-                                for device in devices {
-                                    var d = controllerState.getDeviceByName(device.name)
-                                    d.stateUpdatedByController = true
-                                    d.state = device.state
-                                }
-                            }
-                        }*/
-                    } catch let error {
-                        print("Error decoding: ", error)
-                    }
+                    let jsonString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+                    print(jsonString!)
+                    self.processStringMessage(WebSocketMessage: jsonString! as String)
                 }
             }
         }
-        
         dataTask.resume()
     }
-
-    func deviceToggleChange(device: ControllerState.Device) async {
-        //print("deviceToggleChange() called for " + device.name)
+    
+    func deviceToggleChange(device: Device) async {
+        print("deviceToggleChange() called for " + device.name)
         guard let controllerState = self.controllerState else { return }
         //guard (!device.stateUpdatedByController) else {device.stateUpdatedByController = false; return}
         var newMessage = AqControllerMessage()
@@ -560,16 +445,16 @@ class Network: ObservableObject {
         }
         
         let urlString: String = "http://\(aqConnectionString)/setDeviceState"
-        if (device.state == true) {
-            if (device.name == "CO2") {
-                //print("setting Air Pump to false")
-                controllerState.getDeviceByName("Air Pump").state = false
+        DispatchQueue.main.async {
+            if (device.state == true) {
+                if (device.name == "CO2") {
+                    controllerState.getDeviceByName("Air Pump").setState(newState: false)
+                }
+                else if (device.name == "Air Pump") {
+                    controllerState.getDeviceByName("CO2").setState(newState: false)
+                }
+                
             }
-            else if (device.name == "Air Pump") {
-                //print("setting CO2 to false")
-                controllerState.getDeviceByName("CO2").state = false
-            }
-            
         }
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -583,26 +468,4 @@ class Network: ObservableObject {
             print("Device state change failed.")
         }
     }
-    
-    
-    /*func updateWiFi() {
-     print("SSID: \(currentNetworkInfos?.first?.ssid ?? "")")
-     
-     if let ssid = currentNetworkInfos?.first?.ssid {
-     ssidLabel.text = "SSID: \(ssid)"
-     }
-     
-     if let bssid = currentNetworkInfos?.first?.bssid {
-     bssidLabel.text = "BSSID: \(bssid)"
-     }
-     
-     }*/
-    
-    /*func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-     if status == .authorizedWhenInUse {
-     updateWiFi()
-     }
-     }*/
-    
-    
 }

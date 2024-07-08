@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct GeneralSettingEditView: View {
-    @ObservedObject var generalSetting: ControllerState.GeneralSetting
+    @ObservedObject var generalSetting: GeneralSetting
     @EnvironmentObject var aqController: AqController
     @State var editableSettingValue: Int
     let step = 1
     let range = 66...93
-    init(generalSetting: ControllerState.GeneralSetting) {
+    init(generalSetting: GeneralSetting) {
         self.generalSetting = generalSetting
-        self.editableSettingValue = generalSetting.value
+        self.editableSettingValue = generalSetting.getValue()
     }
     var body: some View {
         List {
@@ -25,17 +25,17 @@ struct GeneralSettingEditView: View {
                         Text(String(editableSettingValue) + " °F")
                     }
                     label: {
-                        Label("", systemImage: labelLookup(settingName: generalSetting.name))
+                        Label("", systemImage: labelLookup(settingName: generalSetting.getName()))
                     }
                 }
             } header: {
-                Text("Set " + generalSetting.name).textCase(nil).bold()
+                Text("Set " + generalSetting.getName()).textCase(nil).bold()
             }
         }
         .toolbar {
             Button("Save", action: {
                 Task{
-                    generalSetting.value = editableSettingValue
+                    generalSetting.setValue(newValue: editableSettingValue)
                     await aqController.network.setGeneralSettingState(generalSetting: generalSetting)
                 }
             })
@@ -59,5 +59,5 @@ struct GeneralSettingEditView: View {
 }
 
 #Preview {
-    GeneralSettingEditView(generalSetting: ControllerState.GeneralSetting("Test Setting"))
+    GeneralSettingEditView(generalSetting: GeneralSetting("Test Setting"))
 }

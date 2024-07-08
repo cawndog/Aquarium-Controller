@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct TaskSummaryView: View {
-    @ObservedObject var task: ControllerState.Task
+    @ObservedObject var task: AqTask
     let dateFormatter = DateFormatter()
     
-    init(task: ControllerState.Task) {
+    init(task: AqTask) {
         self.task = task
         if (task.taskType == .SCHEDULED_DEVICE_TASK || task.taskType == .SCHEDULED_TASK) {
             dateFormatter.dateFormat = "HH:mm"
@@ -56,5 +56,5 @@ struct TaskSummaryView: View {
 }
 
 #Preview {
-    TaskSummaryView(task: ControllerState.Task("Test Task On"))
+    TaskSummaryView(task: AqTask("Test Task On"))
 }

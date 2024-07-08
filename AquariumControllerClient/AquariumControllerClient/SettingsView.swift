@@ -22,10 +22,7 @@ struct SettingsView: View {
         self.controllerState.getTaskByName("Test Task 2 On").connectedTask = ControllerState.Task("Test Task 2 Off")
         */
     }
-    //@State var currentDate = Date();
-    //@ObservedObject var controllerState: ControllerState!
     var body: some View {
-        //Text("Hello from settings!")
         NavigationStack {
             
             List {
@@ -74,16 +71,16 @@ struct SettingsView: View {
                     Text("Timed Tasks").textCase(nil).bold()
                 }
             }
-            .navigationDestination(for: ControllerState.GeneralSetting.self) { generalSetting in
+            .navigationDestination(for: GeneralSetting.self) { generalSetting in
                 GeneralSettingEditView(generalSetting: generalSetting)
                     //.navigationTitle(generalSetting.name)
                     .navigationBarTitleDisplayMode(.inline)
             }
-            .navigationDestination(for: ControllerState.Alarm.self) { alarm in
+            .navigationDestination(for: Alarm.self) { alarm in
                 AlarmEditView(alarm: alarm)
                     .navigationBarTitleDisplayMode(.inline)
             }
-            .navigationDestination(for: ControllerState.Task.self) { task in
+            .navigationDestination(for: AqTask.self) { task in
                 TaskDetailedView(task: task)
                     .navigationTitle(task.name)
                     /*.toolbar {
@@ -108,7 +105,6 @@ struct SettingsView: View {
                     }
             }*/
             
-            //.listStyle(.insetGrouped)
             .navigationTitle("Settings")
         }
     }

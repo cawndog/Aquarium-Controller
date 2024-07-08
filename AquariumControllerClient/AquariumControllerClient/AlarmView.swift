@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct AlarmView: View {
-    @ObservedObject var alarm: ControllerState.Alarm
+    @ObservedObject var alarm: Alarm
     @EnvironmentObject var aqController: AqController
-    init(alarm: ControllerState.Alarm) {
+    init(alarm: Alarm) {
         self.alarm = alarm
     }
     var body: some View {
         HStack {
-            Text(String(alarm.name))
+            Text(String(alarm.getName()))
             Spacer()
-            if (alarm.alarmState != 0) {
+            if (alarm.getAlarmState() != 0) {
                 Image(systemName: "exclamationmark.triangle.fill").resizable(resizingMode: .stretch).aspectRatio(contentMode: .fill).foregroundColor(.red).padding(.trailing).frame(width: 20.0, height: 20.0)
             } else {
                 Image(systemName: "checkmark.circle.fill").resizable(resizingMode: .stretch).aspectRatio(contentMode: .fill).foregroundColor(.green).padding(.trailing).frame(width: 20.0, height: 20.0)
@@ -41,6 +41,6 @@ struct AlarmView: View {
 }
 
 #Preview {
-    AlarmView(alarm: ControllerState.Alarm("Test Alarm"))
+    AlarmView(alarm: Alarm("Test Alarm"))
         .environmentObject(AqController())
 }

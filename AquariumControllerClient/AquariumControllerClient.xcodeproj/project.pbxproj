@@ -24,6 +24,11 @@
 		D872199E2A3C0E3A008A9387 /* AqControllerMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */; };
 		D889B9422A4670820083FA0A /* DeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D889B9412A4670820083FA0A /* DeviceView.swift */; };
 		D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D898A2EB2AAE1B600061A234 /* DatePickerView.swift */; };
+		D8B74ACA2C3B4CF2009BF815 /* Alarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B74AC92C3B4CF2009BF815 /* Alarm.swift */; };
+		D8B74ACC2C3B4D06009BF815 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B74ACB2C3B4D06009BF815 /* Task.swift */; };
+		D8B74ACE2C3B4D14009BF815 /* GeneralSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B74ACD2C3B4D14009BF815 /* GeneralSetting.swift */; };
+		D8B74AD02C3B4D6B009BF815 /* Sensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B74ACF2C3B4D6B009BF815 /* Sensor.swift */; };
+		D8B74AD22C3B4D74009BF815 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B74AD12C3B4D74009BF815 /* Device.swift */; };
 		D8C8625A2A9AD30C006217F6 /* ParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862592A9AD30C006217F6 /* ParametersView.swift */; };
 		D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */; };
 		D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* TaskSummaryView.swift */; };
@@ -56,6 +61,11 @@
 		D87BC3F92AB222D1003D5916 /* AquariumControllerClientDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AquariumControllerClientDebug.entitlements; sourceTree = "<group>"; };
 		D889B9412A4670820083FA0A /* DeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceView.swift; sourceTree = "<group>"; };
 		D898A2EB2AAE1B600061A234 /* DatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerView.swift; sourceTree = "<group>"; };
+		D8B74AC92C3B4CF2009BF815 /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
+		D8B74ACB2C3B4D06009BF815 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		D8B74ACD2C3B4D14009BF815 /* GeneralSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSetting.swift; sourceTree = "<group>"; };
+		D8B74ACF2C3B4D6B009BF815 /* Sensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sensor.swift; sourceTree = "<group>"; };
+		D8B74AD12C3B4D74009BF815 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		D8C862592A9AD30C006217F6 /* ParametersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParametersView.swift; sourceTree = "<group>"; };
 		D8C8625B2A9BA7D8006217F6 /* ControlCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlCenterView.swift; sourceTree = "<group>"; };
 		D8C862622A9D7334006217F6 /* TaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSummaryView.swift; sourceTree = "<group>"; };
@@ -145,8 +155,7 @@
 				D8E7294C2A0D8B5F00634E08 /* Info.plist */,
 				D889B9432A4677070083FA0A /* Views */,
 				D8FC0CC52A93AB4900CF828C /* AqController.swift */,
-				D864CB6D2A082A1600E1C157 /* ControllerState.swift */,
-				D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */,
+				D8B74AC82C3B4C9D009BF815 /* ControllerState */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
 				D864CB6F2A082A1700E1C157 /* SettingsState.swift */,
 				D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */,
@@ -173,6 +182,20 @@
 				D8C8625D2A9D0EC8006217F6 /* SettingsView */,
 			);
 			name = Views;
+			sourceTree = "<group>";
+		};
+		D8B74AC82C3B4C9D009BF815 /* ControllerState */ = {
+			isa = PBXGroup;
+			children = (
+				D864CB6D2A082A1600E1C157 /* ControllerState.swift */,
+				D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */,
+				D8B74AC92C3B4CF2009BF815 /* Alarm.swift */,
+				D8B74ACD2C3B4D14009BF815 /* GeneralSetting.swift */,
+				D8B74ACB2C3B4D06009BF815 /* Task.swift */,
+				D8B74ACF2C3B4D6B009BF815 /* Sensor.swift */,
+				D8B74AD12C3B4D74009BF815 /* Device.swift */,
+			);
+			name = ControllerState;
 			sourceTree = "<group>";
 		};
 		D8C8625D2A9D0EC8006217F6 /* SettingsView */ = {
@@ -265,10 +288,15 @@
 				D8C8625C2A9BA7D8006217F6 /* ControlCenterView.swift in Sources */,
 				D80FB85E2C37033000975D90 /* GeneralSettingView.swift in Sources */,
 				D898A2EC2AAE1B600061A234 /* DatePickerView.swift in Sources */,
+				D8B74ACE2C3B4D14009BF815 /* GeneralSetting.swift in Sources */,
+				D8B74ACC2C3B4D06009BF815 /* Task.swift in Sources */,
+				D8B74AD22C3B4D74009BF815 /* Device.swift in Sources */,
 				D80FB8662C3722F400975D90 /* AlarmEditView.swift in Sources */,
 				D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */,
 				D812DD5D2A9A66370034ACBA /* HomeView.swift in Sources */,
+				D8B74AD02C3B4D6B009BF815 /* Sensor.swift in Sources */,
 				D80FB8642C3722E400975D90 /* AlarmView.swift in Sources */,
+				D8B74ACA2C3B4CF2009BF815 /* Alarm.swift in Sources */,
 				D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */,
 				D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,

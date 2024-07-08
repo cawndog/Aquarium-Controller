@@ -11,18 +11,9 @@ struct ContentView: View {
     @EnvironmentObject var aqController: AqController
     @Environment(\.scenePhase) var scenePhase
     @State private var selectedTab = "One"
-    //@StateObject var locationModel: LocationModel = LocationModel()
-    /*locationModel.requestAuthorisation(always: true)
-    
-    if locationModel.authorisationStatus == .notDetermined {
-        print("authorization status not determined")
-    } else {
-        print("authorization status determined")
-    }*/
-    //let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     var body: some View {
         //Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-
+        
         TabView (selection: $selectedTab) {
             HomeView()
                 .tabItem {
@@ -36,9 +27,9 @@ struct ContentView: View {
                     
                 }.tag("Two")
         }
-        .onAppear {
-            //
-        }
+        /*.onAppear {
+         //
+         }*/
         .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
             if (newPhase == .active) {
                 Task {
@@ -50,11 +41,9 @@ struct ContentView: View {
             } else if (newPhase == .background) {
                 aqController.network.disconnectWebSocket()
             }
-              
-        }   
+            
+        }
     }
-    
-    
 }
 
 struct ContentView_Previews: PreviewProvider {

@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct GeneralSettingView: View {
-    @ObservedObject var generalSetting: ControllerState.GeneralSetting
+    @ObservedObject var generalSetting: GeneralSetting
     @EnvironmentObject var aqController: AqController
     
-    init(generalSetting: ControllerState.GeneralSetting) {
+    init(generalSetting: GeneralSetting) {
         self.generalSetting = generalSetting
     }
     var body: some View {
@@ -51,7 +51,7 @@ struct GeneralSettingView: View {
 }
 
 #Preview {
-    GeneralSettingView(generalSetting: ControllerState.GeneralSetting("Test Setting"))
+    GeneralSettingView(generalSetting: GeneralSetting("Test Setting"))
         .environmentObject(AqController())
 }
 

@@ -32,7 +32,7 @@ import SwiftUI
 
 
 class ControllerState: ObservableObject {
-    class Device: ObservableObject {
+    /*class Device: ObservableObject {
         var name: String
         @Published var state: Bool
         var stateUpdatedByController: Bool
@@ -43,6 +43,7 @@ class ControllerState: ObservableObject {
             self.stateUpdatedByController = false
         }
     }
+    
     class Sensor: ObservableObject {
         var name: String
         @Published var value: String
@@ -128,14 +129,13 @@ class ControllerState: ObservableObject {
             }
             
         }
-    }
-    //@Published var temp: String
-    //@Published var tds: String
+    }*/
+
     @Published var sensors: [Sensor]
     @Published var devices: [Device]
     @Published var settings: [GeneralSetting]
     @Published var alarms: [Alarm]
-    @Published var tasks: [Task]
+    @Published var tasks: [AqTask]
 
     init() {
         self.sensors = [Sensor.init("Aquarium Temperature"),
@@ -187,13 +187,13 @@ class ControllerState: ObservableObject {
         self.alarms.append(Alarm.init(name))
         return getAlarmByName(name)
     }
-    func getTaskByName(_ name:String) -> Task {
+    func getTaskByName(_ name:String) -> AqTask {
         for task in tasks {
             if (task.name == name) {
                 return task
             }
         }
-        self.tasks.append(Task.init(name))
+        self.tasks.append(AqTask.init(name))
         return getTaskByName(name)
     }
     func getDevicePosByName(_ name:String) -> Int {
@@ -225,16 +225,7 @@ class ControllerState: ObservableObject {
         return false
     }
 }
-/*class Device: ObservableObject {
-    var name: String
-    @Published var deviceState: Bool
-    var stateUpdatedByController: Bool
-    init(devName: String) {
-        self.name = devName
-        self.deviceState = false
-        self.stateUpdatedByController = false
-    }
-}*/
+
 
 
 

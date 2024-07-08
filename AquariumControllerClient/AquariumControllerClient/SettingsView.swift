@@ -8,7 +8,6 @@
 import SwiftUI
 import Foundation
 struct SettingsView: View {
-    //@State var editMode: Bool = false;
     @EnvironmentObject var aqController: AqController
     @Environment(\.scenePhase) var scenePhase
     @ObservedObject var controllerState: ControllerState
@@ -18,9 +17,6 @@ struct SettingsView: View {
     let tempStep = 1
     init(controllerState: ControllerState) {
         self.controllerState = controllerState
-        /*self.controllerState.getTaskByName("Test Task On").connectedTask = ControllerState.Task("Test Task Off")
-        self.controllerState.getTaskByName("Test Task 2 On").connectedTask = ControllerState.Task("Test Task 2 Off")
-        */
     }
     var body: some View {
         NavigationStack {
@@ -83,14 +79,6 @@ struct SettingsView: View {
             .navigationDestination(for: AqTask.self) { task in
                 TaskDetailedView(task: task)
                     .navigationTitle(task.name)
-                    /*.toolbar {
-                        Button("Save", action: {
-                            Task{
-                                await aqController.network.setSettingsState(task: task)
-                            }
-
-                        })
-                    }*/
             }
             /*.navigationDestination(for: String.self) { string in
                 ThermostatDetailedView(controllerState: controllerState)
@@ -104,7 +92,6 @@ struct SettingsView: View {
                         })
                     }
             }*/
-            
             .navigationTitle("Settings")
         }
     }

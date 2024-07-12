@@ -52,10 +52,6 @@ IPAddress NMask = {255, 255, 255, 0};
 
 void setup() {
   Serial.begin(115200);
-  //Serial.printf("\nTotal heap: %lu\n", ESP.getHeapSize());
-  //Serial.printf("Free heap: %lu\n", ESP.getFreeHeap());
-  //Serial.printf("Total PSRAM: %lu\n", ESP.getPsramSize());
-  //Serial.printf("Free PSRAM: %lu\n", ESP.getFreePsram());
   inSetup = true;
   #ifdef useSerial
       //Serial.begin(9600);
@@ -89,10 +85,10 @@ void setup() {
       if (getLocalTime(&timeinfo, 10000)) {
       rtc.setTimeStruct(timeinfo);
       } else {
-      rtc.setTime(0, 0, 0, 1, 1, 2023);
+      rtc.setTime(0, 0, 0, 1, 1, 2024);
       }
   } else {
-      rtc.setTime(0, 0, 0, 1, 1, 2023);
+      rtc.setTime(0, 0, 0, 1, 1, 2024);
   }
   savedState.begin("aqController", false);
   aqWebServer.init();
@@ -110,11 +106,13 @@ void setup() {
       aqController.waterSensor.readSensor();
       if (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
         Serial.printf("****** Water Sensor Alarm ******\nShutting off water.\n");
-        /*aqController.heater.setStateOff();
-        aqController.filter.setStateOff();
-        aqController.airPump.setStateOn();
-        aqController.waterValve.setStateOff();*/
-        aqController.waterSensorAlarm.setAlarmState(1);
+        if (aqController.waterSensorAlarm.getAlarmState() > 0) {
+          //If we are already in an active alarm, set alarm state to its same value.
+          aqController.waterSensorAlarm.setAlarmState(aqController.waterSensorAlarm.getAlarmState());
+        } else {
+          //Set alarm state to current Epoch time to record the time the alarm occured.
+          aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
+        }
       }
       Serial.printf("Water Sensor Pin Value: %d\n", aqController.waterSensor.getValueInt());
       Serial.printf("WS_READ high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));

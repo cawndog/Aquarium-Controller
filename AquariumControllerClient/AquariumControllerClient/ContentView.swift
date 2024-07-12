@@ -31,6 +31,7 @@ struct ContentView: View {
          //
          }*/
         .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
+            print("onChange")
             if (newPhase == .active) {
                 Task {
                     await aqController.network.determineIP()

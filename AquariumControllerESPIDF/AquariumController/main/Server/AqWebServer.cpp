@@ -62,9 +62,7 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     request->send(200);
-    aqController.maintMode = true;
-    aqController.filter.setStateOff();
-    aqController.heater.setStateOff();
+    aqController.maintenanceMode.setValue(1);
   });
   server->on("/maintOff", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
@@ -72,8 +70,7 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     request->send(200);
-    aqController.maintMode = false;
-    aqController.filter.setStateOn();
+    aqController.maintenanceMode.setValue(0);
   });
   server->on("/getCurrentState", HTTP_GET, [&](AsyncWebServerRequest *request) {
     //AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -146,7 +143,7 @@ String authFailResponse = "Authentication Failed";
     if (authFailed) {
       return;
     }
-    processAqControllerMessageNew(json);
+    processAqControllerMessage(json);
     /*
     JsonObject body = json.as<JsonObject>();
     if (body.containsKey("aqThermostat")) {
@@ -202,7 +199,7 @@ String authFailResponse = "Authentication Failed";
     if (authFailed) {
       return;
     }
-    processAqControllerMessageNew(json);
+    processAqControllerMessage(json);
     /*
     JsonObject body = json.as<JsonObject>();
     if (body.containsKey("devices")) {
@@ -227,7 +224,7 @@ String authFailResponse = "Authentication Failed";
     if (authFailed) {
         return;
       }
-      processAqControllerMessageNew(json);
+      processAqControllerMessage(json);
       request->send(200, "text/plain", "Message Received.");
   });
   server->addHandler(sendMessageHandler);
@@ -385,77 +382,6 @@ void AqWebServer::updateDynamicIP() {
   http.end();
 }
 bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
-  JsonObject body = json.as<JsonObject>();
-  if (body.containsKey("messageType")) {
-    if (body["messageType"] == "StateUpdate") {
-      if (body.containsKey("devices")) {
-        if (body["devices"].size() > 0) {
-          Device* deviceToSet = aqController.getDeviceByName(body["devices"][0]["name"]);
-          if (deviceToSet != NULL) {
-            if (body["devices"][0]["state"] == true) {
-              deviceToSet->setStateOn();
-            }
-            else {
-              deviceToSet->setStateOff();
-            }
-          }
-        }
-      }
-      if (body.containsKey("maintenanceMode")) {
-        if (body["maintenanceMode"] == true) {
-          aqController.maintMode = true;
-          aqController.filter.setStateOff();
-          aqController.heater.setStateOff();
-        }
-        else {
-          aqController.maintMode = false;
-          aqController.filter.setStateOn();
-          aqController.aqTemperature.readSensor();
-        }
-      }
-      if (body.containsKey("feedMode")) {
-        if (body["feedMode"] == true) {
-          aqController.maintMode = true;
-          
-          aqController.heater.setStateOff();
-        }
-        else {
-          aqController.maintMode = false;
-          aqController.filter.setStateOn();
-          aqController.aqTemperature.readSensor();
-        }
-      }
-    }
-    else if (body["messageType"] == "SettingsUpdate") {
-      if (body.containsKey("aqThermostat")) {
-        aqController.aqThermostat = short(body["aqThermostat"]);
-        savedState.putShort("aqThermostat", aqController.aqThermostat);
-        aqController.aqTemperature.readSensor();
-      }
-      const int numTasks = body["tasks"].size();
-      for (int i = 0; i < numTasks; i++) {
-        Task* task = aqController.getTaskByName(body["tasks"][i]["name"]);
-        if (task != NULL) {
-          task->updateSettings(body["tasks"][i]["isDisabled"], body["tasks"][i]["time"]);
-          if (body["tasks"][i].containsKey("connectedTask")) {
-            task = aqController.getTaskByName(body["tasks"][i]["connectedTask"]["name"]);
-            if (task != NULL) {
-              task->updateSettings(body["tasks"][i]["connectedTask"]["isDisabled"], body["tasks"][i]["connectedTask"]["time"]);
-            }
-          }
-        } 
-      }
-      aqController.scheduleNextTask();
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-  return true;
-
-}
-bool AqWebServer::processAqControllerMessageNew(JsonVariant &json) {
   JsonObject body = json.as<JsonObject>();
         const int numDevices = body["devices"].size();
         for (int i = 0; i < numDevices; i++) {

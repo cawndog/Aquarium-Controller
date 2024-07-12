@@ -30,7 +30,6 @@ class AqController {
     const int   daylightOffset_sec = 3600;
 
     AqWebServerInterface* aqWebServerInterface = NULL;
-    bool maintMode;
     HardwareInterface hardwareInterface;
     GeneralSetting thermostat;
     GeneralSetting maintenanceMode;

@@ -11,8 +11,10 @@ enum DeviceState {
 };
 class Device {
   public:
-    typedef std::function<void(Device** devices, int numDevices)> AqWebServerDevFunction;
-    AqWebServerDevFunction webSocketUpdateState;
+    typedef std::function<bool(bool newState)> OkToExecute;
+    typedef std::function<void(Device** devices, int numDevices)> PostExecutionFunction;
+    OkToExecute okToExe;
+    PostExecutionFunction postExeFunction;
     String name;
     DeviceState state;
     Device* connectedDevice;
@@ -20,7 +22,7 @@ class Device {
 
     //function declarations
     Device();
-    void init(String name, HardwareInterface* hardwareInterface, AqWebServerDevFunction webSocketUpdateState= [](Device** devices, int numDevices){});
+    void init(String name, HardwareInterface* hardwareInterface, OkToExecute okToExe = [](bool newState) {return true;}, PostExecutionFunction postExeFunction= [](Device** devices, int numDevices){});
     void attachConnectedDevice(Device* device);
     void setStateOn();
     void setStateOff();

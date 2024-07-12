@@ -8,21 +8,13 @@
 import Foundation
 import SwiftUI
 import SystemConfiguration.CaptiveNetwork
-import CoreLocation
 
 class Network: ObservableObject {
     
-    //@Published var messages = [String]()
     var messages = [String]()
-    //@Published var currentState: CurrentState
     var controllerState: ControllerState?
-    //var settingsState: SettingsState
-    //@State var currentState: CurrentState
-    //var currentState: CurrentState
     private var webSocketTask: URLSessionWebSocketTask?
     var webSocketConnected: Bool
-    //var currentStateJSON: CurrentStateJSON
-    //var settingsStateJSON: SettingsStateJSON
     var comps: DateComponents
     //let bearerToken = ProcessInfo.processInfo.environment["API_KEY"] ?? ""
     let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
@@ -33,32 +25,8 @@ class Network: ObservableObject {
     
     init() {
         aqConnectionString = publicDNS
-        //let authorizationStatus: CLAuthorizationStatus
-        
-        //self.controllerState = nil
-        //self.settingsState = settingsState
-        //currentStateJSON = CurrentStateJSON.init()
-        //settingsStateJSON = SettingsStateJSON.init()
         comps = DateComponents()
         webSocketConnected = false
-        
-        /*let status = manager.authorizationStatus
-         if status == .authorizedWhenInUse {
-         //updateWiFi()
-         print ("authorized when in use")
-         if let currentNetworkInfos = currentNetworkInfos{
-         print("SSID: \(currentNetworkInfos.first?.ssid ?? "")")
-         }
-         }
-         else {
-         
-         print ("Not authorized when in use")
-         manager.requestAlwaysAuthorization()
-         manager.requestWhenInUseAuthorization()
-         if let currentNetworkInfos = currentNetworkInfos{
-         print("SSID: \(currentNetworkInfos.first?.ssid ?? "")")
-         }
-         }*/
     }
     
     func attachControllerState(controllerState: ControllerState) {
@@ -82,7 +50,7 @@ class Network: ObservableObject {
         print("WebSocket disconnected.")
     }
     func determineIP() async {
-        var urlString: String = "http://\(publicDNS)/esp_alv"
+        let urlString: String = "http://\(publicDNS)/esp_alv"
         
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)
@@ -117,17 +85,18 @@ class Network: ObservableObject {
                     print(error.localizedDescription)
                 case .success(let message):
                     switch message {
-                    case .string(let text):
-                        print("Received a text message")
-                        print(text)
-                        //self.messages.append(text)
-                        self.processStringMessage(WebSocketMessage: text)
-                    case .data(let data):
-                        print("Received a data message")
-                        // Handle binary data
-                        break
-                    @unknown default:
-                        break
+                        case .string(let text):
+                            print("Received a text message")
+                            print(text)
+                            //self.messages.append(text)
+                            self.processStringMessage(WebSocketMessage: text)
+                        case .data(let data):
+                            print("Received a data message")
+                            // Handle binary data
+                            print(data)
+                            break
+                        @unknown default:
+                            break
                     }
                 }
                 self.receiveMessage()
@@ -216,7 +185,7 @@ class Network: ObservableObject {
     }
     func getSettingsState() {
         print("getSettingsState() called.")
-        guard let controllerState = self.controllerState else { return }
+        guard let controllerState = controllerState else { return }
         guard let url = URL(string: "http://\(aqConnectionString)/getSettingsState") else { fatalError("Missing URL") }
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
@@ -293,7 +262,7 @@ class Network: ObservableObject {
                                     }*/
     }
     func setTaskState(task: AqTask) async {
-        guard let controllerState = self.controllerState else { return }
+        guard let controllerState = controllerState else { return }
         var newMessage = AqControllerMessage()
         var newSettings = AqControllerMessage.Settings()
         var newTask = AqControllerMessage.Settings.Task()
@@ -345,7 +314,7 @@ class Network: ObservableObject {
         }
     }
     func setGeneralSettingState (generalSetting: GeneralSetting) async {
-        guard let controllerState = self.controllerState else { return }
+        guard let controllerState = controllerState else { return }
         var newMessage = AqControllerMessage()
         var newSettings = AqControllerMessage.Settings()
         var newGeneralSetting = AqControllerMessage.Settings.GeneralSetting()

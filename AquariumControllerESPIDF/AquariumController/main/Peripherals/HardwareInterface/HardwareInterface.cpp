@@ -34,6 +34,13 @@ uint8_t HardwareInterface::initDeviceState(String deviceName) {
   }
   if (deviceName == "CO2") {
     return (switch1.getSwitchState() == AUXON) ? 1 : 0;
+    /*if (savedState.getUChar(deviceName.c_str(), 0) == 1) {
+      digitalWrite(CO2_PIN, HIGH);
+      return 1;
+    } else {
+      digitalWrite(CO2_PIN, LOW);
+      return 0;
+    }*/
   }
   if (deviceName == "Air Pump") {
     return (switch1.getSwitchState() == ON) ? 1 : 0;
@@ -56,6 +63,13 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
   }
   else if (deviceName == "CO2") {
     state == 1 ? switch1.powerControl(AUXON) : switch1.powerControl(OFF);
+    /*if (state == 1) {
+      savedState.putUChar(deviceName.c_str(), 1);
+      digitalWrite(CO2_PIN, HIGH);
+    } else {
+      savedState.putUChar(deviceName.c_str(), 0);
+      digitalWrite(CO2_PIN, LOW);
+    }*/
   }
   else if (deviceName == "Air Pump") {
     state == 1 ? switch1.powerControl(ON) : switch1.powerControl(OFF);

@@ -34,6 +34,7 @@ struct AlarmEditView: View {
             Section {
                 Button("Reset Alarm", action: {
                     Task{
+                        editableAlarmValue = 0
                         alarm.setAlarmState(newState: editableAlarmValue)
                         await aqController.network.setAlarmState(alarm: alarm)
                     }

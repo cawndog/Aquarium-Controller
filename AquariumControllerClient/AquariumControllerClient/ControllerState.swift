@@ -150,7 +150,13 @@ class ControllerState: ObservableObject {
         self.alarms = [Alarm.init("Water Sensor Alarm")]
         self.tasks = []
     }
-    
+    func getStateDataFromServer(network: Network) {
+        Task {
+            await network.determineIP()
+            network.getCurrentState()
+            network.getSettingsState()
+        }
+    }
     func getDeviceByName(_ name:String) -> Device {
         for device in devices {
             if (device.name == name) {

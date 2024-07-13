@@ -119,12 +119,12 @@ String authFailResponse = "Authentication Failed";
       body["settings"]["tasks"][i]["name"] = aqController.tasks[i]->getName();
       body["settings"]["tasks"][i]["taskType"] = aqController.tasks[i]->taskTypeToString();
       body["settings"]["tasks"][i]["time"] = aqController.tasks[i]->getTime();
-      body["settings"]["tasks"][i]["isDisabled"] = aqController.tasks[i]->getDisabled();
+      body["settings"]["tasks"][i]["enabled"] = aqController.tasks[i]->getEnabled();
       if (aqController.tasks[i]->hasConnectedTask()) {
         body["settings"]["tasks"][i]["connectedTask"]["name"] = aqController.tasks[i]->connectedTask->getName();
         body["settings"]["tasks"][i]["connectedTask"]["taskType"] = aqController.tasks[i]->connectedTask->taskTypeToString();
         body["settings"]["tasks"][i]["connectedTask"]["time"] = aqController.tasks[i]->connectedTask->getTime();
-        body["settings"]["tasks"][i]["connectedTask"]["isDisabled"] = aqController.tasks[i]->connectedTask->getDisabled();
+        body["settings"]["tasks"][i]["connectedTask"]["enabled"] = aqController.tasks[i]->connectedTask->getEnabled();
       }
     }
 
@@ -424,11 +424,11 @@ bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
             for (int i = 0; i < numTasks; i++) {
               Task* task = aqController.getTaskByName(body["settings"]["tasks"][i]["name"]);
               if (task != NULL) {
-                task->updateSettings(body["settings"]["tasks"][i]["isDisabled"], body["settings"]["tasks"][i]["time"]);
+                task->updateSettings(body["settings"]["tasks"][i]["enabled"], body["settings"]["tasks"][i]["time"]);
                 if (body["tasks"][i].containsKey("connectedTask")) {
                   task = aqController.getTaskByName(body["settings"]["tasks"][i]["connectedTask"]["name"]);
                   if (task != NULL) {
-                    task->updateSettings(body["settings"]["tasks"][i]["connectedTask"]["isDisabled"], body["settings"]["tasks"][i]["connectedTask"]["time"]);
+                    task->updateSettings(body["settings"]["tasks"][i]["connectedTask"]["enabled"], body["settings"]["tasks"][i]["connectedTask"]["time"]);
                   }
                 }
               } 

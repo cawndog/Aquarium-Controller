@@ -206,7 +206,7 @@ void AqController::setNextTaskWithEvent() {
   Task* nextTaskWithEventLocal = NULL;
   for (int i = 0; tasks[i] != NULL; i++) {
     //Serial.printf("Checking tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
-    if (tasks[i]->getDisabled()) {
+    if (tasks[i]->getEnabled() == false) {
       //Serial.printf("tasks[%d]. Task name: %s is disabled. Continuing.\n", i, tasks[i]->getName().c_str());
       continue;
     }

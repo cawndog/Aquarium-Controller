@@ -154,7 +154,7 @@ class Network: ObservableObject {
                         dateComps.second = seconds
                         t.time = Calendar.current.date(from: dateComps)!
                         t.setTaskTypeWithString(task.taskType.rawValue)
-                        t.isDisabled = task.isDisabled
+                        t.enabled = task.enabled
                         if let connectedTask = task.connectedTask {
                             t.connectedTask = AqTask(connectedTask.name)
                             taskTime = connectedTask.time
@@ -168,7 +168,7 @@ class Network: ObservableObject {
                             dateComps.second = seconds
                             t.connectedTask.time = Calendar.current.date(from: dateComps)!
                             t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
-                            t.connectedTask.isDisabled = connectedTask.isDisabled
+                            t.connectedTask.enabled = connectedTask.enabled
                         }
                     }
                 }
@@ -221,7 +221,7 @@ class Network: ObservableObject {
                                     var taskTime: Int = 0
                                     var newTask = AqControllerMessage.AqTask()
                                     newTask.name = task.name
-                                    newTask.isDisabled = task.isDisabled
+                                    newTask.enabled = task.enabled
                                     taskTime = taskDateComp.hour! * 3600
                                     taskTime += taskDateComp.minute! * 60
                                     taskTime += taskDateComp.second!
@@ -230,7 +230,7 @@ class Network: ObservableObject {
                                     if (task.connectedTask != nil) {
                                     newTask.connectedTask = AqControllerMessage.AqTask()
                                     newTask.connectedTask!.name = task.connectedTask.name
-                                    newTask.connectedTask!.isDisabled = task.isDisabled
+                                    newTask.connectedTask!.enabled = task.enabled
                                     taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
                                     taskTime = taskDateComp.hour! * 3600
                                     taskTime += taskDateComp.minute! * 60
@@ -267,7 +267,7 @@ class Network: ObservableObject {
         var newSettings = AqControllerMessage.Settings()
         var newTask = AqControllerMessage.Settings.Task()
         newTask.name = task.name
-        newTask.isDisabled = task.isDisabled
+        newTask.enabled = task.enabled
         //newTask.time = taskTime
         
         if (task.taskType == .TIMED_TASK) {
@@ -283,7 +283,7 @@ class Network: ObservableObject {
             if (task.connectedTask != nil) {
                 newTask.connectedTask = AqControllerMessage.Settings.Task()
                 newTask.connectedTask!.name = task.connectedTask.name
-                newTask.connectedTask!.isDisabled = task.isDisabled
+                newTask.connectedTask!.enabled = task.enabled
                 taskDateComp = Calendar.current.dateComponents([.hour, .minute, .second], from: task.connectedTask.time)
                 taskTime = taskDateComp.hour! * 3600
                 taskTime += taskDateComp.minute! * 60

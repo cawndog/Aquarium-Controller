@@ -20,7 +20,7 @@ class AqTask: HashableClass, Identifiable, ObservableObject {
     var taskType: TaskType
     @Published var time: Date
     @Published var timeInSeconds: Int
-    @Published var isDisabled: Bool
+    @Published var enabled: Bool
     @Published var connectedTask: AqTask!
     
     init(_ name: String) {
@@ -28,7 +28,7 @@ class AqTask: HashableClass, Identifiable, ObservableObject {
         self.name = name
         self.time = Date()
         self.timeInSeconds = 1;
-        self.isDisabled = true;
+        self.enabled = true;
         //self.taskType = TaskType()
         //self.taskType = .Unknown
         self.taskType = .SCHEDULED_DEVICE_TASK
@@ -52,7 +52,7 @@ class AqTask: HashableClass, Identifiable, ObservableObject {
         self.taskType = taskToCopy.taskType
         self.time = taskToCopy.time
         self.timeInSeconds = taskToCopy.timeInSeconds
-        self.isDisabled = taskToCopy.isDisabled
+        self.enabled = taskToCopy.enabled
         if taskToCopy.connectedTask != nil {
             if self.connectedTask == nil {
                 self.connectedTask = AqTask(taskToCopy.connectedTask.name)
@@ -60,7 +60,7 @@ class AqTask: HashableClass, Identifiable, ObservableObject {
             self.connectedTask.taskType = taskToCopy.connectedTask.taskType
             self.connectedTask.time = taskToCopy.connectedTask.time
             self.connectedTask.timeInSeconds = taskToCopy.connectedTask.timeInSeconds
-            self.connectedTask.isDisabled = taskToCopy.connectedTask.isDisabled
+            self.connectedTask.enabled = taskToCopy.connectedTask.enabled
         }
         
     }

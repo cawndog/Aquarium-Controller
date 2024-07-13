@@ -63,8 +63,8 @@ struct TaskDetailedView: View {
             }
             
             Section {
-                Toggle(isOn: $detailedTask.isDisabled) {
-                    Text("Task Disabled")
+                Toggle(isOn: $detailedTask.enabled) {
+                    Text("Task Enabled")
                 }
             }
             

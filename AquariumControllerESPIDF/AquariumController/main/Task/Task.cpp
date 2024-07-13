@@ -3,8 +3,8 @@
 String Task::getName() {
   return this->name;
 }
-bool Task::getDisabled() {
-  return this->disabled;
+bool Task::getEnabled() {
+  return this->enabled;
 }
 unsigned long Task::getTime() { //gets task run time interval or scheduled run time
   return this->time;
@@ -37,15 +37,15 @@ ScheduledTask::ScheduledTask(String name, String shortName, TaskType taskType, A
   this->connectedTask = NULL;
   //const char* namePtr = &(this->name[0]);
   /*if(savedState->getBytes(name.c_str(), &(this->settings), sizeof(TaskSettings)) != sizeof(TaskSettings)) {
-    this->disabled = true;
+    this->enabled = true;
     this->time = 0;
     return;
   }*/
-  String taskDisabledKey = this->shortName + "_D";
+  String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
-  this->disabled = savedState.getBool(taskDisabledKey.c_str(), true);
+  this->enabled = savedState.getBool(taskEnabledKey.c_str(), false);
   this->time = savedState.getULong(taskTimeKey.c_str(), 0);
-  if (!this->getDisabled()) {
+  if (this->getEnabled()) {
     this->determineNextRunTime();
   }
   
@@ -58,15 +58,15 @@ TimedTask::TimedTask(String name, String shortName, TaskType taskType, AqTaskFun
   this->connectedTask = NULL;
   //const char* namePtr = &(this->name[0]);
   /*if(savedState->getBytes(name.c_str(), &(this->settings), sizeof(TaskSettings)) != sizeof(TaskSettings)) {
-    this->disabled = true;
+    this->enabled = true;
     this->time = 100;
     return;
   }*/
-  String taskDisabledKey = this->shortName + "_D";
+  String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
-  this->disabled = savedState.getBool(taskDisabledKey.c_str(), true);
+  this->enabled = savedState.getBool(taskEnabledKey.c_str(), false);
   this->time = savedState.getULong(taskTimeKey.c_str(), 0);
-  if (!this->getDisabled()) {
+  if (this->getEnabled()) {
     this->determineNextRunTime();
   }
 }
@@ -75,7 +75,7 @@ void ScheduledTask::initTaskState() {
   int currentMinute = rtc.getMinute();
   int currentSecond = rtc.getSecond();
   unsigned long secondsSinceStartOfDay = ((currentHour*3600)+(currentMinute*60)+currentSecond); //Seconds since 12:00AM
-  if (this->hasConnectedTask() && (this->getDisabled() != true)) {
+  if (this->hasConnectedTask() && (this->getEnabled() == true)) {
     if (this->getTime() < this->connectedTask->getTime()) {
       if ((secondsSinceStartOfDay >= this->getTime()) && (secondsSinceStartOfDay < this->connectedTask->getTime())) {
         this->runF();
@@ -101,7 +101,7 @@ void ScheduledTask::runF() {
   this->f();
 }
 void ScheduledTask::doTask() {
-  if (!this->getDisabled()) {
+  if (this->getEnabled()) {
     this->f();
     /*
     switch(this->taskType) {
@@ -140,7 +140,7 @@ bool ScheduledTask::hasConnectedTask() {
   return false;
 }
 void TimedTask::doTask() {
-  if (!this->getDisabled()) {
+  if (this->getEnabled() == true) {
     /*switch(this->taskType) {
       case SENSOR_READ: {
         this->sensor->readSensor();
@@ -182,33 +182,33 @@ void TimedTask::determineNextRunTime() {
   unsigned long currentTime = rtc.getLocalEpoch();
   this->nextRunTime = currentTime + this->getTime();
 }
-void ScheduledTask::updateSettings(bool disabled, unsigned long time) {
-  this->disabled = disabled; 
+void ScheduledTask::updateSettings(bool enabled, unsigned long time) {
+  this->enabled = enabled; 
   //this->time = static_cast<uint16_t>(time);
   this->time = time;
   //const char* namePtr = &(this->name[0]);
   //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
-  String taskDisabledKey = this->shortName + "_D";
+  String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
-  savedState.putBool(taskDisabledKey.c_str(), disabled);
+  savedState.putBool(taskEnabledKey.c_str(), enabled);
   savedState.putULong(taskTimeKey.c_str(), time);
-  if (!this->getDisabled()) {
+  if (this->getEnabled() == true) {
     this->determineNextRunTime();
     if (this->hasConnectedTask()) {
       this->initTaskState();
     }
   }
 }
-void TimedTask::updateSettings(bool disabled, unsigned long time) {
-  this->disabled = disabled; 
+void TimedTask::updateSettings(bool enabled, unsigned long time) {
+  this->enabled = enabled; 
   this->time = time;
   //const char* namePtr = &(this->name[0]);
   //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
-  String taskDisabledKey = this->shortName + "_D";
+  String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
-  savedState.putBool(taskDisabledKey.c_str(), disabled);
+  savedState.putBool(taskEnabledKey.c_str(), enabled);
   savedState.putULong(taskTimeKey.c_str(), time);
-  if (!this->getDisabled()) {
+  if (this->getEnabled()) {
     this->determineNextRunTime();
   }
 }

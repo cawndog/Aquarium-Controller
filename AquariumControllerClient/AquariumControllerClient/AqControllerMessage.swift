@@ -40,7 +40,7 @@ class AqControllerMessage: Codable {
             var name: String = ""
             var taskType: TaskType = .Unknown
             var time: Int = 0
-            var isDisabled: Bool = true
+            var enabled: Bool = true
             var connectedTask: Task?
             func setTaskTypeWithString(_ type: String) {
                 switch (type) {

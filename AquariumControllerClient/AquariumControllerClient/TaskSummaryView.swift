@@ -29,14 +29,12 @@ struct TaskSummaryView: View {
                         connectedTaskSummaryView(task: task.connectedTask)
                     }
                 }
-                
             }
             label: {
                 VStack {
                     Label(task.name, systemImage: "clock")
                     
                 }
-            
             }
         } else {
             LabeledContent {

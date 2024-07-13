@@ -156,7 +156,9 @@ class Network: ObservableObject {
                         t.setTaskTypeWithString(task.taskType.rawValue)
                         t.enabled = task.enabled
                         if let connectedTask = task.connectedTask {
-                            t.connectedTask = AqTask(connectedTask.name)
+                            if (t.connectedTask == nil) {
+                                t.connectedTask = AqTask(connectedTask.name)
+                            }
                             taskTime = connectedTask.time
                             seconds = taskTime%60
                             taskTime -= seconds

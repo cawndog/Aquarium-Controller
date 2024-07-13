@@ -60,7 +60,7 @@ class AqTask: HashableClass, Identifiable, ObservableObject {
             self.connectedTask.taskType = taskToCopy.connectedTask.taskType
             self.connectedTask.time = taskToCopy.connectedTask.time
             self.connectedTask.timeInSeconds = taskToCopy.connectedTask.timeInSeconds
-            self.connectedTask.enabled = taskToCopy.connectedTask.enabled
+            self.connectedTask.enabled = taskToCopy.enabled
         }
         
     }

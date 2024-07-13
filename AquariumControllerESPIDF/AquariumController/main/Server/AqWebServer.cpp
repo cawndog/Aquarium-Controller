@@ -424,13 +424,13 @@ bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
             for (int i = 0; i < numTasks; i++) {
               Task* task = aqController.getTaskByName(body["settings"]["tasks"][i]["name"]);
               if (task != NULL) {
-                task->updateSettings(body["settings"]["tasks"][i]["enabled"], body["settings"]["tasks"][i]["time"]);
-                if (body["tasks"][i].containsKey("connectedTask")) {
-                  task = aqController.getTaskByName(body["settings"]["tasks"][i]["connectedTask"]["name"]);
+                if (body["settings"]["tasks"][i].containsKey("connectedTask")) {
+                  Task* connectedTask = aqController.getTaskByName(body["settings"]["tasks"][i]["connectedTask"]["name"]);
                   if (task != NULL) {
-                    task->updateSettings(body["settings"]["tasks"][i]["connectedTask"]["enabled"], body["settings"]["tasks"][i]["connectedTask"]["time"]);
+                    connectedTask->updateSettings(body["settings"]["tasks"][i]["connectedTask"]["enabled"], body["settings"]["tasks"][i]["connectedTask"]["time"]);
                   }
                 }
+                task->updateSettings(body["settings"]["tasks"][i]["enabled"], body["settings"]["tasks"][i]["time"]);
               } 
             }
             aqController.scheduleNextTask();

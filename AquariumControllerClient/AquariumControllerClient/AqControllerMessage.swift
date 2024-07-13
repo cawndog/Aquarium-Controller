@@ -57,7 +57,7 @@ class AqControllerMessage: Codable {
         }
         var generalSettings: [GeneralSetting]?
         var alarms: [Alarm]?
-        var tasks: [Task]?
+        var tasks: [AqControllerMessage.Settings.Task]?
         func addGeneralSetting(_ newSetting: AqControllerMessage.Settings.GeneralSetting) {
             if (generalSettings?.append(newSetting) == nil) {
                 generalSettings = [newSetting]

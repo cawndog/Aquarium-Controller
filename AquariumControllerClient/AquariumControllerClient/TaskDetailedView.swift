@@ -53,10 +53,9 @@ struct TaskDetailedView: View {
                                 dateComps.second = seconds
                                 detailedTask.time = Calendar.current.date(from: dateComps)!
                             }
+                    } label: {
+                        Label("", systemImage: "timer")
                     }
-                label: {
-                    Label("", systemImage: "timer")
-                }
                 } header: {
                     Text("Run Time Interval").textCase(nil).bold()
                 }

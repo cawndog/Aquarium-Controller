@@ -16,7 +16,7 @@ class AqController: ObservableObject {
         controllerState = ControllerState()
         network = Network()
         network.controllerState = self.controllerState
-        //controllerState.getStateDataFromServer(network: network)
+        controllerState.getStateDataFromServer(network: network)
 
     }
 }

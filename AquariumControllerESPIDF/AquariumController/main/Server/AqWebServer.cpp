@@ -326,7 +326,6 @@ void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
 void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
   
   DynamicJsonDocument body(1024);
-  body["messageType"] = "StateUpdate";
   body["sensors"][0]["name"] = sensor->name;
   body["sensors"][0]["value"] = sensor->getValue();
 

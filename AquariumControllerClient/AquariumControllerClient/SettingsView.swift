@@ -74,7 +74,8 @@ struct SettingsView: View {
             }
             .navigationDestination(for: Alarm.self) { alarm in
                 AlarmEditView(alarm: alarm)
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(alarm.name)
+                    //.navigationBarTitleDisplayMode(.inline)
             }
             .navigationDestination(for: AqTask.self) { task in
                 TaskDetailedView(task: task)

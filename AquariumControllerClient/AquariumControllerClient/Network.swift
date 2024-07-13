@@ -153,6 +153,7 @@ class Network: ObservableObject {
                         dateComps.minute = minutes
                         dateComps.second = seconds
                         t.time = Calendar.current.date(from: dateComps)!
+                        t.timeInSeconds = task.time
                         t.setTaskTypeWithString(task.taskType.rawValue)
                         t.enabled = task.enabled
                         if let connectedTask = task.connectedTask {
@@ -358,9 +359,10 @@ class Network: ObservableObject {
             print("Failed to encode JSON")
             return
         }
-        //let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
-        print("In setAlarmState(alarm)")
-        //print(jsonString)
+        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        //print("In setAlarmState(alarm)")
+        //print(jsonString!)
+        //print(encoded)
         let urlString: String = "http://\(aqConnectionString)/setSettingsState"
         let url = URL(string: urlString)!
         var request = URLRequest(url: url)

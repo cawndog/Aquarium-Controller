@@ -39,7 +39,7 @@ struct TaskDetailedView: View {
                         DatePickerView(seconds: $detailedTask.timeInSeconds)
                             .onChange(of: detailedTask.timeInSeconds) {
                                 var dateComps = DateComponents()
-                                var timeInSecondsLocal = detailedTask.timeInSeconds
+                                var timeInSecondsLocal: Int = detailedTask.timeInSeconds
                                 var hours: Int
                                 var minutes: Int
                                 var seconds: Int

@@ -10,6 +10,9 @@ HardwareInterface::~HardwareInterface() {
 }
 
 void HardwareInterface::init() {
+  pinMode(WATER_VALVE_Y_PIN, OUTPUT);
+  pinMode(WATER_VALVE_R_PIN, OUTPUT);
+  pinMode(TDS_SENSOR_PIN,INPUT);
   this->switch1.init("1");
   this->switch2.init("2");
   this->switch3.init("3");
@@ -20,7 +23,6 @@ void HardwareInterface::init() {
   tempSensors->begin();
   tempSensors->setWaitForConversion(true);
   
-  pinMode(TDS_SENSOR_PIN,INPUT);
   waterValveSemaphore = xSemaphoreCreateBinary();
   xSemaphoreGive(waterValveSemaphore);
 }
@@ -81,8 +83,6 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
     #ifdef useSerial
       Serial.printf("In PowerControl for Water Valve\n");
     #endif
-    pinMode(WATER_VALVE_Y_PIN, OUTPUT);
-    pinMode(WATER_VALVE_R_PIN, OUTPUT);
     if (state == 1) {
       savedState.putUChar(deviceName.c_str(), 1);
       TaskHandle_t xHandle = NULL;
@@ -128,7 +128,6 @@ float HardwareInterface::readTdsSensor(float temperature) {
     SerialBT.println(temperature);
   #endif
   int analogBuffer[SCOUNT];     // store the analog value in the array, read from ADC
-  //int analogBufferTemp[SCOUNT];
   int analogBufferIndex = 0;
   int copyIndex = 0;
   float averageVoltage = 0;

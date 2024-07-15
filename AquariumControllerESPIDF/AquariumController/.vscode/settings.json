@@ -107,7 +107,8 @@
     "typeindex": "cpp",
     "typeinfo": "cpp",
     "valarray": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "*.s": "cpp"
   },
   "idf.flashType": "UART",
   "cmake.configureOnOpen": false

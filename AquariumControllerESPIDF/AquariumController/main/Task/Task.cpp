@@ -35,12 +35,6 @@ ScheduledTask::ScheduledTask(String name, String shortName, TaskType taskType, A
   this->taskType = taskType;
   this->f = f;
   this->connectedTask = NULL;
-  //const char* namePtr = &(this->name[0]);
-  /*if(savedState->getBytes(name.c_str(), &(this->settings), sizeof(TaskSettings)) != sizeof(TaskSettings)) {
-    this->enabled = true;
-    this->time = 0;
-    return;
-  }*/
   String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
   this->enabled = savedState.getBool(taskEnabledKey.c_str(), false);
@@ -56,12 +50,6 @@ TimedTask::TimedTask(String name, String shortName, TaskType taskType, AqTaskFun
   this->taskType = taskType;
   this->f = f;
   this->connectedTask = NULL;
-  //const char* namePtr = &(this->name[0]);
-  /*if(savedState->getBytes(name.c_str(), &(this->settings), sizeof(TaskSettings)) != sizeof(TaskSettings)) {
-    this->enabled = true;
-    this->time = 100;
-    return;
-  }*/
   String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
   this->enabled = savedState.getBool(taskEnabledKey.c_str(), false);
@@ -103,19 +91,6 @@ void ScheduledTask::runF() {
 void ScheduledTask::doTask() {
   if (this->getEnabled()) {
     this->f();
-    /*
-    switch(this->taskType) {
-      case TDEVICE_ON: {
-        this->device->setStateOn();
-        break;
-      }
-      case TDEVICE_OFF: {
-        this->device->setStateOff();
-        break;
-      }
-      default: 
-        return;
-    };*/
     this->determineNextRunTime();
   }
   return;
@@ -141,22 +116,6 @@ bool ScheduledTask::hasConnectedTask() {
 }
 void TimedTask::doTask() {
   if (this->getEnabled() == true) {
-    /*switch(this->taskType) {
-      case SENSOR_READ: {
-        this->sensor->readSensor();
-        break;
-      }
-      case TDEVICE_ON: {
-        this->device->setStateOn();
-        break;
-      }
-      case TDEVICE_OFF: {
-        this->device->setStateOff();
-        break;
-      }
-      default: 
-        return;
-    };*/
     this->f();
     this->determineNextRunTime();
   }
@@ -184,10 +143,7 @@ void TimedTask::determineNextRunTime() {
 }
 void ScheduledTask::updateSettings(bool enabled, unsigned long time) {
   this->enabled = enabled; 
-  //this->time = static_cast<uint16_t>(time);
   this->time = time;
-  //const char* namePtr = &(this->name[0]);
-  //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
   String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
   savedState.putBool(taskEnabledKey.c_str(), enabled);
@@ -202,8 +158,6 @@ void ScheduledTask::updateSettings(bool enabled, unsigned long time) {
 void TimedTask::updateSettings(bool enabled, unsigned long time) {
   this->enabled = enabled; 
   this->time = time;
-  //const char* namePtr = &(this->name[0]);
-  //this->savedState->putBytes(name.c_str(), &(this->settings), sizeof(TaskSettings));
   String taskEnabledKey = this->shortName + "_D";
   String taskTimeKey = this->shortName + "_T";
   savedState.putBool(taskEnabledKey.c_str(), enabled);

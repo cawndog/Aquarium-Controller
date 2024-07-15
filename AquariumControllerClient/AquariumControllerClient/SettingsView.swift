@@ -69,17 +69,18 @@ struct SettingsView: View {
             }
             .navigationDestination(for: GeneralSetting.self) { generalSetting in
                 GeneralSettingEditView(generalSetting: generalSetting)
-                    //.navigationTitle(generalSetting.name)
+                    .navigationTitle(generalSetting.name)
                     .navigationBarTitleDisplayMode(.inline)
             }
             .navigationDestination(for: Alarm.self) { alarm in
                 AlarmEditView(alarm: alarm)
                     .navigationTitle(alarm.name)
-                    //.navigationBarTitleDisplayMode(.inline)
+                    .navigationBarTitleDisplayMode(.inline)
             }
             .navigationDestination(for: AqTask.self) { task in
                 TaskDetailedView(task: task)
                     .navigationTitle(task.name)
+                    .navigationBarTitleDisplayMode(.inline)
             }
             /*.navigationDestination(for: String.self) { string in
                 ThermostatDetailedView(controllerState: controllerState)

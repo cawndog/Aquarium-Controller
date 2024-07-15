@@ -34,7 +34,6 @@ struct TaskSummaryView: View {
             label: {
                 VStack {
                     Label(task.name, systemImage: "clock")
-                    
                 }
             
             }

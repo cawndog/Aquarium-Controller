@@ -1,10 +1,6 @@
 #include <string.h>
 #include "AqWebServer.h"
 
-
-//const char HTML_home[] PROGMEM = "<!DOCTYPE html><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0\"><html> <head> <style>/* The switch - the box around the slider */ .switch{position: relative; display: inline-block; width: 60px; height: 34px;}/* Hide default HTML checkbox */ .switch input{opacity: 0; width: 0; height: 0;}/* The slider */ .slider{position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .3s; transition: .3s;}.slider:before{position: absolute; content: \"\"; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: rgb(255, 255, 255); -webkit-transition: .3s; transition: .3s;}input:checked + .slider{background-color: #5BC236;}input:focus + .slider{box-shadow: 0 0 1px rgb(232, 232, 232);}input:checked + .slider:before{-webkit-transform: translateX(26px); -ms-transform: translateX(26px); transform: translateX(26px);}input:disabled + .slider:before{background-color: #ccc;}/* Rounded sliders */ .slider.round{border-radius: 34px;}.slider.round:before{border-radius: 50%;}.center{margin-left: auto; margin-right: auto;}.center-text{text-align: center;}.left-text{text-align: left; padding-left:5%; padding-top: 5%;}.right-text{text-align: right; padding-right:5%; padding-top: 5%;}.unselectable{-webkit-user-select: none; -webkit-touch-callout: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}</style> </head> <body class=\"unselectable\" style=\"background-color: rgb(232, 232, 232);\"> <table class=\"center center-text\" style=\"table-layout: fixed; padding-top: 5%;\"> <tr> <td colspan=\"2\"> <h1 style=\"color: rgb(5, 164, 244)\">Aquarium Controller</h1> </td></tr><tr> <td style=\"width: 50%;\">Temperature<br><div id=\"tempDiv\" style=\"font-size:large;font-weight: bold; visibility: hidden;\"><span id=\"temp\"></span></div></td><td style=\"width: 50%;\">TDS<br><div id=\"tdsDiv\" style=\"font-size:large;font-weight: bold; visibility: hidden;\"><span style=\"font-size:large;font-weight: bold;\"id=\"tds\"></span></div></td></tr><tr> <td class=\"right-text\">Lights</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"lights\" type=\"checkbox\" onclick=\"checkClickFunc('lights')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">Filter</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"filter\" type=\"checkbox\" onclick=\"checkClickFunc('filter')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">CO2</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"co2\" type=\"checkbox\" onclick=\"checkClickFunc('co2')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">Air Pump</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"air\" type=\"checkbox\" onclick=\"checkClickFunc('air')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"right-text\">Maintenance Mode</td><td class=\"left-text\"><label class=\"switch\"> <input id=\"maint\" type=\"checkbox\" onclick=\"checkClickFunc('maint')\"> <span class=\"slider round\"></span> </label> </td></tr><tr> <td class=\"center-text\" style=\"padding-top: 10%;\"><div id=\"heaterStateDiv\" style=\"visibility: hidden;\">Heater: <span id=\"heaterState\"></span></div></td></tr></table> <script>window.addEventListener(\"DOMContentLoaded\", (event)=>{getCurrentState(); let timer=setTimeout(function refreshState(){getCurrentState(); timer=setTimeout(refreshState, 5000);}, 5000);}); function checkClickFunc(device){var checkbox=document.getElementById(device); if (checkbox.checked==true){if (device=='air'){document.getElementById('co2').checked=false;}if (device=='co2'){document.getElementById('air').checked=false;}if (device=='maint'){filter=document.getElementById('filter'); filter.checked=false; filter.disabled=true; document.getElementById('heaterState').innerHTML=\"OFF\";}fetch('http://10.0.0.96/'+device+'On',{method: 'POST', headers:{'Content-Type': 'application/json'}, body: JSON.stringify({\"id\": 78912})}) .then (response=>{console.log(response.status);});}else{fetch('http://10.0.0.96/'+device+'Off',{method: 'POST', headers:{'Content-Type': 'application/json'}, body: JSON.stringify({\"id\": 78913})}) .then (response=>{console.log(response.status); if (response.status==200){if (device=='maint'){filter=document.getElementById('filter'); filter.checked=true; filter.disabled=false;}}});}}function getCurrentState(){fetch('http://10.0.0.96/getCurrentState') .then((response)=> response.json()) .then((json)=>{console.log(json); document.getElementById('temp').innerHTML=json.temp; document.getElementById('tds').innerHTML=json.tds; document.getElementById(\"tempDiv\").style.visibility=\"visible\"; document.getElementById(\"tdsDiv\").style.visibility=\"visible\"; document.getElementById('lights').checked=json.lights; document.getElementById('filter').checked=json.filter; document.getElementById('co2').checked=json.co2; document.getElementById('air').checked=json.air; document.getElementById('maint').checked=json.maint; if (json.heater){document.getElementById('heaterState').innerHTML=\"ON\";}else{document.getElementById('heaterState').innerHTML=\"OFF\";}document.getElementById(\"heaterStateDiv\").style.visibility=\"visible\";});}</script> </body></html>";
-// Variable to store the HTTP request
-
 String authFailResponse = "Authentication Failed";
 
   AqWebServer::AqWebServer() {
@@ -12,15 +8,6 @@ String authFailResponse = "Authentication Failed";
     this->ws = new AsyncWebSocket("/ws");
   }
   void AqWebServer::init() {
-
-  //server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    //if (!request->authenticate(http_username, http_password))
-    //{
-      //return request->requestAuthentication();
-    //}
-    //request->send(200, "text/plain", "Temp: " + String(aquariumTemp) + " TDS: " + String(tdsVal));
-    //request->send(200, "text/html", HTML_home);
-  //});
 
   server->on("/wv_on", HTTP_POST, [&](AsyncWebServerRequest *request) {
     bool authFailed = checkAuthorization(request);
@@ -144,52 +131,6 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     processAqControllerMessage(json);
-    /*
-    JsonObject body = json.as<JsonObject>();
-    if (body.containsKey("aqThermostat")) {
-      aqController.aqThermostat = body["aqThermostat"];
-      savedState.putShort("aqThermostat", aqController.aqThermostat);
-      aqController.aqTemperature.readSensor();
-    }
-    const int numTasksInMsg = body["tasks"].size();
-    #ifdef useSerial
-      Serial.printf("numTasksInMsg %d\n", numTasksInMsg);
-    #endif
-    Task* task = NULL;
-    Task* connectedTask = NULL;
-    bool isDisabled = true;
-    unsigned long time = 0;
-    for (int i = 0; i < numTasksInMsg; i++) {
-      const char* taskName = body["tasks"][i]["name"];
-      if (taskName != NULL) {
-        task = aqController.getTaskByName(taskName);
-        if (task != NULL) {
-          const char* connectedTaskName = body["tasks"][i]["connectedTask"]["name"];
-          if (connectedTaskName != NULL) {
-            connectedTask = aqController.getTaskByName(connectedTaskName);
-            if (connectedTask != NULL) {
-              if (body["tasks"][i]["connectedTask"]["isDisabled"] == 0) {
-                isDisabled = false;
-              } else {
-                isDisabled = true;
-              }
-              time = body["tasks"][i]["connectedTask"]["time"];
-              connectedTask->updateSettings(isDisabled, time);
-            }
-          }
-          isDisabled = body["tasks"][i]["isDisabled"];
-          if (body["tasks"][i]["isDisabled"] == 0) {
-            isDisabled = false;
-          } else {
-            isDisabled = true;
-          }
-          time = body["tasks"][i]["time"];
-          task->updateSettings(isDisabled, time);
-        } 
-      }
-    }
-    aqController.scheduleNextTask();*/
-
     request->send(200, "application/text", "setSettingsState succeeded.");
     
   });
@@ -200,21 +141,6 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     processAqControllerMessage(json);
-    /*
-    JsonObject body = json.as<JsonObject>();
-    if (body.containsKey("devices")) {
-      if (body["devices"].size() > 0) {
-        Device* deviceToSet = aqController.getDeviceByName(body["devices"][0]["name"]);
-        if (deviceToSet != NULL) {
-          if (body["devices"][0]["state"] == true) {
-            deviceToSet->setStateOn();
-          }
-          else {
-            deviceToSet->setStateOff();
-          }
-        }
-      }
-    }*/
     request->send(200, "text/plain", "setDeviceOn Succeeded");
     
   });
@@ -293,7 +219,6 @@ bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
     request->send(401, "text/plain", "Authorization Failed.");
     authFailed = true;
   }
-
   return authFailed;
 }
 AqWebServer::~AqWebServer() {
@@ -302,9 +227,7 @@ AqWebServer::~AqWebServer() {
   delete this->setSettingsHandler;
   delete this->setDeviceStateHandler;
 }
-/*void AqWebServer::handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 
-}*/
 void AqWebServer::deviceStateUpdate(Device** devices, int numDevices) {
   DynamicJsonDocument body(1024);
   for (int i = 0; i < numDevices; i++) {
@@ -340,7 +263,6 @@ void AqWebServer::sensorReadingUpdate(Sensor* sensor) {
     SerialBT.println(message);
   #endif
   ws->textAll(message);
-  
 }
 void AqWebServer::settingUpdate(GeneralSetting* setting) {
   DynamicJsonDocument body(1024);
@@ -430,15 +352,12 @@ bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
                   }
                 }
                 task->updateSettings(body["settings"]["tasks"][i]["enabled"], body["settings"]["tasks"][i]["time"]);
-              } 
+              }
             }
             aqController.scheduleNextTask();
           }
         }
-    //-------
-
   return true;
-
 }
 
 

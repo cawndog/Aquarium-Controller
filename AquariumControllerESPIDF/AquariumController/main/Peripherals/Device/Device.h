@@ -22,10 +22,10 @@ class Device {
 
     //function declarations
     Device();
-    void init(String name, HardwareInterface* hardwareInterface, OkToExecute okToExe = [](bool newState) {return true;}, PostExecutionFunction postExeFunction= [](Device** devices, int numDevices){});
+    void init(String name, HardwareInterface* hardwareInterface, OkToExecute = [](bool newState) {return true;}, PostExecutionFunction = [](Device** devices, int numDevices){});
     void attachConnectedDevice(Device* device);
-    void setStateOn();
-    void setStateOff();
+    void setStateOn(bool overrideOkToExe = false);
+    void setStateOff(bool overrideOkToExe = false);
     bool getStateBool();
     static uint8_t deviceStateToInt(DeviceState state);
     static DeviceState intToDeviceState(uint8_t stateInt);

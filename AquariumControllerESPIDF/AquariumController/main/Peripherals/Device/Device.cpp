@@ -8,6 +8,7 @@ Device::Device() {
   okToExe = [](bool newState){return true;};
   postExeFunction = [](Device** devices, int numDevices){};
 }
+
 void Device::init(String name, HardwareInterface* hardwareInterface, OkToExecute okToExe, PostExecutionFunction postExeFunction) {
   this->name = name;
   this->hardwareInterface = hardwareInterface;
@@ -17,8 +18,10 @@ void Device::init(String name, HardwareInterface* hardwareInterface, OkToExecute
 void Device::attachConnectedDevice(Device* device) {
   this->connectedDevice = device;
 }
-void Device::setStateOn() {
-  if (this->okToExe(true) == true) {
+void Device::setStateOn(bool overrideOkToExe) {
+  bool willExe = (overrideOkToExe == true) ? true : this->okToExe(true);
+  if (willExe) {
+  //if (this->okToExe(true) == true) {
     if (this->state != DEVICE_ON) {
       this->state = DEVICE_ON; 
       TaskHandle_t xHandle = NULL;
@@ -46,8 +49,10 @@ void Device::setStateOn() {
     }
   }
 }
-void Device::setStateOff() {
-  if (this->okToExe(false) == true) {
+void Device::setStateOff(bool overrideOkToExe) {
+  bool willExe = (overrideOkToExe == true) ? true : this->okToExe(false);
+  if (willExe) {
+  //if (this->okToExe(false) == true) {
     if (this->state != DEVICE_OFF) {
       this->state = DEVICE_OFF;
       TaskHandle_t xHandle = NULL;

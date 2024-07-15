@@ -35,7 +35,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   heater.init("Heater", &hardwareInterface,
     [this](bool newState){
       if (newState == true) {
-        return (this->filter.getStateBool() == true) ? true : false;
+        return this->filter.getStateBool();
       }
       return true;
     },

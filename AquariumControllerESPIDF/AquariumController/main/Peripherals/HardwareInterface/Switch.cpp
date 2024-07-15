@@ -54,27 +54,27 @@ void Switch1::powerControl(SwitchState newState) { //air control switch
   if (this->state != newState) {
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    this->controllerServo.attach(AIR_SRVO_PIN);
+    controllerServo.attach(AIR_SRVO_PIN);
     if (newState == OFF) {
-      this->controllerServo.write(OFF_POS + OFF_OFFSET_1);
+      controllerServo.write(OFF_POS + OFF_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     else if (newState == ON) { //Air Pump
-      this->controllerServo.write(POS1 + ON_OFFSET_1);
+      controllerServo.write(POS1 + ON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     else if (newState == AUXON) { //CO2
-      this->controllerServo.write(POS2 + AUXON_OFFSET_1);
+      controllerServo.write(POS2 + AUXON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
@@ -93,27 +93,27 @@ void Switch2::powerControl(SwitchState newState) { //light control switch
   if (this->state != newState) {
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    this->controllerServo.attach(LIGHT_SRVO_PIN);
+    controllerServo.attach(LIGHT_SRVO_PIN);
     if (newState == OFF) {
-      this->controllerServo.write(OFF_POS + OFF_OFFSET_2);
+      controllerServo.write(OFF_POS + OFF_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     else if (newState == ON) { 
-      this->controllerServo.write(POS2 + ON_OFFSET_2);
+      controllerServo.write(POS2 + ON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     /*else if (newState == AUXON) { 
-      this->controllerServo.write(POS1 + AUXON_OFFSET_2);
+      controllerServo.write(POS1 + AUXON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }*/
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
@@ -132,27 +132,27 @@ void Switch3::powerControl(SwitchState newState) { //heater control switch
   if (this->state != newState) {
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    this->controllerServo.attach(HEATER_SRVO_PIN);
+    controllerServo.attach(HEATER_SRVO_PIN);
     if (newState == OFF) {
-      this->controllerServo.write(OFF_POS + OFF_OFFSET_3);
+      controllerServo.write(OFF_POS + OFF_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     else if (newState == ON) { 
-      this->controllerServo.write(POS1 + ON_OFFSET_3);
+      controllerServo.write(POS1 + ON_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     /*else if (newState == AUXON) { 
-      this->controllerServo.write(POS2 + AUXON_OFFSET_3);
+      controllerServo.write(POS2 + AUXON_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }*/
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
@@ -171,27 +171,27 @@ void Switch4::powerControl(SwitchState newState) { //filter control switch
   if (this->state != newState) {
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    this->controllerServo.attach(FILTER_SRVO_PIN);
+    controllerServo.attach(FILTER_SRVO_PIN);
     if (newState == OFF) {
-      this->controllerServo.write(OFF_POS + OFF_OFFSET_4);
+      controllerServo.write(OFF_POS + OFF_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     else if (newState == ON) {
-      this->controllerServo.write(POS2 + ON_OFFSET_4);
+      controllerServo.write(POS2 + ON_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }
     /*else if (newState == AUXON) { 
-      this->controllerServo.write(POS1 + AUXON_OFFSET_4);
+      controllerServo.write(POS1 + AUXON_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      this->controllerServo.release();
-      this->controllerServo.detach();
+      controllerServo.release();
+      controllerServo.detach();
     }*/
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);

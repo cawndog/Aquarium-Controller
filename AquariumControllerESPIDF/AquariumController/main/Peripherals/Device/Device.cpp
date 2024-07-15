@@ -19,9 +19,13 @@ void Device::attachConnectedDevice(Device* device) {
   this->connectedDevice = device;
 }
 void Device::setStateOn(bool overrideOkToExe) {
+  Serial.printf("%s overrideOkToExe: %d\n",this->name.c_str(), overrideOkToExe);
   bool willExe = (overrideOkToExe == true) ? true : this->okToExe(true);
-  if (willExe) {
-  //if (this->okToExe(true) == true) {
+  Serial.printf("%s willExe: %d\n",this->name.c_str(), willExe);
+  Serial.printf("%s okToExe: %d\n",this->name.c_str(), this->okToExe(true));
+  
+  //if (willExe) {
+  if (this->okToExe(true) == true) {
     if (this->state != DEVICE_ON) {
       this->state = DEVICE_ON; 
       TaskHandle_t xHandle = NULL;

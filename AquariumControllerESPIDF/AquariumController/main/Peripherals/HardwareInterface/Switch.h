@@ -14,11 +14,11 @@ enum SwitchState {
   ON = 1,
   AUXON = 2
 };
+static Servo controllerServo;
 class Switch {
   public: 
     String name;
     SwitchState state;
-    Servo controllerServo;
     void init(String name);
     void powerControl(SwitchState newState) {};
     void setSwitchState(SwitchState newState);

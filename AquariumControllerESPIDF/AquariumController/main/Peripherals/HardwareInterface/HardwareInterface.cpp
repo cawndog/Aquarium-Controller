@@ -10,6 +10,10 @@ HardwareInterface::~HardwareInterface() {
 }
 
 void HardwareInterface::init() {
+  ESP32PWM::allocateTimer(0);
+	ESP32PWM::allocateTimer(1);
+	ESP32PWM::allocateTimer(2);
+	ESP32PWM::allocateTimer(3);
   pinMode(WATER_VALVE_Y_PIN, OUTPUT);
   pinMode(WATER_VALVE_R_PIN, OUTPUT);
   pinMode(TDS_SENSOR_PIN,INPUT);

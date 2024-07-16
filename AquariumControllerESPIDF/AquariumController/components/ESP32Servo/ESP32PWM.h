@@ -50,6 +50,7 @@ private:
 		return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 	}
 
+  uint8_t getPinUint();
 	double setup(double freq, uint8_t resolution_bits=10);
 	//channel 0-15 resolution 1-16bits freq limits depend on resolution9
 	void attachPin(uint8_t pin);

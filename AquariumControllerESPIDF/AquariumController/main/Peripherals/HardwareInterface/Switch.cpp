@@ -59,21 +59,21 @@ void Switch1::powerControl(SwitchState newState) { //air control switch
       controllerServo.write(OFF_POS + OFF_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     else if (newState == ON) { //Air Pump
       controllerServo.write(POS1 + ON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     else if (newState == AUXON) { //CO2
       controllerServo.write(POS2 + AUXON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
@@ -98,21 +98,21 @@ void Switch2::powerControl(SwitchState newState) { //light control switch
       controllerServo.write(OFF_POS + OFF_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     else if (newState == ON) { 
       controllerServo.write(POS2 + ON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     /*else if (newState == AUXON) { 
       controllerServo.write(POS1 + AUXON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }*/
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
@@ -137,21 +137,21 @@ void Switch3::powerControl(SwitchState newState) { //heater control switch
       controllerServo.write(OFF_POS + OFF_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     else if (newState == ON) { 
       controllerServo.write(POS1 + ON_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     /*else if (newState == AUXON) { 
       controllerServo.write(POS2 + AUXON_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }*/
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
@@ -176,21 +176,21 @@ void Switch4::powerControl(SwitchState newState) { //filter control switch
       controllerServo.write(OFF_POS + OFF_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     else if (newState == ON) {
       controllerServo.write(POS2 + ON_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }
     /*else if (newState == AUXON) { 
       controllerServo.write(POS1 + AUXON_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      controllerServo.release();
+      
       controllerServo.detach();
     }*/
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;

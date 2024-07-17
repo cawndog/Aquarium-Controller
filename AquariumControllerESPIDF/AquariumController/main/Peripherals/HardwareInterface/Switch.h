@@ -13,10 +13,10 @@
 #include "unity.h"
 #include "sdkconfig.h"
 
-#define SERVO_CH0_PIN 33
-#define SERVO_CH1_PIN 25
-#define SERVO_CH2_PIN 26
-#define SERVO_CH3_PIN 27
+#define SERVO_CH0_PIN 33 //Heater Servo, Servo #3
+#define SERVO_CH1_PIN 25 //Air Servo, Servo #1
+#define SERVO_CH2_PIN 26 //Filter Servo, Servo #4
+#define SERVO_CH3_PIN 27 //Light Servo, Servo #2
 
 
 //--Servo Motor Positions--

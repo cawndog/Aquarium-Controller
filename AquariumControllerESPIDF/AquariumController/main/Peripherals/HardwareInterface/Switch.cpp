@@ -1,24 +1,24 @@
 #include "WString.h"
 #include "Switch.h"
 
-static void _set_angle(ledc_mode_t speed_mode, float angle)
+/*static void _set_angle(ledc_mode_t speed_mode, float angle)
 {
     for (size_t i = 0; i < 8; i++) {
         iot_servo_write_angle(speed_mode, i, angle);
     }
-}
+}*/
 servo_config_t servo_cfg_ls = {
     .max_angle = 180,
-    .min_width_us = 500,
-    .max_width_us = 2500,
+    .min_width_us = 544,
+    .max_width_us = 2400,
     .freq = 50,
     .timer_number = LEDC_TIMER_0,
     .channels = {
         .servo_pin = {
+            gpio_num_t(SERVO_CH0_PIN),
             gpio_num_t(SERVO_CH1_PIN),
-            gpio_num_t(SERVO_CH3_PIN),
             gpio_num_t(SERVO_CH2_PIN),
-            gpio_num_t(SERVO_CH0_PIN)
+            gpio_num_t(SERVO_CH3_PIN)
         },
         .ch = {
             LEDC_CHANNEL_0,
@@ -84,17 +84,18 @@ void Switch1::powerControl(SwitchState newState) { //air control switch
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
     ////this->controllerServo.attach(AIR_SRVO_PIN);
-    TEST_ASSERT(ESP_OK == iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls));
+    //TEST_ASSERT(ESP_OK == iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls));
+    iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls);
     if (newState == OFF) {
       //this->controllerServo.write(OFF_POS + OFF_OFFSET_1);
-      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, OFF_POS + OFF_OFFSET_1);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, OFF_POS + OFF_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
       iot_servo_deinit(LEDC_LOW_SPEED_MODE);
     }
     else if (newState == ON) { //Air Pump
       //this->controllerServo.write(POS1 + ON_OFFSET_1);
-      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, POS1 + ON_OFFSET_1);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, POS1 + ON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
       iot_servo_deinit(LEDC_LOW_SPEED_MODE);
@@ -102,7 +103,7 @@ void Switch1::powerControl(SwitchState newState) { //air control switch
       //this->controllerServo.detach();
     }
     else if (newState == AUXON) { //CO2
-    iot_servo_write_angle(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, POS2 + AUXON_OFFSET_1);
+    iot_servo_write_angle(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, POS2 + AUXON_OFFSET_1);
       //this->controllerServo.write(POS2 + AUXON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
@@ -124,27 +125,33 @@ void Switch2::powerControl(SwitchState newState) { //light control switch
   #define OFF_OFFSET_2 1
   #define ON_OFFSET_2 -2
   #define AUXON_OFFSET_2 3
+  
   if (this->state != newState) {
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
     ////this->controllerServo.attach(LIGHT_SRVO_PIN);
-    TEST_ASSERT(ESP_OK == iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls));
+    iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls);
     if (newState == OFF) {
       //this->controllerServo.write(OFF_POS + OFF_OFFSET_2);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, SERVO_CH3_PIN, OFF_POS + OFF_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
+      iot_servo_deinit(LEDC_LOW_SPEED_MODE);
       //this->controllerServo.release();
       //this->controllerServo.detach();
     }
     else if (newState == ON) { 
       //this->controllerServo.write(POS2 + ON_OFFSET_2);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, SERVO_CH3_PIN, POS2 + ON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
+      iot_servo_deinit(LEDC_LOW_SPEED_MODE);
       //this->controllerServo.release();
       //this->controllerServo.detach();
     }
     /*else if (newState == AUXON) { 
       //this->controllerServo.write(POS1 + AUXON_OFFSET_2);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, SERVO_CH3_PIN, POS1 + AUXON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
       //this->controllerServo.release();
@@ -168,18 +175,22 @@ void Switch3::powerControl(SwitchState newState) { //heater control switch
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
     ////this->controllerServo.attach(HEATER_SRVO_PIN);
-    TEST_ASSERT(ESP_OK == iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls));
+    iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls);
     if (newState == OFF) {
       //this->controllerServo.write(OFF_POS + OFF_OFFSET_3);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, SERVO_CH0_PIN, OFF_POS + OFF_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
+      iot_servo_deinit(LEDC_LOW_SPEED_MODE);
       //this->controllerServo.release();
       //this->controllerServo.detach();
     }
     else if (newState == ON) { 
       //this->controllerServo.write(POS1 + ON_OFFSET_3);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, SERVO_CH0_PIN, POS1 + ON_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
+      iot_servo_deinit(LEDC_LOW_SPEED_MODE);
       //this->controllerServo.release();
       //this->controllerServo.detach();
     }
@@ -208,18 +219,22 @@ void Switch4::powerControl(SwitchState newState) { //filter control switch
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
     ////this->controllerServo.attach(FILTER_SRVO_PIN);
-    TEST_ASSERT(ESP_OK == iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls));
+    iot_servo_init(LEDC_LOW_SPEED_MODE, &servo_cfg_ls);
     if (newState == OFF) {
       //this->controllerServo.write(OFF_POS + OFF_OFFSET_4);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, SERVO_CH2_PIN, OFF_POS + OFF_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
+      iot_servo_deinit(LEDC_LOW_SPEED_MODE);
       //this->controllerServo.release();
       //this->controllerServo.detach();
     }
     else if (newState == ON) {
       //this->controllerServo.write(POS2 + ON_OFFSET_4);
+      iot_servo_write_angle(LEDC_LOW_SPEED_MODE, SERVO_CH2_PIN, POS2 + ON_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
+      iot_servo_deinit(LEDC_LOW_SPEED_MODE);
       //this->controllerServo.release();
       //this->controllerServo.detach();
     }

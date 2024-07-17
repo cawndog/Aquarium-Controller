@@ -1,8 +1,24 @@
 #ifndef SWITCH_H
 #define SWITCH_H
-#include <ESP32Servo.h>
+//#include <ESP32Servo.h>
 #include <Preferences.h>
 #include "AquariumController.h"
+
+#include <stdio.h>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
+#include "iot_servo.h"
+#include "unity.h"
+#include "sdkconfig.h"
+
+#define SERVO_CH0_PIN 33
+#define SERVO_CH1_PIN 25
+#define SERVO_CH2_PIN 26
+#define SERVO_CH3_PIN 27
+
+
 //--Servo Motor Positions--
 #define OFF_POS 90
 #define POS1 70
@@ -18,7 +34,7 @@ class Switch {
   public: 
     String name;
     SwitchState state;
-    Servo controllerServo;
+    //Servo controllerServo;
     void init(String name);
     void powerControl(SwitchState newState) {};
     void setSwitchState(SwitchState newState);

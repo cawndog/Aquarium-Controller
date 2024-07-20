@@ -1,8 +1,0 @@
-{
-    "C_Cpp.errorSquiggles": "disabled",
-    "files.associations": {
-        "map": "cpp",
-        "__nullptr": "cpp",
-        "functional": "cpp"
-    }
-}

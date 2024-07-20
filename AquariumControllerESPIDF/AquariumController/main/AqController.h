@@ -29,6 +29,7 @@ class AqController {
     const long  gmtOffset_sec = -25200;
     const int   daylightOffset_sec = 3600;
 
+    uint8_t feedModeOffDelay = 0;
     AqWebServerInterface* aqWebServerInterface = NULL;
     HardwareInterface hardwareInterface;
     GeneralSetting thermostat;

@@ -25,9 +25,9 @@ class HardwareInterface {
     Switch3 switch3; //heater switch
     Switch4 switch4; //filter switch
     
-
     OneWire *oneWire;
     DallasTemperature *tempSensors;
+    uint8_t waterValvePinsOffDelay = 0;
     int getMedianNum(int bArray[], int iFilterLen); //For reading TDS value
 
   public:

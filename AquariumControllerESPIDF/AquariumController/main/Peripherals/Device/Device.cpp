@@ -13,6 +13,7 @@ void Device::init(String name, HardwareInterface* hardwareInterface, OkToExecute
   this->name = name;
   this->hardwareInterface = hardwareInterface;
   this->state = intToDeviceState(hardwareInterface->initDeviceState(this->name));
+  this->okToExe = okToExe;
   this->postExeFunction = postExeFunction;
 }
 void Device::attachConnectedDevice(Device* device) {
@@ -20,9 +21,11 @@ void Device::attachConnectedDevice(Device* device) {
 }
 void Device::setStateOn(bool overrideOkToExe) {
   bool willExe = (overrideOkToExe == true) ? true : this->okToExe(true);
+  /*Serial.printf("willExe: %d\n", willExe);
+  Serial.printf("okToExe: %d\n", this->okToExe(true));
+  Serial.printf("overrideOkToExe: %d\n", overrideOkToExe);*/
   if (willExe) {
-  //if (this->okToExe(true) == true) {
-    if (this->state != DEVICE_ON) {
+    if (this->state != DEVICE_ON || overrideOkToExe) {
       this->state = DEVICE_ON; 
       TaskHandle_t xHandle = NULL;
       xTaskCreate([](void* pvParameters) {
@@ -51,9 +54,11 @@ void Device::setStateOn(bool overrideOkToExe) {
 }
 void Device::setStateOff(bool overrideOkToExe) {
   bool willExe = (overrideOkToExe == true) ? true : this->okToExe(false);
+  /*Serial.printf("willExe: %d\n", willExe);
+  Serial.printf("okToExe: %d\n", this->okToExe(false));
+  Serial.printf("overrideOkToExe: %d\n", overrideOkToExe);*/
   if (willExe) {
-  //if (this->okToExe(false) == true) {
-    if (this->state != DEVICE_OFF) {
+    if (this->state != DEVICE_OFF || overrideOkToExe) {
       this->state = DEVICE_OFF;
       TaskHandle_t xHandle = NULL;
       xTaskCreate([](void* pvParameters) {

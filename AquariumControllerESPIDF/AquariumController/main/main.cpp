@@ -7,8 +7,8 @@
 extern "C" void app_main()
 {
     initArduino();
-    pinMode(4, OUTPUT);
-    digitalWrite(4, HIGH);
+    //pinMode(4, OUTPUT);
+    //digitalWrite(4, HIGH);
     setup();
     while(true) {
       loop();
@@ -104,7 +104,7 @@ void setup() {
   xTaskCreate([](void* pvParameters) {
     while (true) {
       aqController.waterSensor.readSensor();
-      if (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
+      while (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
         Serial.printf("****** Water Sensor Alarm ******\nShutting off water.\n");
         if (aqController.waterSensorAlarm.getAlarmState() > 0) {
           //If we are already in an active alarm, set alarm state to its same value.
@@ -113,17 +113,15 @@ void setup() {
           //Set alarm state to current Epoch time to record the time the alarm occured.
           aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
         }
+        const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
+        vTaskDelay(xDelay);
+        aqController.waterSensor.readSensor();
+        Serial.printf("Water Sensor Pin Value: %d\n", aqController.waterSensor.getValueInt());
       }
       Serial.printf("Water Sensor Pin Value: %d\n", aqController.waterSensor.getValueInt());
       Serial.printf("WS_READ high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
       const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      /*while (ws_val > WATER_SENSOR_ALARM_THRESHOLD) {
-        Serial.printf("In Water Sensor Event. Water Sensor Pin Value: %d\n", ws_val);
-        const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
-        vTaskDelay(xDelay);
-        ws_val = analogRead(WATER_SENSOR_PIN);
-      }*/
     }
   },"WS_READ", 2500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
   configASSERT(xHandle);

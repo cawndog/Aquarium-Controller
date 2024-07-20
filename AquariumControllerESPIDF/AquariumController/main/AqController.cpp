@@ -15,7 +15,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   waterValve.init("Water Valve", &hardwareInterface, 
     [this](bool newState){
       if (newState == true) {
-        return (this->waterSensorAlarm.getAlarmState() > 0) ? true : false;
+        return (this->waterSensorAlarm.getAlarmState() == 0) ? true : false;
       }
       return true;
     }, [this](Device** devices, int numDevices) {
@@ -35,9 +35,10 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   heater.init("Heater", &hardwareInterface,
     [this](bool newState){
       if (newState == true) {
-        return (this->filter.getStateBool() == true) ? true : false;
+        return this->filter.getStateBool();
+      } else {
+        return true;
       }
-      return true;
     },
     [this](Device** devices, int numDevices) {
       this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
@@ -103,6 +104,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   feedMode.init("Feed Mode", "FD_MD", [this](GeneralSetting* setting) {
     if (setting->getValue() == 1) {
+      this->feedModeOffDelay++;
       this->filter.setStateOff();
       this->heater.setStateOff();
       TaskHandle_t xHandle = NULL;
@@ -112,7 +114,10 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
         //600000 ms for 10 minutes
         const TickType_t xDelay = 600000 / portTICK_PERIOD_MS;
         vTaskDelay(xDelay);
-        aqController->feedMode.setValue(0);
+        aqController->feedModeOffDelay--;
+        if (aqController->feedModeOffDelay == 0) {
+          aqController->feedMode.setValue(0);
+        }
         Serial.printf("FEED_MD high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
       },"FEED_MD", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
@@ -129,14 +134,14 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
       this->heater.setStateOff(true);
       this->filter.setStateOff(true);
       this->airPump.setStateOn(true);
-      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
+      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      //vTaskDelay(xDelay);
       this->waterValve.setStateOff(true);
     } else {
       this->filter.setStateOn(true);
       this->aqTemperature.readSensor();
-      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
+      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      //vTaskDelay(xDelay);
       this->waterValve.setStateOn(true);
     }
     this->aqWebServerInterface->alarmUpdate(alarm);

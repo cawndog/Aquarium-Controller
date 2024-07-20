@@ -10,7 +10,7 @@ set(COMPONENT_ADD_INCLUDEDIRS
 "./" "./Peripherals/Device" "./Peripherals/Sensor" "./Peripherals/HardwareInterface" "./Server" "./Task" "./Settings"
 )
 set(COMPONENT_REQUIRES
-"arduino" "ArduinoJson" "AsyncTCP" "DallasTemperature" "OneWire" "ESP32Servo" "ESP32Time" "ESPAsyncWebServer" "unity" "servo"
+"arduino" "ArduinoJson" "AsyncTCP" "DallasTemperature" "OneWire" "ESP32Time" "ESPAsyncWebServer" "unity" "servo"
 )
 
 register_component()

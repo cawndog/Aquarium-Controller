@@ -1,6 +1,5 @@
 #include "HardwareInterface.h"
 
-
 HardwareInterface::HardwareInterface() {
 
 }
@@ -51,7 +50,9 @@ uint8_t HardwareInterface::initDeviceState(String deviceName) {
     return (switch4.getSwitchState() == ON) ? 1 : 0;
   }
   if (deviceName == "Water Valve") {
-    return (savedState.getUChar(deviceName.c_str(), 0));
+    uint8_t state = savedState.getUChar(deviceName.c_str(), 0);
+    this->powerControl("Water Valve", state);
+    return state;
   }
   return 0;
 
@@ -83,36 +84,48 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
     #ifdef useSerial
       Serial.printf("In PowerControl for Water Valve\n");
     #endif
-    if (state == 1) {
+    if (state == 1) { //turn on
       savedState.putUChar(deviceName.c_str(), 1);
+      this->waterValvePinsOffDelay++;
+      digitalWrite(WATER_VALVE_R_PIN, HIGH);
+      digitalWrite(WATER_VALVE_Y_PIN, HIGH);
       TaskHandle_t xHandle = NULL;
       xTaskCreate([](void* pvParameters) {
+        HardwareInterface* hardwareInterface = (HardwareInterface*) pvParameters;
+        const TickType_t xDelay = 7000 / portTICK_PERIOD_MS;
+        vTaskDelay(xDelay);
         xSemaphoreTake(waterValveSemaphore, portMAX_DELAY);
-          digitalWrite(WATER_VALVE_R_PIN, HIGH);
-          digitalWrite(WATER_VALVE_Y_PIN, HIGH);
-          const TickType_t xDelay = 7000 / portTICK_PERIOD_MS;
-          vTaskDelay(xDelay);
-          digitalWrite(WATER_VALVE_Y_PIN, LOW);
-          digitalWrite(WATER_VALVE_R_PIN, LOW);
+          hardwareInterface->waterValvePinsOffDelay--;
+          if (hardwareInterface->waterValvePinsOffDelay == 0) {
+            digitalWrite(WATER_VALVE_Y_PIN, LOW);
+            digitalWrite(WATER_VALVE_R_PIN, LOW);
+          }
         xSemaphoreGive(waterValveSemaphore);
+        Serial.printf("WV_On high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
-      },"WV_On", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+      },"WV_On", 2000, (void *) this, tskIDLE_PRIORITY, &xHandle);
       configASSERT(xHandle);
     }
-    else {
+    else { //turn off
       savedState.putUChar(deviceName.c_str(), 0);
+      this->waterValvePinsOffDelay++;
+      digitalWrite(WATER_VALVE_R_PIN, LOW);
+      digitalWrite(WATER_VALVE_Y_PIN, HIGH);
       TaskHandle_t xHandle = NULL;
       xTaskCreate([](void* pvParameters) {
+        HardwareInterface* hardwareInterface = (HardwareInterface*) pvParameters;
+        const TickType_t xDelay = 8500 / portTICK_PERIOD_MS;
+        vTaskDelay(xDelay);
         xSemaphoreTake(waterValveSemaphore, portMAX_DELAY);
-          digitalWrite(WATER_VALVE_R_PIN, LOW);
-          digitalWrite(WATER_VALVE_Y_PIN, HIGH);
-          const TickType_t xDelay = 8500 / portTICK_PERIOD_MS;
-          vTaskDelay(xDelay);
-          digitalWrite(WATER_VALVE_Y_PIN, LOW);
-          digitalWrite(WATER_VALVE_R_PIN, LOW);
+          hardwareInterface->waterValvePinsOffDelay--;
+          if (hardwareInterface->waterValvePinsOffDelay == 0) {
+            digitalWrite(WATER_VALVE_Y_PIN, LOW);
+            digitalWrite(WATER_VALVE_R_PIN, LOW);
+          }
         xSemaphoreGive(waterValveSemaphore);
+        Serial.printf("WV_Off high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
-      },"WV_Off", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+      },"WV_Off", 2000, (void *) this, tskIDLE_PRIORITY, &xHandle);
       configASSERT(xHandle);
     }
   }

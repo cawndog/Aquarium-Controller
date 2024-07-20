@@ -11,40 +11,27 @@ struct ContentView: View {
     @EnvironmentObject var aqController: AqController
     @Environment(\.scenePhase) var scenePhase
     @State private var selectedTab = "One"
-    //@StateObject var locationModel: LocationModel = LocationModel()
-    /*locationModel.requestAuthorisation(always: true)
-    
-    if locationModel.authorisationStatus == .notDetermined {
-        print("authorization status not determined")
-    } else {
-        print("authorization status determined")
-    }*/
-    //let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     var body: some View {
         //Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-
+        
         TabView (selection: $selectedTab) {
             HomeView()
-                //.environmentObject(aqController)
                 .tabItem {
                     Image(systemName: "house.fill")
                     Text("Home")
                 }.tag("One")
             SettingsView(controllerState: aqController.controllerState)
-                //.environmentObject(aqController)
                 .tabItem {
                     Image(systemName: "gearshape.fill")
                     Text("Settings")
                     
                 }.tag("Two")
         }
-        .onAppear {
-            //aqController.network.getCurrentState()
-            //aqController.network.getSettingsState()
-            //aqController.network.connectWebSocket()
-            //network.getCurrentState(currentState: currentState)
-        }
+        /*.onAppear {
+         //
+         }*/
         .onChange(of: scenePhase, initial: false) { oldPhase, newPhase in
+            print("onChange")
             if (newPhase == .active) {
                 Task {
                     await aqController.network.determineIP()
@@ -55,20 +42,9 @@ struct ContentView: View {
             } else if (newPhase == .background) {
                 aqController.network.disconnectWebSocket()
             }
-              
+            
         }
-        /*.onChange(of: locationModel.authorisationStatus) {
-            print("Auth status changed.")
-            if locationModel.authorisationStatus == .notDetermined {
-                print("authorization status not determined")
-            } else {
-                print("authorization status determined")
-            }
-        }*/
-       
     }
-    
-    
 }
 
 struct ContentView_Previews: PreviewProvider {

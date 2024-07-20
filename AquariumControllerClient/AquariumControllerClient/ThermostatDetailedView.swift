@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct ThermostatDetailedView: View {
-    @ObservedObject var controllerState: ControllerState
+    /*@ObservedObject var controllerState: ControllerState
     let step = 1
-    let range = 66...93
+    let range = 66...93*/
     var body: some View {
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        /*
         List {
             Section {
                 Stepper(value: $controllerState.aqThermostat, in: range, step: step) {
@@ -25,10 +27,10 @@ struct ThermostatDetailedView: View {
             } header: {
                 Text("Set Aquarium Thermostat").textCase(nil).bold()
             }
-        }
+        }*/
     }
 }
 
 #Preview {
-    ThermostatDetailedView(controllerState: ControllerState())
+    ThermostatDetailedView()
 }

@@ -9,12 +9,14 @@ import Foundation
 import SwiftUI
 class AqController: ObservableObject {
     //@Published var controllerState: ControllerState
-    var controllerState: ControllerState
+    @Published var controllerState: ControllerState
     var network: Network
     
     init() {
         controllerState = ControllerState()
         network = Network()
         network.controllerState = self.controllerState
+        controllerState.getStateDataFromServer(network: network)
+
     }
 }

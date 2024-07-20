@@ -1,16 +1,10 @@
-set(COMPONENT_SRCDIRS
-"./src"
-)
+# Author: diplfranzhoepfinger 
+# reference:  https://docs.espressif.com/projects/arduino-esp32/en/latest/esp-idf_component.html
+# URL: https://github.com/milesburton/Arduino-Temperature-Control-Library
+# DATE: 15.02.2023
 
-set(COMPONENT_ADD_INCLUDEDIRS
-"./"
-)
-
-set(COMPONENT_REQUIRES
-"arduino" "OneWire"
-)
-
-register_component()
-
-target_compile_definitions(${COMPONENT_TARGET} PUBLIC -DESP32)
-target_compile_options(${COMPONENT_TARGET} PRIVATE -fno-rtti)
+idf_component_register(
+    SRCS "DallasTemperature.cpp"
+    INCLUDE_DIRS "./"
+    PRIV_REQUIRES OneWire arduino
+    )

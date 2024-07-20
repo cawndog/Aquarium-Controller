@@ -8,40 +8,69 @@ AqController::AqController() {
 void AqController::init(AqWebServerInterface* aqWebServerInterface) {
     //Setup real time clock
   this->aqWebServerInterface = aqWebServerInterface;
-
-  //rtc.setTime(30, 24, 15, 17, 1, 2021);  // 17th Jan 2021 15:24:30
-  
-  this->aqThermostat = savedState.getShort("aqThermostat", 82);
+  //this->aqThermostat = savedState.getShort("aqThermostat", 82);
   hardwareInterface.init();
-  heater.init("Heater", &hardwareInterface, [this](Device** devices, int numDevices) {
-    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
+  //***************** Init Devices *****************
+  //Each device init takes two callback functions. 
+  waterValve.init("Water Valve", &hardwareInterface, 
+    [this](bool newState){
+      if (newState == true) {
+        return (this->waterSensorAlarm.getAlarmState() == 0) ? true : false;
+      }
+      return true;
+    }, [this](Device** devices, int numDevices) {
+      this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  lights.init("Lights", &hardwareInterface, [this](Device** devices, int numDevices) {
-    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
+  filter.init("Filter", &hardwareInterface, 
+    [this](bool newState){
+      if (newState == true) {
+        if (this->maintenanceMode.getValue() != 0 || this->feedMode.getValue() != 0 || this->waterSensorAlarm.getAlarmState() > 0 || this->waterValve.getStateBool() !=  true) {
+          return false;
+        }
+      }
+      return true;
+    }, [this](Device** devices, int numDevices) {
+      this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  co2.init("CO2", &hardwareInterface, [this](Device** devices, int numDevices) {
-    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
+  heater.init("Heater", &hardwareInterface,
+    [this](bool newState){
+      if (newState == true) {
+        return this->filter.getStateBool();
+      } else {
+        return true;
+      }
+    },
+    [this](Device** devices, int numDevices) {
+      this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  airPump.init("Air Pump", &hardwareInterface, [this](Device** devices, int numDevices) {
-    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
+  lights.init("Lights", &hardwareInterface, 
+    [this](bool newState){
+      return true;
+    }, [this](Device** devices, int numDevices) {
+      this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  filter.init("Filter", &hardwareInterface, [this](Device** devices, int numDevices) {
-    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
+  co2.init("CO2", &hardwareInterface,
+    [this](bool newState){
+      return true;
+    }, [this](Device** devices, int numDevices) {
+      this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
-  waterValve.init("Water Valve", &hardwareInterface, [this](Device** devices, int numDevices) {
-    this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
+  airPump.init("Air Pump", &hardwareInterface,
+    [this](bool newState){
+      return true;
+    }, [this](Device** devices, int numDevices) {
+      this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
   });
   co2.attachConnectedDevice(&airPump);
   airPump.attachConnectedDevice(&co2);
+  //***************** Init Sensors *****************
   aqTemperature.init("Aquarium Temperature", &hardwareInterface, [this](Sensor* sensor) {
-    if (this->maintMode != true) {
-      float valAsFloat = sensor->getValue().toFloat();
-      if (valAsFloat < (aqThermostat - 0.5)) {
-        heater.setStateOn();
-      }
-      else if (valAsFloat > (aqThermostat + 0.5)) {
-        heater.setStateOff();
-      }
+    float valAsFloat = sensor->getValue().toFloat();
+    if (valAsFloat < (this->thermostat.getValue() - 0.5)) {
+      heater.setStateOn();
+    }
+    else if (valAsFloat > (this->thermostat.getValue() + 0.5)) {
+      heater.setStateOff();
     }
     if (sensor->prevValue != sensor->value) {
       this->aqWebServerInterface->sensorReadingUpdate(sensor);
@@ -56,8 +85,67 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
       this->aqWebServerInterface->sensorReadingUpdate(sensor);
     }
   });
-  aqTemperature.readSensor();
-  tds.readSensor();
+  waterSensor.init("Water Sensor");
+//***************** Init General Settings *****************
+  thermostat.init("Thermostat", "TSTAT", [this](GeneralSetting* setting) {
+    this->aqTemperature.readSensor();
+    this->aqWebServerInterface->settingUpdate(setting);
+  });
+
+  maintenanceMode.init("Maintenance Mode", "MT_MD", [this](GeneralSetting* setting) {
+    if (setting->getValue() == 1) {
+      this->filter.setStateOff();
+      this->heater.setStateOff();
+    } else {
+      this->filter.setStateOn();
+      this->aqTemperature.readSensor();
+    }
+    this->aqWebServerInterface->settingUpdate(setting);
+  });
+  feedMode.init("Feed Mode", "FD_MD", [this](GeneralSetting* setting) {
+    if (setting->getValue() == 1) {
+      this->feedModeOffDelay++;
+      this->filter.setStateOff();
+      this->heater.setStateOff();
+      TaskHandle_t xHandle = NULL;
+      xTaskCreate([](void* pvParameters) {
+        AqController* aqController= (AqController*) pvParameters;
+        //Feed Mode delay before turning filter and heater (if necessary) back on.
+        //600000 ms for 10 minutes
+        const TickType_t xDelay = 600000 / portTICK_PERIOD_MS;
+        vTaskDelay(xDelay);
+        aqController->feedModeOffDelay--;
+        if (aqController->feedModeOffDelay == 0) {
+          aqController->feedMode.setValue(0);
+        }
+        Serial.printf("FEED_MD high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+        vTaskDelete(NULL);
+      },"FEED_MD", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+    } else {
+      this->filter.setStateOn();
+      this->aqTemperature.readSensor();
+    }
+    this->aqWebServerInterface->settingUpdate(setting);
+  });
+  
+//***************** Init Alarms *****************
+  waterSensorAlarm.init("Water Sensor Alarm", "WS_ALM", [this](Alarm* alarm) {
+    if (alarm->getAlarmState() > 0) {
+      this->heater.setStateOff(true);
+      this->filter.setStateOff(true);
+      this->airPump.setStateOn(true);
+      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      //vTaskDelay(xDelay);
+      this->waterValve.setStateOff(true);
+    } else {
+      this->filter.setStateOn(true);
+      this->aqTemperature.readSensor();
+      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      //vTaskDelay(xDelay);
+      this->waterValve.setStateOn(true);
+    }
+    this->aqWebServerInterface->alarmUpdate(alarm);
+  });
   tasks[0] = new ScheduledTask("Lights On", "Lt_On", SCHEDULED_DEVICE_TASK, [this]() {
     lights.setStateOn();
   });
@@ -76,34 +164,14 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   tasks[2]->attachConnectedTask("Air Pump Off", "Ar_Off", [this]() {
     airPump.setStateOff();
   });
-  //tasks[3] = new TimedTask ("Read Aquarium Temp", SENSOR_READ, NULL, NULL, &aqTemperature);
-  //tasks[4] = new TimedTask ("Read TDS", SENSOR_READ, [&](){}, NULL, &tds);
   tasks[3] = new TimedTask ("Read Aquarium Temp", "Rd_Aq_Tmp", TIMED_TASK, [this](){
     aqTemperature.readSensor();
   });
   tasks[4] = new TimedTask ("Read TDS", "Rd_Tds", TIMED_TASK, [this](){
     tds.readSensor();
   });
-  tasks[5] = new TimedTask ("Check WiFi Connection", "Ck_Wifi", TIMED_TASK, [this](){
-    if (WiFi.status() != WL_CONNECTED) {
-      WiFi.reconnect();
-    }       
-  });
-  tasks[6] = new TimedTask ("Update Dynamic IP", "Up_Dyn_IP", TIMED_TASK, [this](){
-    this->aqWebServerInterface->updateDynamicIP();
-  });
-  tasks[7] = new TimedTask ("Read Water Sensor", "Rd_Ws", TIMED_TASK, [this](){
-    int ws_val = 0;
-    ws_val = analogRead(WATER_SENSOR_PIN);
-    Serial.printf("Water Sensor Pin Value: %d\n", ws_val);
-    if (ws_val > 20) {
-      heater.setStateOff();
-      filter.setStateOff();
-      waterValve.setStateOff();
-    }
-
-  });
-  tasks[7]->updateSettings(false, 6);
+  aqTemperature.readSensor();
+  tds.readSensor();
 }
 
 Task* AqController::getTaskByName(String name) {
@@ -113,7 +181,7 @@ Task* AqController::getTaskByName(String name) {
   for(int i = 0; tasks[i] != NULL; i++) {
     if (tasks[i]->getName() == name){
       return tasks[i];
-    }  
+    }
     if (tasks[i]->hasConnectedTask()) {
       if (tasks[i]->connectedTask->getName() == name)
         return tasks[i]->connectedTask;
@@ -140,12 +208,15 @@ void AqController::setNextTaskWithEvent() {
   //if (tasks == NULL) {
   //  return;
   //}
-  Task* nextTaskWithEventLocal = tasks[0];
+  Task* nextTaskWithEventLocal = NULL;
   for (int i = 0; tasks[i] != NULL; i++) {
     //Serial.printf("Checking tasks[%d]. Task name: %s\n", i, tasks[i]->getName().c_str());
-    if (tasks[i]->getDisabled()) {
+    if (tasks[i]->getEnabled() == false) {
       //Serial.printf("tasks[%d]. Task name: %s is disabled. Continuing.\n", i, tasks[i]->getName().c_str());
       continue;
+    }
+    if (nextTaskWithEventLocal == NULL) {
+      nextTaskWithEventLocal = tasks[i];
     }
     if (tasks[i]->hasConnectedTask()) {
       //Serial.printf("Checking task[%d]'s connectedTask. Task name: %s\n", i, tasks[i]->connectedTask->getName().c_str());
@@ -162,23 +233,9 @@ void AqController::setNextTaskWithEvent() {
       nextTaskWithEventLocal = tasks[i];
     }
   }
-  if (nextTaskWithEventLocal != NULL) { 
-    if (nextTaskWithEventLocal->getDisabled() == true) {
-      //Serial.print("nextTaskWithEventLocal was disabled. Setting nextTaskWithEventLocal to NULL.");
-      nextTaskWithEventLocal = NULL;
-    }
-  }
   this->nextTaskWithEvent = nextTaskWithEventLocal;
-
 }
 void AqController::scheduleNextTask() {
-
-  //timerAlarmWrite(taskTimer, 20000, true);
-  //timerAlarmEnable(taskTimer);
-  //if (tasks == NULL) {
-  //  return;
-  //}
-
   setNextTaskWithEvent();
   if (nextTaskWithEvent != NULL) { 
     unsigned long currentLocalEpoch = rtc.getLocalEpoch();
@@ -211,6 +268,22 @@ Sensor* AqController::getSensorByName(String sensorName) {
   for (int i = 0; i < sizeof(sensors) / sizeof(Sensor*); i++) {
     if (sensors[i]->name == sensorName) {
       return sensors[i];
+    }
+  }
+  return NULL;
+}
+Alarm* AqController::getAlarmByName(String alarmName) {
+  for (int i = 0; i < sizeof(alarms) / sizeof(Alarm*); i++) {
+    if (alarms[i]->name == alarmName) {
+      return alarms[i];
+    }
+  }
+  return NULL;
+}
+GeneralSetting* AqController::getSettingByName(String settingName) {
+  for (int i = 0; i < sizeof(settings) / sizeof(GeneralSetting*); i++) {
+    if (settings[i]->name == settingName) {
+      return settings[i];
     }
   }
   return NULL;

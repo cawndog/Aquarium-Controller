@@ -3,13 +3,18 @@
 #include "AqController.h"
 #include "AqWebServer.h"
 #include <WiFi.h>
+#include "MailClient.c"
 
 extern "C" void app_main()
 {
     initArduino();
     //pinMode(4, OUTPUT);
     //digitalWrite(4, HIGH);
+    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
     setup();
+    xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, 5, NULL);
     while(true) {
       loop();
     }
@@ -113,6 +118,8 @@ void setup() {
           //Set alarm state to current Epoch time to record the time the alarm occured.
           aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
         }
+        //xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, 5, NULL);
+        xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
         const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
         vTaskDelay(xDelay);
         aqController.waterSensor.readSensor();

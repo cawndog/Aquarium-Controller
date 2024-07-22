@@ -136,6 +136,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
       this->airPump.setStateOn(true);
       //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
       //vTaskDelay(xDelay);
+      
       this->waterValve.setStateOff(true);
     } else {
       this->filter.setStateOn(true);

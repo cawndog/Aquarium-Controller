@@ -108,7 +108,9 @@
     "typeinfo": "cpp",
     "valarray": "cpp",
     "variant": "cpp",
-    "*.s": "cpp"
+    "*.s": "cpp",
+    "base64.h": "c",
+    "protocol_examples_common.h": "c"
   },
   "idf.flashType": "UART",
   "cmake.configureOnOpen": false

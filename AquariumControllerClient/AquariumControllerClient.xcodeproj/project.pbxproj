@@ -34,6 +34,7 @@
 		D8C862632A9D7334006217F6 /* TaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862622A9D7334006217F6 /* TaskSummaryView.swift */; };
 		D8C862652A9EE8B0006217F6 /* TaskDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */; };
 		D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */; };
+		D8DA0B112C4F4CEB00CF8FF1 /* MyEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DA0B102C4F4CEB00CF8FF1 /* MyEnvironment.swift */; };
 		D8E5715F2A9FC0D000B8EC07 /* HashableClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */; };
 		D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */; };
 		D8FC0CC62A93AB4900CF828C /* AqController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FC0CC52A93AB4900CF828C /* AqController.swift */; };
@@ -71,6 +72,7 @@
 		D8C862622A9D7334006217F6 /* TaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSummaryView.swift; sourceTree = "<group>"; };
 		D8C862642A9EE8B0006217F6 /* TaskDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailedView.swift; sourceTree = "<group>"; };
 		D8C862662A9EE952006217F6 /* connectedTaskSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = connectedTaskSummaryView.swift; sourceTree = "<group>"; };
+		D8DA0B102C4F4CEB00CF8FF1 /* MyEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEnvironment.swift; sourceTree = "<group>"; };
 		D8E5715E2A9FC0D000B8EC07 /* HashableClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashableClass.swift; sourceTree = "<group>"; };
 		D8E571622AA0188D00B8EC07 /* ThermostatDetailedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermostatDetailedView.swift; sourceTree = "<group>"; };
 		D8E7294C2A0D8B5F00634E08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -157,6 +159,7 @@
 				D8FC0CC52A93AB4900CF828C /* AqController.swift */,
 				D8B74AC82C3B4C9D009BF815 /* ControllerState */,
 				D864CB6E2A082A1600E1C157 /* Network.swift */,
+				D8DA0B102C4F4CEB00CF8FF1 /* MyEnvironment.swift */,
 				D864CB6F2A082A1700E1C157 /* SettingsState.swift */,
 				D872199D2A3C0E3A008A9387 /* AqControllerMessage.swift */,
 				D864CB612A0828F800E1C157 /* Assets.xcassets */,
@@ -299,6 +302,7 @@
 				D8B74ACA2C3B4CF2009BF815 /* Alarm.swift in Sources */,
 				D8C862672A9EE952006217F6 /* connectedTaskSummaryView.swift in Sources */,
 				D8481DAC2AAD61360081288B /* MultiComponentPicker.swift in Sources */,
+				D8DA0B112C4F4CEB00CF8FF1 /* MyEnvironment.swift in Sources */,
 				D864CB702A082A1700E1C157 /* SettingsView.swift in Sources */,
 				D864CB712A082A1700E1C157 /* ControllerState.swift in Sources */,
 				D8E571632AA0188D00B8EC07 /* ThermostatDetailedView.swift in Sources */,

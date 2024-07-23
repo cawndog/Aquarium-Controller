@@ -2,6 +2,7 @@
  * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
+ * Part of esp-iot-solution library. https://github.com/espressif/esp-iot-solution/tree/8624656f36552412c0ed5c3397dc6617c331f972/components/bluetooth/ble_profiles/esp
  */
 
 #ifndef _IOT_SERVO_H_

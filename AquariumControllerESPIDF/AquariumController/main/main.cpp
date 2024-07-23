@@ -3,13 +3,19 @@
 #include "AqController.h"
 #include "AqWebServer.h"
 #include <WiFi.h>
+#include "MailClient.c"
 
 extern "C" void app_main()
 {
     initArduino();
     //pinMode(4, OUTPUT);
     //digitalWrite(4, HIGH);
+    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
     setup();
+    char* message = "AQ Controller Starting Up.";
+    xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, (void*) message, tskIDLE_PRIORITY, NULL);
     while(true) {
       loop();
     }
@@ -113,12 +119,15 @@ void setup() {
           //Set alarm state to current Epoch time to record the time the alarm occured.
           aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
         }
+        //xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, 5, NULL);
+        char* message = "Water Sensor Alarm is in an active alarm state.";
+        xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, (void *)message, tskIDLE_PRIORITY, NULL);
         const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
         vTaskDelay(xDelay);
         aqController.waterSensor.readSensor();
-        Serial.printf("Water Sensor Pin Value: %d\n", aqController.waterSensor.getValueInt());
+        Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
       }
-      Serial.printf("Water Sensor Pin Value: %d\n", aqController.waterSensor.getValueInt());
+      Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
       Serial.printf("WS_READ high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
       const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);

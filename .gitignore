@@ -132,3 +132,7 @@ AquariumControllerClient/AquariumControllerClient.xcodeproj/project.xcworkspace/
 *.xcuserstate
 AquariumControllerClient/AquariumControllerClient.xcodeproj/xcshareddata/xcschemes/AquariumControllerClient.xcscheme
 AquariumControllerESP32/AquariumController/Environment.h
+*/Environment.h
+*/MyEnvironment.swift
+AquariumControllerESPIDF/AquariumController/main/Environment.h
+AquariumControllerClient/AquariumControllerClient/MyEnvironment.swift

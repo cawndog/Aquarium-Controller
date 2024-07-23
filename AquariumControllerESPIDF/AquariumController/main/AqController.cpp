@@ -131,12 +131,12 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
 //***************** Init Alarms *****************
   waterSensorAlarm.init("Water Sensor Alarm", "WS_ALM", [this](Alarm* alarm) {
     if (alarm->getAlarmState() > 0) {
-      this->heater.setStateOff(true);
+    this->heater.setStateOff(true);
       this->filter.setStateOff(true);
       this->airPump.setStateOn(true);
       //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
       //vTaskDelay(xDelay);
-      
+
       this->waterValve.setStateOff(true);
     } else {
       this->filter.setStateOn(true);

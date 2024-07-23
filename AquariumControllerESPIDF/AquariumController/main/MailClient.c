@@ -9,6 +9,7 @@
  *
  * SPDX-FileContributor: 2015-2021 Espressif Systems (Shanghai) CO LTD
  */
+#include "Environment.h"
 #include <string.h>
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
@@ -38,11 +39,7 @@
 #define RECIPIENT_MAIL      CONFIG_SMTP_RECIPIENT_MAIL
 */
 
-#define MAIL_SERVER         "smtp.googlemail.com"
-#define MAIL_PORT           "587"
-#define SENDER_MAIL         "c.jwilliams0332@gmail.com"
-#define SENDER_PASSWORD     "yqkl nomq toxs okcc"
-#define RECIPIENT_MAIL      "c.jwilliams@me.com"
+
 
 #define SERVER_USES_STARTSSL 1
 
@@ -248,6 +245,7 @@ exit:
 
 static void smtp_client_task(void *pvParameters)
 {
+    char * message = (char*)pvParameters;
     char *buf = NULL;
     unsigned char base64_buffer[128];
     int ret, len;
@@ -440,9 +438,9 @@ static void smtp_client_task(void *pvParameters)
     len = snprintf((char *) buf, BUF_SIZE,
                    "Content-Type: text/plain\n"
                    //"This is a simple test mail from the SMTP client example.\r\n"
-                   "Water Sensor Alarm is in an active alarm state.\r\n"
+                   "%s\r\n"
                    "\r\n"
-                   "Pls fix.\n\n--XYZabcd1234\n");
+                   "\n\n--XYZabcd1234\n", message);
     ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
 
     /* Attachment */

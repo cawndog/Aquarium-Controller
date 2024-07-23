@@ -17,11 +17,10 @@ class Network: ObservableObject {
     var webSocketConnected: Bool
     var comps: DateComponents
     //let bearerToken = ProcessInfo.processInfo.environment["API_KEY"] ?? ""
-    let bearerToken = "31f18cfbab58825aedebf9d0e14057dc"
-    let publicDNS: String = "aquariumcontroller.tplinkdns.com:8008"
-    let privateIP: String = "192.168.0.2:8008"
+    var bearerToken: String = env.bearerToken
+    let publicDNS: String = env.publicDNS
+    let privateIP: String = env.privateIP
     var aqConnectionString: String
-    //let publicDNS: String = "AquariumController.freeddns.org:8008"
     
     init() {
         aqConnectionString = publicDNS

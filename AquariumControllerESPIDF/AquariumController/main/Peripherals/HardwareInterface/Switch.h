@@ -24,6 +24,7 @@
 #define POS1 70
 #define POS2 110
 static volatile SemaphoreHandle_t switchSemaphore = NULL;
+static uint8_t activeServoTasks = 0;
 extern Preferences savedState;
 enum SwitchState {
   OFF = 0,

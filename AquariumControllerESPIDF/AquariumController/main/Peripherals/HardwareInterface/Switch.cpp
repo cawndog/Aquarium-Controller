@@ -81,29 +81,39 @@ void Switch1::powerControl(SwitchState newState) { //air control switch
   #define AUXON_OFFSET_1 -9
 
   if (this->state != newState) {
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    if (activeServoTasks == 0) {
+      iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    }
+    activeServoTasks++;
+    xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, OFF_POS + OFF_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     else if (newState == ON) { //Air Pump
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, POS1 + ON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     else if (newState == AUXON) { //CO2
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, POS2 + AUXON_OFFSET_1);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
-    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-    vTaskDelay(xDelay);
+
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    activeServoTasks--;
+    if (activeServoTasks == 0) {
+      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+    }
     xSemaphoreGive(switchSemaphore);
   }
   return;
@@ -118,29 +128,38 @@ void Switch2::powerControl(SwitchState newState) { //light control switch
   #define AUXON_OFFSET_2 3
   
   if (this->state != newState) {
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    if (activeServoTasks == 0) {
+      iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    }
+    activeServoTasks++;
+    xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_3, OFF_POS + OFF_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     else if (newState == ON) { 
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_3, POS2 + ON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     /*else if (newState == AUXON) { 
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_3, POS1 + AUXON_OFFSET_2);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }*/
-    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-    vTaskDelay(xDelay);
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    activeServoTasks--;
+    if (activeServoTasks == 0) {
+      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+    }
     xSemaphoreGive(switchSemaphore);
   }
   return;
@@ -154,29 +173,38 @@ void Switch3::powerControl(SwitchState newState) { //heater control switch
   #define ON_OFFSET_3 0
   #define AUXON_OFFSET_3 -2
   if (this->state != newState) {
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    if (activeServoTasks == 0) {
+      iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    }
+    activeServoTasks++;
+    xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, OFF_POS + OFF_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     else if (newState == ON) { 
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, POS1 + ON_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     /*else if (newState == AUXON) { 
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, POS2 + AUXON_OFFSET_3);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }*/
-    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-    vTaskDelay(xDelay);
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    activeServoTasks--;
+    if (activeServoTasks == 0) {
+      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+    }
     xSemaphoreGive(switchSemaphore);
   }
   return;
@@ -190,29 +218,38 @@ void Switch4::powerControl(SwitchState newState) { //filter control switch
   #define ON_OFFSET_4 10
   #define AUXON_OFFSET_4 10
   if (this->state != newState) {
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
     this->setSwitchState(newState);
-    iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    if (activeServoTasks == 0) {
+      iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
+    }
+    activeServoTasks++;
+    xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, OFF_POS + OFF_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     else if (newState == ON) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, POS2 + ON_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }
     /*else if (newState == AUXON) { 
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, POS1 + AUXON_OFFSET_4);
       const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
-      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      //iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
     }*/
-    const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-    vTaskDelay(xDelay);
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+    activeServoTasks--;
+    if (activeServoTasks == 0) {
+      iot_servo_deinit(LEDC_HIGH_SPEED_MODE);
+      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+    }
     xSemaphoreGive(switchSemaphore);
   }
   return;

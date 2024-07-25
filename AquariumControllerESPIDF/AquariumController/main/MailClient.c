@@ -428,50 +428,53 @@ static void smtp_client_task(void *pvParameters)
      */
     ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
 
-    /* Multipart boundary */
+    /*
+    // Multipart boundary 
     len = snprintf((char *) buf, BUF_SIZE,
                    "Content-Type: multipart/mixed;boundary=XYZabcd1234\n"
                    "--XYZabcd1234\n");
     ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
-
+    */
     /* Text */
     len = snprintf((char *) buf, BUF_SIZE,
                    "Content-Type: text/plain\n"
                    //"This is a simple test mail from the SMTP client example.\r\n"
                    "%s\r\n"
-                   "\r\n"
-                   "\n\n--XYZabcd1234\n", message);
+                   "\r\n", message);
+                   //"\n\n--XYZabcd1234\n", message);
     ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
 
-    /* Attachment */
+    /*
+    // Attachment 
     len = snprintf((char *) buf, BUF_SIZE,
                    "Content-Type: image/png;name=green_fish.png\n"
                    "Content-Transfer-Encoding: base64\n"
                    "Content-Disposition:attachment;filename=\"green_fish.png\"\r\n\n");
     ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
 
-    /* Image contents... */
-  {
-    const uint8_t *offset = green_fish_png_start;
-    while (offset < green_fish_png_end - 1) {
-        int read_bytes = MIN(((sizeof (base64_buffer) - 1) / 4) * 3, green_fish_png_end - offset - 1);
-        ret = mbedtls_base64_encode((unsigned char *) base64_buffer, sizeof(base64_buffer),
-                                    &base64_len, (unsigned char *) offset, read_bytes);
-        if (ret != 0) {
-            ESP_LOGE(TAG, "Error in mbedtls encode! ret = -0x%x", -ret);
-            goto exit;
-        }
-        offset += read_bytes;
-        len = snprintf((char *) buf, BUF_SIZE, "%s\r\n", base64_buffer);
-        ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
+    // Image contents... 
+    {
+      const uint8_t *offset = green_fish_png_start;
+      while (offset < green_fish_png_end - 1) {
+          int read_bytes = MIN(((sizeof (base64_buffer) - 1) / 4) * 3, green_fish_png_end - offset - 1);
+          ret = mbedtls_base64_encode((unsigned char *) base64_buffer, sizeof(base64_buffer),
+                                      &base64_len, (unsigned char *) offset, read_bytes);
+          if (ret != 0) {
+              ESP_LOGE(TAG, "Error in mbedtls encode! ret = -0x%x", -ret);
+              goto exit;
+          }
+          offset += read_bytes;
+          len = snprintf((char *) buf, BUF_SIZE, "%s\r\n", base64_buffer);
+          ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
+      }
     }
-  }
     len = snprintf((char *) buf, BUF_SIZE, "\n--XYZabcd1234\n");
     ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
-
+    */
     len = snprintf((char *) buf, BUF_SIZE, "\r\n.\r\n");
     ret = write_ssl_and_get_response(&ssl, (unsigned char *) buf, len);
     VALIDATE_MBEDTLS_RETURN(ret, 200, 299, exit);
+    
     ESP_LOGI(TAG, "Email sent!");
 
     /* Close connection */

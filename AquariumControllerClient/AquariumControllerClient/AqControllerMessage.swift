@@ -28,7 +28,8 @@ class AqControllerMessage: Codable {
         }
         class Alarm: Codable  {
             var name: String = ""
-            var alarmState: Int = 0
+            var alarmState: Int?
+            var alarmOverride: Bool?
         }
         class Task: Codable {
             enum TaskType: String, Codable {

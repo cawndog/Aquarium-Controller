@@ -437,9 +437,16 @@ exit:
     if (buf) {
         free(buf);
     }
-    vTaskDelete(NULL);
+}
+void initMailClient() {
+  sendEmailSemaphore = xSemaphoreCreateBinary();
+  xSemaphoreGive(sendEmailSemaphore);
 }
 void sendEmailTask (void *pvParameters) {
+  xSemaphoreTake(sendEmailSemaphore, portMAX_DELAY);
   smtp_client_task(pvParameters);
+  xSemaphoreGive(sendEmailSemaphore);
+  Serial.printf("smtp_client_task high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+  vTaskDelete(NULL);
 }
 

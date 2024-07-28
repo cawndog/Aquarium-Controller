@@ -131,7 +131,12 @@ class Network: ObservableObject {
                 if let alarms = settings.alarms{
                     for alarm in alarms {
                         let a = controllerState.getAlarmByName(alarm.name)
-                        a.setAlarmState(newState: alarm.alarmState)
+                        if let alarmState = alarm.alarmState {
+                            a.setAlarmState(newState: alarmState)
+                        }
+                        if let alarmOverride = alarm.alarmOverride {
+                            a.setAlarmOverride(override: alarmOverride)
+                        }
                     }
                 }
                 if let tasks = settings.tasks {
@@ -347,9 +352,9 @@ class Network: ObservableObject {
     }
     func setAlarmState (alarm: Alarm) async {
         guard let controllerState = self.controllerState else { return }
-        var newMessage = AqControllerMessage()
-        var newSettings = AqControllerMessage.Settings()
-        var newAlarm = AqControllerMessage.Settings.Alarm()
+        let newMessage = AqControllerMessage()
+        let newSettings = AqControllerMessage.Settings()
+        let newAlarm = AqControllerMessage.Settings.Alarm()
         newAlarm.name = alarm.name
         newAlarm.alarmState = alarm.alarmState
         newSettings.addAlarm(newAlarm)

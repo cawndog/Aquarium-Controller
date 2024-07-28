@@ -133,7 +133,7 @@ void setup() {
       vTaskDelay(xDelay);
     }
   },"WS_READ", 2500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
-  configASSERT(xHandle);
+  //configASSERT(xHandle);
   //Serial.printf("*************End Setup()*************\n");
   //Serial.printf("\nTotal heap: %lu\n", ESP.getHeapSize());
   //Serial.printf("Free heap: %lu\n", ESP.getFreeHeap());

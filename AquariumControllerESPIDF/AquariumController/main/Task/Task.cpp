@@ -6,6 +6,37 @@ String Task::getName() {
 bool Task::getEnabled() {
   return this->enabled;
 }
+void Task::scheduleTaskToRun() {
+  if (this->getEnabled()) {
+    xTaskCreate([](void* pvParameters) {
+      Task* thisTask = (Task*) pvParameters;
+      while (thisTask->getEnabled()) {
+        unsigned long secsUntilRunTime = thisTask->nextRunTime - rtc.getLocalEpoch();
+        TickType_t xLastWakeTime = xTaskGetTickCount();
+        thisTask->sleepUntil(&xLastWakeTime, secsUntilRunTime);
+        thisTask->doTask();
+        Serial.printf("TASK_SCHEDULER high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+      }
+      vTaskDelete(NULL);
+    },"TASK_SCHEDULER", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+  }
+}
+void Task::unscheduleTask() {
+  if (this->xHandle != NULL) {
+    vTaskDelete(this->xHandle);
+    xHandle = NULL;
+  }
+}
+void Task::sleepUntil( TickType_t *prevWakeTime,  unsigned int sec ) {
+  //TickType_t xLastWakeTime = xTaskGetTickCount ();
+  TickType_t xDelay = sec / portTICK_PERIOD_MS;
+  //long ticks = sec * 1000 * portTICK_PERIOD_MS;
+  while(xDelay >= portMAX_DELAY ) {
+      xTaskDelayUntil(prevWakeTime, portMAX_DELAY-1);
+      xDelay -= portMAX_DELAY-1;
+  }
+  xTaskDelayUntil(prevWakeTime, xDelay);
+}
 unsigned long Task::getTime() { //gets task run time interval or scheduled run time
   return this->time;
 }
@@ -41,6 +72,7 @@ ScheduledTask::ScheduledTask(String name, String shortName, TaskType taskType, A
   this->time = savedState.getULong(taskTimeKey.c_str(), 0);
   if (this->getEnabled()) {
     this->determineNextRunTime();
+    this->scheduleTaskToRun();
   }
   
 }
@@ -56,6 +88,7 @@ TimedTask::TimedTask(String name, String shortName, TaskType taskType, AqTaskFun
   this->time = savedState.getULong(taskTimeKey.c_str(), 0);
   if (this->getEnabled()) {
     this->determineNextRunTime();
+    this->scheduleTaskToRun();
   }
 }
 void ScheduledTask::initTaskState() { 
@@ -63,6 +96,7 @@ void ScheduledTask::initTaskState() {
   int currentMinute = rtc.getMinute();
   int currentSecond = rtc.getSecond();
   unsigned long secondsSinceStartOfDay = ((currentHour*3600)+(currentMinute*60)+currentSecond); //Seconds since 12:00AM
+  //Only init task state from the parent task. Parent task determines whether itself or its connectedTask needs to run.
   if (this->hasConnectedTask() && (this->getEnabled() == true)) {
     if (this->getTime() < this->connectedTask->getTime()) {
       if ((secondsSinceStartOfDay >= this->getTime()) && (secondsSinceStartOfDay < this->connectedTask->getTime())) {
@@ -153,6 +187,10 @@ void ScheduledTask::updateSettings(bool enabled, unsigned long time) {
     if (this->hasConnectedTask()) {
       this->initTaskState();
     }
+    this->unscheduleTask();
+    this->scheduleTaskToRun();
+  } else {
+    this->unscheduleTask();
   }
 }
 void TimedTask::updateSettings(bool enabled, unsigned long time) {
@@ -164,5 +202,9 @@ void TimedTask::updateSettings(bool enabled, unsigned long time) {
   savedState.putULong(taskTimeKey.c_str(), time);
   if (this->getEnabled()) {
     this->determineNextRunTime();
+    this->unscheduleTask();
+    this->scheduleTaskToRun();
+  } else {
+    this->unscheduleTask();
   }
 }

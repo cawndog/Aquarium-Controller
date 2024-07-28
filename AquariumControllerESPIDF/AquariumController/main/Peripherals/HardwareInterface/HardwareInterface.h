@@ -9,7 +9,7 @@
 #include <Preferences.h>
 #include <Arduino.h>
 #define VREF 3.3              // analog reference voltage(Volt) of the ADC
-#define SCOUNT  30            // sum of sample point
+#define SCOUNT  16            // sum of sample point
 #ifdef useSerialBT
   #include <BleSerial.h>
   extern BleSerial SerialBT;

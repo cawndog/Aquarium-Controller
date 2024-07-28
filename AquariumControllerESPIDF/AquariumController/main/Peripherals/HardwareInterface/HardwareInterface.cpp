@@ -104,7 +104,7 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
         Serial.printf("WV_On high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
       },"WV_On", 2000, (void *) this, tskIDLE_PRIORITY, &xHandle);
-      configASSERT(xHandle);
+      //configASSERT(xHandle);
     }
     else { //turn off
       savedState.putUChar(deviceName.c_str(), 0);
@@ -126,7 +126,7 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
         Serial.printf("WV_Off high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
       },"WV_Off", 2000, (void *) this, tskIDLE_PRIORITY, &xHandle);
-      configASSERT(xHandle);
+      //configASSERT(xHandle);
     }
   }
 }
@@ -142,16 +142,16 @@ float HardwareInterface::readTdsSensor(float temperature) {
   #endif
   int analogBuffer[SCOUNT];     // store the analog value in the array, read from ADC
   int analogBufferIndex = 0;
-  int copyIndex = 0;
+  //int copyIndex = 0;
   float averageVoltage = 0;
   for(int i = 0; i < SCOUNT; i++) {
-    //every 40 getMillis()econds,read the analog value from the ADC
+    //every 15 milliseconds,read the analog value from the ADC
     analogBuffer[analogBufferIndex] = analogRead(TDS_SENSOR_PIN);    //read the analog value and store into the buffer
     analogBufferIndex++;
     if(analogBufferIndex == SCOUNT){ 
       analogBufferIndex = 0;
     }
-    const TickType_t xDelay = 40 / portTICK_PERIOD_MS;
+    const TickType_t xDelay = 15 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
   }
   // read the analog value more stable by the median filtering algorithm, and convert to voltage value

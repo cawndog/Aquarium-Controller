@@ -88,7 +88,7 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
-.DS_Store
+*.DS_Store
 *.xcuserstate
 
 
@@ -126,9 +126,7 @@ iOSInjectionProject/
 *.out
 *.app
 
-*.xcuserstate
-AquariumControllerClient/AquariumControllerClient.xcodeproj/project.xcworkspace/xcuserdata/connorwilliams.xcuserdatad/UserInterfaceState.xcuserstate
-*.xcuserstate
+*GitCleanupCommands.txt
 *.xcuserstate
 AquariumControllerClient/AquariumControllerClient.xcodeproj/xcshareddata/xcschemes/AquariumControllerClient.xcscheme
 AquariumControllerESP32/AquariumController/Environment.h
@@ -136,3 +134,13 @@ AquariumControllerESP32/AquariumController/Environment.h
 */MyEnvironment.swift
 AquariumControllerESPIDF/AquariumController/main/Environment.h
 AquariumControllerClient/AquariumControllerClient/MyEnvironment.swift
+AquariumControllerClient/AquariumControllerClient/.DS_Store
+AquariumControllerClient/.DS_Store
+*/.DS_Store
+AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcschemes/xcschememanagement.plist
+AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+.DS_Store
+AquariumControllerClient/.DS_Store
+AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcschemes/xcschememanagement.plist
+AquariumControllerClient/AquariumControllerClient/.DS_Store
+AquariumControllerClient/AquariumControllerClient/Assets.xcassets/.DS_Store

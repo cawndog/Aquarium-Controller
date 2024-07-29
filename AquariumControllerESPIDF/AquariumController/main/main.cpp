@@ -3,7 +3,7 @@
 #include "AqController.h"
 #include "AqWebServer.h"
 #include <WiFi.h>
-#include "MailClient.c"
+#include "MailClient.h"
 
 extern "C" void app_main()
 {
@@ -15,7 +15,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     setup();
     char* message = "AQ Controller Starting Up.";
-    xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, (void*) message, tskIDLE_PRIORITY, NULL);
+    xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) message, tskIDLE_PRIORITY, NULL);
     while(true) {
       loop();
     }
@@ -100,6 +100,7 @@ void setup() {
   aqWebServer.init();
   aqController.init(&aqWebServer);
   aqWebServer.updateDynamicIP();
+  initMailClient();
   syncSemaphore = xSemaphoreCreateBinary();
   taskTimer = timerBegin(2000); //counter will increment 2,000 times/second
   timerAttachInterrupt(taskTimer, &taskTimerInterrupt);
@@ -110,24 +111,26 @@ void setup() {
   xTaskCreate([](void* pvParameters) {
     while (true) {
       aqController.waterSensor.readSensor();
+      Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
       while (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
         Serial.printf("****** Water Sensor Alarm ******\nShutting off water.\n");
-        if (aqController.waterSensorAlarm.getAlarmState() > 0) {
-          //If we are already in an active alarm, set alarm state to its same value.
-          aqController.waterSensorAlarm.setAlarmState(aqController.waterSensorAlarm.getAlarmState());
-        } else {
-          //Set alarm state to current Epoch time to record the time the alarm occured.
-          aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
+        if (aqController.waterSensorAlarm.getAlarmOverride() == false) {
+          if (aqController.waterSensorAlarm.getAlarmState() > 0) {
+            //If we are already in an active alarm, set alarm state to its same value.
+            aqController.waterSensorAlarm.setAlarmState(aqController.waterSensorAlarm.getAlarmState());
+          } else {
+            //Set alarm state to current Epoch time to record the time the alarm occured.
+            aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
+          }
         }
         //xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, 5, NULL);
         char* message = "Water Sensor Alarm is in an active alarm state.";
-        xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, (void *)message, tskIDLE_PRIORITY, NULL);
+        xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void *)message, tskIDLE_PRIORITY, NULL);
         const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
         vTaskDelay(xDelay);
         aqController.waterSensor.readSensor();
         Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
       }
-      Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
       Serial.printf("WS_READ high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
       const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);

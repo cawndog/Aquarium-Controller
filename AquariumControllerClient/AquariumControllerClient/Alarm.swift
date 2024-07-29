@@ -11,10 +11,12 @@ class Alarm: HashableClass, Identifiable, ObservableObject {
     var id: String
     var name: String
     @Published var alarmState: Int
+    @Published var alarmOverride: Bool
     init(_ name: String) {
         self.id = name
         self.name = name
         self.alarmState = 0
+        self.alarmOverride = false
     }
     func getName() -> String {
         return self.name
@@ -24,5 +26,11 @@ class Alarm: HashableClass, Identifiable, ObservableObject {
     }
     func setAlarmState(newState: Int) {
         self.alarmState = newState
+    }
+    func getAlarmOverride() -> Bool {
+        return self.alarmOverride
+    }
+    func setAlarmOverride(override: Bool) {
+        self.alarmOverride = override
     }
 }

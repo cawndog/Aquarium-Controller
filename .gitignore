@@ -128,12 +128,12 @@ iOSInjectionProject/
 
 *GitCleanupCommands.txt
 *.xcuserstate
-AquariumControllerClient/AquariumControllerClient.xcodeproj/project.xcworkspace/xcuserdata/connorwilliams.xcuserdatad/UserInterfaceState.xcuserstate
-*.xcuserstate
-*.xcuserstate
 AquariumControllerClient/AquariumControllerClient.xcodeproj/xcshareddata/xcschemes/AquariumControllerClient.xcscheme
 AquariumControllerESP32/AquariumController/Environment.h
 */Environment.h
 */MyEnvironment.swift
 AquariumControllerESPIDF/AquariumController/main/Environment.h
 AquariumControllerClient/AquariumControllerClient/MyEnvironment.swift
+AquariumControllerClient/AquariumControllerClient/.DS_Store
+AquariumControllerClient/.DS_Store
+*/.DS_Store

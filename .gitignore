@@ -88,7 +88,7 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
-.DS_Store
+*.DS_Store
 *.xcuserstate
 
 
@@ -137,3 +137,10 @@ AquariumControllerClient/AquariumControllerClient/MyEnvironment.swift
 AquariumControllerClient/AquariumControllerClient/.DS_Store
 AquariumControllerClient/.DS_Store
 */.DS_Store
+AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcschemes/xcschememanagement.plist
+AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+.DS_Store
+AquariumControllerClient/.DS_Store
+AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcschemes/xcschememanagement.plist
+AquariumControllerClient/AquariumControllerClient/.DS_Store
+AquariumControllerClient/AquariumControllerClient/Assets.xcassets/.DS_Store

@@ -29,7 +29,7 @@ void Task::unscheduleTask() {
 }
 void Task::sleepUntil( TickType_t *prevWakeTime,  unsigned int sec ) {
   //TickType_t xLastWakeTime = xTaskGetTickCount ();
-  TickType_t xDelay = sec / portTICK_PERIOD_MS;
+  TickType_t xDelay = sec * 1000 / portTICK_PERIOD_MS;
   //long ticks = sec * 1000 * portTICK_PERIOD_MS;
   while(xDelay >= portMAX_DELAY ) {
       xTaskDelayUntil(prevWakeTime, portMAX_DELAY-1);

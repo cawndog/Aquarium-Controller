@@ -156,9 +156,9 @@ void loop() {
     #ifdef useSerial
     Serial.printf("Task event triggered for %s.\n", aqController.nextTaskWithEvent->getName().c_str());
     #endif
-    aqController.nextTaskWithEvent->doTask();
+    //aqController.nextTaskWithEvent->doTask();
   }    
-  aqController.scheduleNextTask();
+  //aqController.scheduleNextTask();
 }
 void taskTimerInterrupt() {
     taskInterruptCounter++;
@@ -203,9 +203,9 @@ void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
       rtc.setTime(0, 0, 0, 1, 1, 2023);
     }
     //portENTER_CRITICAL(&timerMux);
-      aqController.determineTaskRunTimes();
-      aqController.initSchedDeviceTasks();
-      aqController.scheduleNextTask();
+      //aqController.determineTaskRunTimes();
+      //aqController.initSchedDeviceTasks();
+      //aqController.scheduleNextTask();
     //portEXIT_CRITICAL(&timerMux);
   }
   if (WiFi.getMode() == WIFI_AP_STA) {

@@ -102,9 +102,9 @@ void setup() {
   aqWebServer.updateDynamicIP();
   initMailClient();
   syncSemaphore = xSemaphoreCreateBinary();
-  taskTimer = timerBegin(2000); //counter will increment 2,000 times/second
-  timerAttachInterrupt(taskTimer, &taskTimerInterrupt);
-  aqController.scheduleNextTask();
+  //taskTimer = timerBegin(2000); //counter will increment 2,000 times/second
+  //timerAttachInterrupt(taskTimer, &taskTimerInterrupt);
+  //aqController.scheduleNextTask();
 
   pinMode(WATER_SENSOR_PIN, INPUT);
   TaskHandle_t xHandle = NULL;
@@ -148,7 +148,7 @@ void setup() {
 void loop() {
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
   printLocalTime();
-
+  /*
   portENTER_CRITICAL(&timerMux);
     while (taskInterruptCounter > 0) {
     taskInterruptCounter--;
@@ -159,9 +159,10 @@ void loop() {
     #ifdef useSerial
     Serial.printf("Task event triggered for %s.\n", aqController.nextTaskWithEvent->getName().c_str());
     #endif
-    //aqController.nextTaskWithEvent->doTask();
+    aqController.nextTaskWithEvent->doTask();
   }    
-  //aqController.scheduleNextTask();
+  aqController.scheduleNextTask();
+  */
 }
 void taskTimerInterrupt() {
     taskInterruptCounter++;

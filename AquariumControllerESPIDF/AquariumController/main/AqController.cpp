@@ -177,6 +177,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
+  initSchedDeviceTasks();
 }
 
 Task* AqController::getTaskByName(String name) {

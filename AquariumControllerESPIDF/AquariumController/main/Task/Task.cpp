@@ -10,9 +10,9 @@ void Task::scheduleTaskToRun() {
   if (this->getEnabled()) {
     xTaskCreate([](void* pvParameters) {
       Task* thisTask = (Task*) pvParameters;
+      TickType_t xLastWakeTime = xTaskGetTickCount();
       while (thisTask->getEnabled()) {
         unsigned long secsUntilRunTime = thisTask->nextRunTime - rtc.getLocalEpoch();
-        TickType_t xLastWakeTime = xTaskGetTickCount();
         thisTask->sleepUntil(&xLastWakeTime, secsUntilRunTime);
         thisTask->doTask();
         Serial.printf("TASK_SCHEDULER high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
@@ -30,7 +30,6 @@ void Task::unscheduleTask() {
 void Task::sleepUntil( TickType_t *prevWakeTime,  unsigned int sec ) {
   //TickType_t xLastWakeTime = xTaskGetTickCount ();
   TickType_t xDelay = sec * 1000 / portTICK_PERIOD_MS;
-  //long ticks = sec * 1000 * portTICK_PERIOD_MS;
   while(xDelay >= portMAX_DELAY ) {
       xTaskDelayUntil(prevWakeTime, portMAX_DELAY-1);
       xDelay -= portMAX_DELAY-1;
@@ -97,7 +96,7 @@ void ScheduledTask::initTaskState() {
   int currentSecond = rtc.getSecond();
   unsigned long secondsSinceStartOfDay = ((currentHour*3600)+(currentMinute*60)+currentSecond); //Seconds since 12:00AM
   //Only init task state from the parent task. Parent task determines whether itself or its connectedTask needs to run.
-  if (this->hasConnectedTask() && (this->getEnabled() == true)) {
+  if ((this->hasConnectedTask()) && (this->getEnabled() == true)) {
     if (this->getTime() < this->connectedTask->getTime()) {
       if ((secondsSinceStartOfDay >= this->getTime()) && (secondsSinceStartOfDay < this->connectedTask->getTime())) {
         this->runF();
@@ -130,7 +129,7 @@ void ScheduledTask::doTask() {
   return;
 }
 void TimedTask::runF() {
-  //this->f();
+  this->f();
 }
 void ScheduledTask::attachConnectedTask(String name, String shortName, AqTaskFunction f){
   this->connectedTask = new ScheduledTask(name, shortName, SCHEDULED_DEVICE_TASK, f);
@@ -182,15 +181,15 @@ void ScheduledTask::updateSettings(bool enabled, unsigned long time) {
   String taskTimeKey = this->shortName + "_T";
   savedState.putBool(taskEnabledKey.c_str(), enabled);
   savedState.putULong(taskTimeKey.c_str(), time);
+  //Unschedule task. Init task state, if necessary. 
+  //Then determine its next run time and schedule task again if its enabled. 
+  this->unscheduleTask();
   if (this->getEnabled() == true) {
-    this->determineNextRunTime();
     if (this->hasConnectedTask()) {
       this->initTaskState();
     }
-    this->unscheduleTask();
+    this->determineNextRunTime();
     this->scheduleTaskToRun();
-  } else {
-    this->unscheduleTask();
   }
 }
 void TimedTask::updateSettings(bool enabled, unsigned long time) {
@@ -200,11 +199,11 @@ void TimedTask::updateSettings(bool enabled, unsigned long time) {
   String taskTimeKey = this->shortName + "_T";
   savedState.putBool(taskEnabledKey.c_str(), enabled);
   savedState.putULong(taskTimeKey.c_str(), time);
+  //Unschedule task, run task's function now. If task is enabled, determine next run time and schedule task.
+  this->unscheduleTask();
   if (this->getEnabled()) {
+    this->f();
     this->determineNextRunTime();
-    this->unscheduleTask();
     this->scheduleTaskToRun();
-  } else {
-    this->unscheduleTask();
-  }
+  } 
 }

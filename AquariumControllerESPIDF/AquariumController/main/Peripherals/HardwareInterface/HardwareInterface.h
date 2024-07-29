@@ -16,7 +16,7 @@
 #endif
 
 class Sensor;
-static volatile SemaphoreHandle_t waterValveSemaphore;
+static volatile SemaphoreHandle_t waterValveSemaphore = NULL;
 
 class HardwareInterface {
   private: 

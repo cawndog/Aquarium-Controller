@@ -11,6 +11,7 @@
  *
  * SPDX-FileContributor: 2015-2021 Espressif Systems (Shanghai) CO LTD
  */
+#include "Arduino.h"
 #include "Environment.h"
 #include <string.h>
 #include <stdlib.h>
@@ -59,12 +60,13 @@ extern const uint8_t server_root_cert_pem_end[]   asm("_binary_server_root_cert_
 //Embeded green_fish.png
 extern const uint8_t green_fish_png_start[] asm("_binary_green_fish_png_start");
 extern const uint8_t green_fish_png_end[]   asm("_binary_green_fish_png_end");
-
+static volatile SemaphoreHandle_t sendEmailSemaphore = NULL;
 //static int write_and_get_response(mbedtls_net_context *sock_fd, unsigned char *buf, size_t len);
 //static int write_ssl_and_get_response(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len);
 //static int write_ssl_data(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len);
 //static int perform_tls_handshake(mbedtls_ssl_context *ssl);
 //static void smtp_client_task(void *pvParameters);
+void initMailClient();
 void sendEmailTask (void *pvParameters);
 
 #endif

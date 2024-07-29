@@ -101,6 +101,7 @@ String authFailResponse = "Authentication Failed";
     for (int i = 0; i < sizeof(aqController.alarms)/sizeof(Alarm*);i++) {
       body["settings"]["alarms"][i]["name"] = aqController.alarms[i]->getName();
       body["settings"]["alarms"][i]["alarmState"] = aqController.alarms[i]->getAlarmState();
+      body["settings"]["alarms"][i]["alarmOverride"] = aqController.alarms[i]->getAlarmOverride();
     }
     for (int i = 0; aqController.tasks[i] != NULL; i++) {
       body["settings"]["tasks"][i]["name"] = aqController.tasks[i]->getName();
@@ -141,7 +142,7 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     processAqControllerMessage(json);
-    request->send(200, "text/plain", "setDeviceOn Succeeded");
+    request->send(200, "text/plain", "setDeviceState Succeeded");
     
   });
   server->addHandler(setDeviceStateHandler);
@@ -284,6 +285,7 @@ void AqWebServer::alarmUpdate(Alarm* alarm) {
   DynamicJsonDocument body(1024);
   body["settings"]["alarms"][0]["name"] = alarm->getName();
   body["settings"]["alarms"][0]["alarmState"] = alarm->getAlarmState();
+  body["settings"]["alarms"][0]["alarmOverride"] = alarm->getAlarmOverride();
   String message;
   serializeJson(body, message);
   body.clear();
@@ -337,7 +339,12 @@ bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
           for (int i = 0; i < numAlarms; i++) {
             Alarm* alarmToUpdate = aqController.getAlarmByName(body["settings"]["alarms"][i]["name"]);
             if (alarmToUpdate != NULL) {
-              alarmToUpdate->setAlarmState(body["settings"]["alarms"][i]["alarmState"]);
+              if (body["settings"]["alarms"][i].containsKey("alarmOverride")){
+                alarmToUpdate->setAlarmOverride(body["settings"]["alarms"][i]["alarmOverride"]);
+              } 
+              if(body["settings"]["alarms"][i].containsKey("alarmState")) {
+                alarmToUpdate->setAlarmState(body["settings"]["alarms"][i]["alarmState"]);
+              }
             }
           }
           const int numTasks = body["settings"]["tasks"].size();

@@ -151,7 +151,7 @@ float HardwareInterface::readTdsSensor(float temperature) {
     if(analogBufferIndex == SCOUNT){ 
       analogBufferIndex = 0;
     }
-    const TickType_t xDelay = 15 / portTICK_PERIOD_MS;
+    const TickType_t xDelay = 10 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
   }
   // read the analog value more stable by the median filtering algorithm, and convert to voltage value

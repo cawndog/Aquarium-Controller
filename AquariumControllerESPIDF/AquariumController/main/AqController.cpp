@@ -24,7 +24,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   filter.init("Filter", &hardwareInterface, 
     [this](bool newState){
       if (newState == true) {
-        if (this->maintenanceMode.getValue() != 0 || this->feedMode.getValue() != 0 || this->waterSensorAlarm.getAlarmState() > 0 || this->waterValve.getStateBool() !=  true) {
+        if (this->maintenanceMode.getValue() != 0 || this->feedMode.getValue() != 0 || this->waterSensorAlarm.getAlarmState() > 0 || this->waterValve.getStateBool() ==  false) {
           return false;
         }
       }
@@ -129,14 +129,18 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   
 //***************** Init Alarms *****************
-  waterSensorAlarm.init("Water Sensor Alarm", "WS_ALM", [this](Alarm* alarm) {
+  waterSensorAlarm.init("Water Sensor Alarm", "WS_ALM", [this](Alarm* alarm, bool onlySendClientUpdate) {
+    if (onlySendClientUpdate == true) {
+      this->aqWebServerInterface->alarmUpdate(alarm);
+      return;
+    }
+    
     if (alarm->getAlarmState() > 0) {
-    this->heater.setStateOff(true);
+      this->heater.setStateOff(true);
       this->filter.setStateOff(true);
       this->airPump.setStateOn(true);
       //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
       //vTaskDelay(xDelay);
-
       this->waterValve.setStateOff(true);
     } else {
       this->filter.setStateOn(true);

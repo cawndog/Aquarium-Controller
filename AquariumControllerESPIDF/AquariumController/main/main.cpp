@@ -14,8 +14,10 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     setup();
-    char* message = "AQ Controller Starting Up.";
-    xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) message, tskIDLE_PRIORITY, NULL);
+    EmailMessage eMessage;
+    eMessage.subject = "AQ Controller Notification.";
+    eMessage.body = "AQ Controller Starting Up.";
+    xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) &eMessage, tskIDLE_PRIORITY, NULL);
     while(true) {
       loop();
     }
@@ -109,6 +111,9 @@ void setup() {
   pinMode(WATER_SENSOR_PIN, INPUT);
   TaskHandle_t xHandle = NULL;
   xTaskCreate([](void* pvParameters) {
+    EmailMessage eMessage;
+    eMessage.subject = "Aquarium Alert";
+    eMessage.body = "Water Sensors have detected water.";
     while (true) {
       aqController.waterSensor.readSensor();
       Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
@@ -124,8 +129,8 @@ void setup() {
           }
         }
         //xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, 5, NULL);
-        char* message = "Water Sensor Alarm is in an active alarm state.";
-        xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void *)message, tskIDLE_PRIORITY, NULL);
+        //char* message = "Water Sensor Alarm is in an active alarm state.";
+        xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*)&eMessage, tskIDLE_PRIORITY, NULL);
         const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
         vTaskDelay(xDelay);
         aqController.waterSensor.readSensor();

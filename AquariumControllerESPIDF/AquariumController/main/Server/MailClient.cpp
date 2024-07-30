@@ -184,7 +184,7 @@ exit:
 
 static void smtp_client_task(void *pvParameters)
 {
-    char * message = (char*)pvParameters;
+    EmailMessage* emailMessage = (EmailMessage*)pvParameters;
     char *buf = NULL;
     unsigned char base64_buffer[128];
     int ret, len;
@@ -356,10 +356,10 @@ static void smtp_client_task(void *pvParameters)
     ESP_LOGI(TAG, "Write Content");
     /* We do not take action if message sending is partly failed. */
     len = snprintf((char *) buf, BUF_SIZE,
-                   "From: %s\r\nSubject: Aquarium Alert\r\n"
+                   "From: %s\r\nSubject: %s\r\n"
                    "To: %s\r\n"
                    "MIME-Version: 1.0 (mime-construct 1.9)\n",
-                   "AQ Controller", RECIPIENT_MAIL);
+                   "AQ Controller", emailMessage->subject.c_str(), RECIPIENT_MAIL);
 
     /**
      * Note: We are not validating return for some ssl_writes.
@@ -379,7 +379,7 @@ static void smtp_client_task(void *pvParameters)
                    "Content-Type: text/plain\n"
                    //"This is a simple test mail from the SMTP client example.\r\n"
                    "%s\r\n"
-                   "\r\n", message);
+                   "\r\n", emailMessage->body.c_str());
                    //"\n\n--XYZabcd1234\n", message);
     ret = write_ssl_data(&ssl, (unsigned char *) buf, len);
 

@@ -1,6 +1,6 @@
 #ifndef SENSOR_H
 #define SENSOR_H
-#include <String>
+#include <string>
 #include "HardwareInterface.h"
 class Sensor {
   public:

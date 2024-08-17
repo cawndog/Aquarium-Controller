@@ -1,0 +1,10 @@
+{
+  "idf.espIdfPath": "/opt/esp/idf",
+  "idf.customExtraPaths": "",
+  "idf.pythonBinPath": "/opt/esp/python_env/idf5.1_py3.8_env/bin/python",
+  "idf.toolsPath": "/opt/esp",
+  "idf.gitPath": "/usr/bin/git",
+  "idf.adapterTargetName": "esp32",
+  "idf.flashType": "JTAG",
+  "idf.qemuTcpPort": 1234
+}

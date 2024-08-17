@@ -4,6 +4,7 @@
 #include "AqWebServer.h"
 #include <WiFi.h>
 #include "MailClient.h"
+#include "esp_phy_init.h"
 
 extern "C" void app_main()
 {
@@ -13,9 +14,10 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    //esp_phy_erase_cal_data_in_nvs();
     setup();
     EmailMessage eMessage;
-    eMessage.subject = "AQ Controller Notification.";
+    eMessage.subject = "AQ Controller Notification";
     eMessage.body = "AQ Controller Starting Up.";
     xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) &eMessage, tskIDLE_PRIORITY, NULL);
     while(true) {

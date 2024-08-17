@@ -1,4 +1,5 @@
 {
+  "C_Cpp.intelliSenseEngine": "default",
   "idf.adapterTargetName": "esp32",
   "idf.espIdfPath": "/Users/connorwilliams/esp/v5.1.4/esp-idf",
   "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
@@ -8,15 +9,5 @@
     "OPENOCD_SCRIPTS": "/Users/connorwilliams/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230921/openocd-esp32/share/openocd/scripts",
     "ESP_ROM_ELF_DIR": "/Users/connorwilliams/.espressif/tools/esp-rom-elfs/20230320/"
   },
-  "idf.gitPath": "git",
-  "idf.port": "/dev/tty.Bluetooth-Incoming-Port",
-  "idf.flashType": "UART",
-  "idf.openOcdConfigs": [
-    "board/esp32-bridge.cfg"
-  ],
-  "idf.qemuTcpPort": 1234,
-  "terminal.integrated.defaultProfile.osx": "zsh",
-  "idf.customTerminalExecutableArgs": [
-
-  ]
+  "idf.gitPath": "git"
 }

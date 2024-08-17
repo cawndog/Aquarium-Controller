@@ -10,7 +10,7 @@ set(COMPONENT_ADD_INCLUDEDIRS
 "./" "./Peripherals/Device" "./Peripherals/Sensor" "./Peripherals/HardwareInterface" "./Server" "./Task" "./Settings"
 )
 set(COMPONENT_REQUIRES
-"arduino" "ArduinoJson" "AsyncTCP" "DallasTemperature" "OneWire" "ESP32Time" "ESPAsyncWebServer" "unity" "servo" "nvs_flash" "protocol_examples_common"
+"arduino" "ArduinoJson" "AsyncTCP" "DallasTemperature" "OneWire" "ESP32Time" "ESPAsyncWebServer" "unity" "servo" "nvs_flash" "esp_phy" "protocol_examples_common"
 )
 set(COMPONENT_EMBED_TXTFILES
 "./server_root_cert.pem" "./green_fish.png"

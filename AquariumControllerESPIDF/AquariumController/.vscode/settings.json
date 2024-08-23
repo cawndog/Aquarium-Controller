@@ -9,10 +9,10 @@
     "ESP_ROM_ELF_DIR": "/Users/connorwilliams/.espressif/tools/esp-rom-elfs/20230320/"
   },
   "idf.gitPath": "git",
-  "idf.port": "/dev/tty.Bluetooth-Incoming-Port",
+  "idf.port": "/dev/tty.usbserial-0001",
   "idf.flashType": "UART",
   "idf.openOcdConfigs": [
-    "board/esp32-bridge.cfg"
+    "board/esp32-wrover-kit-3.3v.cfg"
   ],
   "idf.qemuTcpPort": 1234,
   "terminal.integrated.defaultProfile.osx": "zsh",

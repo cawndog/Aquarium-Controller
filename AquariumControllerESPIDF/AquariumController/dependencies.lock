@@ -17,6 +17,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.4.12
+  espressif/esp-modbus:
+    component_hash: ec567c912fbd8b08648ba72b5562df012482584918fb4af670e57025fc30ea42
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.0.15
   espressif/esp-zboss-lib:
     component_hash: c7020f631cd4ad25e159ddb812bdc80906b5b424457abc81c9b8b0e92687837a
     source:
@@ -89,6 +95,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.0.3
+  espressif/libsodium:
+    component_hash: f6e982479a2389cb6868e8fb761cf23aba6c355a8090b3e906299807775f58a3
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.0.20~1
   espressif/mdns:
     component_hash: 31117d76cae83a6d83ffd7f035f6fdae5bd05b914fc30b641afeb208b84de19a
     source:
@@ -102,11 +114,11 @@ dependencies:
       type: service
     version: 0.1.0~2
   espressif/rmaker_common:
-    component_hash: 021c02465e4996dd3292db36ea47b5e3122e7e2d3514797735a96bc12598b44f
+    component_hash: a3a1df881278d0351fc850b77792fe8a196ddd6dcacbea203d606329cc6a0239
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 1.4.5
+    version: 1.4.6
   idf:
     component_hash: null
     source:
@@ -118,6 +130,6 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.14.5
-manifest_hash: 6d660bfed6cb7b3eb34b7fdb16530353a3a2519f771b9dd3c6c4e9e06a4385d6
+manifest_hash: 0a6b00d6b19901357bfc6fcd60884275d166c78e0bee9a28f39b4ec9b12d5686
 target: esp32
 version: 1.0.0

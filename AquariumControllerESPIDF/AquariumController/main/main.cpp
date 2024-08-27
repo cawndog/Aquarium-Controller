@@ -7,20 +7,20 @@
 
 extern "C" void app_main()
 {
-    initArduino();
-    //pinMode(4, OUTPUT);
-    //digitalWrite(4, HIGH);
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    setup();
-    EmailMessage eMessage;
-    eMessage.subject = "AQ Controller Notification.";
-    eMessage.body = "AQ Controller Starting Up.";
-    xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) &eMessage, tskIDLE_PRIORITY, NULL);
-    while(true) {
-      loop();
-    }
+  initArduino();
+  //pinMode(4, OUTPUT);
+  //digitalWrite(4, HIGH);
+  ESP_ERROR_CHECK(nvs_flash_init());
+  ESP_ERROR_CHECK(esp_netif_init());
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
+  setup();
+  EmailMessage eMessage;
+  eMessage.subject = "AQ Controller Notification.";
+  eMessage.body = "AQ Controller Starting Up.";
+  xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) &eMessage, tskIDLE_PRIORITY, NULL);
+  while(true) {
+    loop();
+  }
 }
 //-----------------------------Function Declarations-----------------------------
 void printLocalTime();
@@ -101,7 +101,7 @@ void setup() {
   savedState.begin("aqController", false);
   aqWebServer.init();
   aqController.init(&aqWebServer);
-  aqWebServer.updateDynamicIP();
+  //aqWebServer.updateDynamicIP();
   initMailClient();
   syncSemaphore = xSemaphoreCreateBinary();
   //taskTimer = timerBegin(2000); //counter will increment 2,000 times/second

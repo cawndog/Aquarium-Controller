@@ -12,7 +12,7 @@
   "idf.port": "/dev/tty.usbserial-0001",
   "idf.flashType": "UART",
   "idf.openOcdConfigs": [
-    "board/esp32-wrover-kit-3.3v.cfg"
+    "board/esp32-bridge.cfg"
   ],
   "idf.qemuTcpPort": 1234,
   "terminal.integrated.defaultProfile.osx": "zsh",

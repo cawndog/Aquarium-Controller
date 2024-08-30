@@ -31,10 +31,13 @@ void Task::sleepUntil( TickType_t *prevWakeTime,  unsigned int sec ) {
   //TickType_t xLastWakeTime = xTaskGetTickCount ();
   TickType_t xDelay = sec * 1000 / portTICK_PERIOD_MS;
   while(xDelay >= portMAX_DELAY ) {
-      xTaskDelayUntil(prevWakeTime, portMAX_DELAY-1);
-      xDelay -= portMAX_DELAY-1;
+    xTaskDelayUntil(prevWakeTime, portMAX_DELAY-1);
+    xDelay -= portMAX_DELAY-1;
   }
-  xTaskDelayUntil(prevWakeTime, xDelay);
+  if (xDelay > 0U) {
+    xTaskDelayUntil(prevWakeTime, xDelay);
+  }
+  
 }
 unsigned long Task::getTime() { //gets task run time interval or scheduled run time
   return this->time;

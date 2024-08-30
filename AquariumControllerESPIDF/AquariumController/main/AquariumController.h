@@ -14,7 +14,7 @@
 #define HEATER_SRVO_PIN 33//Servo #3
 #define FILTER_SRVO_PIN 26 //Servo #4
 
-#define WATER_SENSOR_ALARM_THRESHOLD 60 //ADC reading value that will trigger an alarm state and shut off water valve.
+#define WATER_SENSOR_ALARM_THRESHOLD 80 //ADC reading value that will trigger an alarm state and shut off water valve.
 #define WATER_SENSOR_READING_INTERVAL 10000 //time in ms to poll water sensor
 
 #endif

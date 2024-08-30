@@ -17,7 +17,7 @@ extern "C" void app_main()
   EmailMessage eMessage;
   eMessage.subject = "AQ Controller Notification.";
   eMessage.body = "AQ Controller Starting Up.";
-  xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) &eMessage, tskIDLE_PRIORITY, NULL);
+  xTaskCreate(sendEmailTask, "smtp_client_task", configMINIMAL_STACK_SIZE, (void*) &eMessage, tskIDLE_PRIORITY, NULL);
   while(true) {
     loop();
   }
@@ -128,9 +128,9 @@ void setup() {
             aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
           }
         }
-        //xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, 5, NULL);
+        //xTaskCreate(&smtp_client_task, "smtp_client_task", configMinimal_STACK_SIZE, NULL, 5, NULL);
         //char* message = "Water Sensor Alarm is in an active alarm state.";
-        xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*)&eMessage, tskIDLE_PRIORITY, NULL);
+        xTaskCreate(sendEmailTask, "smtp_client_task", configMINIMAL_STACK_SIZE, (void*)&eMessage, tskIDLE_PRIORITY, NULL);
         const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
         vTaskDelay(xDelay);
         aqController.waterSensor.readSensor();
@@ -140,7 +140,7 @@ void setup() {
       const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
     }
-  },"WS_READ", 2500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+  },"WS_READ", configMINIMAL_STACK_SIZE, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
   //configASSERT(xHandle);
   //Serial.printf("*************End Setup()*************\n");
   //Serial.printf("\nTotal heap: %lu\n", ESP.getHeapSize());

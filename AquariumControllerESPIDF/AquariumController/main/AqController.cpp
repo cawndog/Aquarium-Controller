@@ -120,7 +120,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
         }
         Serial.printf("FEED_MD high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
-      },"FEED_MD", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+      },"FEED_MD", configMINIMAL_STACK_SIZE, (void *) this, tskIDLE_PRIORITY, &xHandle);
     } else {
       this->filter.setStateOn();
       this->aqTemperature.readSensor();

@@ -3,6 +3,7 @@
 #include <ESP32Time.h>
 #include <Arduino.h>
 #include <Preferences.h>
+#include <String.h>
 extern ESP32Time rtc;
 extern Preferences savedState;
 enum TaskType {

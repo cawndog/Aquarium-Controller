@@ -14,5 +14,10 @@
   "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
   "idf.toolsPath": "/Users/connorwilliams/.espressif",
   "idf.openOcdDebugLevel": 2,
-  "idf.flashType": "UART"
+  "idf.flashType": "JTAG",
+  "trace.poll_period": "1",
+  "trace.trace_size": "2048",
+  "trace.stop_tmo": "5",
+  "trace.wait4halt": "0",
+  "trace.skip_size": "0"
 }

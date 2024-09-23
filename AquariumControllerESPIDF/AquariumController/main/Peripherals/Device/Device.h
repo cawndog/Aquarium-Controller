@@ -19,13 +19,14 @@ class Device {
     DeviceState state;
     Device* connectedDevice;
     HardwareInterface* hardwareInterface;
-
+    volatile SemaphoreHandle_t stateChangeSemaphore;
     //function declarations
     Device();
     void init(String name, HardwareInterface* hardwareInterface, OkToExecute = [](bool newState) {return true;}, PostExecutionFunction = [](Device** devices, int numDevices){});
     void attachConnectedDevice(Device* device);
     void setStateOn(bool overrideOkToExe = false);
     void setStateOff(bool overrideOkToExe = false);
+    void reset();
     bool getStateBool();
     static uint8_t deviceStateToInt(DeviceState state);
     static DeviceState intToDeviceState(uint8_t stateInt);

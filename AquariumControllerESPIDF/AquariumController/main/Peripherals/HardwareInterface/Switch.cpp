@@ -86,7 +86,7 @@ void Switch1::powerControl(SwitchState newState) { //air control switch
     if (activeServoTasks == 0) {
       iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
     }
-    activeServoTasks++;
+    activeServoTasks = activeServoTasks + 1;
     xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, OFF_POS + OFF_OFFSET_1);
@@ -133,7 +133,7 @@ void Switch2::powerControl(SwitchState newState) { //light control switch
     if (activeServoTasks == 0) {
       iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
     }
-    activeServoTasks++;
+    activeServoTasks = activeServoTasks + 1;
     xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_3, OFF_POS + OFF_OFFSET_2);
@@ -178,7 +178,7 @@ void Switch3::powerControl(SwitchState newState) { //heater control switch
     if (activeServoTasks == 0) {
       iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
     }
-    activeServoTasks++;
+    activeServoTasks = activeServoTasks + 1;
     xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, OFF_POS + OFF_OFFSET_3);
@@ -223,7 +223,7 @@ void Switch4::powerControl(SwitchState newState) { //filter control switch
     if (activeServoTasks == 0) {
       iot_servo_init(LEDC_HIGH_SPEED_MODE, &servo_cfg);
     }
-    activeServoTasks++;
+    activeServoTasks = activeServoTasks + 1;
     xSemaphoreGive(switchSemaphore);
     if (newState == OFF) {
       iot_servo_write_angle(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_2, OFF_POS + OFF_OFFSET_4);

@@ -117,6 +117,7 @@ void setup() {
     while (true) {
       aqController.waterSensor.readSensor();
       Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
+      Serial.printf("Free Heap: %lu\n", ESP.getFreeHeap());
       while (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
         Serial.printf("****** Water Sensor Alarm ******\nShutting off water.\n");
         if (aqController.waterSensorAlarm.getAlarmOverride() == false) {

@@ -10,11 +10,11 @@
   "idf.openOcdConfigs": [
     "board/esp32s3-builtin.cfg"
   ],
-  "idf.port": "/dev/tty.usbserial-10",
+  "idf.port": "/dev/tty.usbmodem101",
   "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
   "idf.toolsPath": "/Users/connorwilliams/.espressif",
   "idf.openOcdDebugLevel": 2,
-  "idf.flashType": "JTAG",
+  "idf.flashType": "UART",
   "trace.poll_period": "1",
   "trace.trace_size": "2048",
   "trace.stop_tmo": "5",

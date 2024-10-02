@@ -6,7 +6,7 @@ flushregs
 
 tb heap_trace_start
 commands
-mon esp sysview start file:///Users/connorwilliams/Aquarium-Controller/AquariumControllerESPIDF/AquariumController/trace/htrace_1726672295797.svdat
+mon esp sysview start file:///Users/connorwilliams/Aquarium-Controller/AquariumControllerESPIDF/AquariumController/trace/htrace_1727794095517.svdat
 c
 end
 

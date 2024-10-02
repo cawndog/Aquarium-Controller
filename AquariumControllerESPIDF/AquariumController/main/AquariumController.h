@@ -29,7 +29,7 @@ ESP32
 #define FILTER_SRVO_PIN 13 //Servo #4
 
 
-#define WATER_SENSOR_ALARM_THRESHOLD 80 //ADC reading value that will trigger an alarm state and shut off water valve.
+#define WATER_SENSOR_ALARM_THRESHOLD 150 //ADC reading value that will trigger an alarm state and shut off water valve.
 #define WATER_SENSOR_READING_INTERVAL 10000 //time in ms to poll water sensor
 
 #endif

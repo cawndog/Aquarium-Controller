@@ -1,5 +1,5 @@
 {
-  "idf.adapterTargetName": "esp32s3",
+  "idf.adapterTargetName": "esp32",
   "idf.espIdfPath": "/Users/connorwilliams/esp/v5.1.4/esp-idf",
   "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
   "idf.toolsPath": "/Users/connorwilliams/.espressif",
@@ -12,7 +12,8 @@
   "idf.port": "/dev/tty.usbserial-0001",
   "idf.flashType": "UART",
   "idf.openOcdConfigs": [
-    "board/esp32-bridge.cfg"
+    "interface/ftdi/esp32_devkitj_v1.cfg",
+    "target/esp32.cfg"
   ],
   "idf.qemuTcpPort": 1234,
   "terminal.integrated.defaultProfile.osx": "zsh",

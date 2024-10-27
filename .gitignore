@@ -126,7 +126,7 @@ iOSInjectionProject/
 *.out
 *.app
 
-AquariumControllerESPIDF/AquariumController/managed_components
+AquariumControllerESPIDF/AquariumController/managed_components/
 *GitCleanupCommands.txt
 *.xcuserstate
 AquariumControllerClient/AquariumControllerClient.xcodeproj/xcshareddata/xcschemes/AquariumControllerClient.xcscheme

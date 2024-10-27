@@ -126,10 +126,10 @@ iOSInjectionProject/
 *.out
 *.app
 
+AquariumControllerESPIDF/AquariumController/managed_components
 *GitCleanupCommands.txt
 *.xcuserstate
 AquariumControllerClient/AquariumControllerClient.xcodeproj/xcshareddata/xcschemes/AquariumControllerClient.xcscheme
-AquariumControllerESP32/AquariumController/Environment.h
 */Environment.h
 */MyEnvironment.swift
 AquariumControllerESPIDF/AquariumController/main/Environment.h

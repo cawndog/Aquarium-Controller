@@ -133,6 +133,7 @@ managed_components/
 AquariumControllerClient/AquariumControllerClient.xcodeproj/xcshareddata/xcschemes/AquariumControllerClient.xcscheme
 */Environment.h
 */MyEnvironment.swift
+*/acct.txt
 AquariumControllerESP32/AquariumController/main/Environment.h
 AquariumControllerClient/AquariumControllerClient/MyEnvironment.swift
 AquariumControllerClient/AquariumControllerClient/.DS_Store

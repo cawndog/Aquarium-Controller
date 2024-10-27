@@ -57,6 +57,7 @@ class AqController {
     void init(AqWebServerInterface* aqWebServerInterface);
     Task* getTaskByName(String name);
     void determineTaskRunTimes();
+    
     void initSchedDeviceTasks();
     void setNextTaskWithEvent();
     void scheduleNextTask();

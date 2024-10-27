@@ -14,8 +14,10 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     setup();
-    char* message = "AQ Controller Starting Up.";
-    xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) message, tskIDLE_PRIORITY, NULL);
+    EmailMessage eMessage;
+    eMessage.subject = "AQ Controller Notification.";
+    eMessage.body = "AQ Controller Starting Up.";
+    xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*) &eMessage, tskIDLE_PRIORITY, NULL);
     while(true) {
       loop();
     }
@@ -102,16 +104,20 @@ void setup() {
   aqWebServer.updateDynamicIP();
   initMailClient();
   syncSemaphore = xSemaphoreCreateBinary();
-  taskTimer = timerBegin(2000); //counter will increment 2,000 times/second
-  timerAttachInterrupt(taskTimer, &taskTimerInterrupt);
-  aqController.scheduleNextTask();
+  //taskTimer = timerBegin(2000); //counter will increment 2,000 times/second
+  //timerAttachInterrupt(taskTimer, &taskTimerInterrupt);
+  //aqController.scheduleNextTask();
 
   pinMode(WATER_SENSOR_PIN, INPUT);
   TaskHandle_t xHandle = NULL;
   xTaskCreate([](void* pvParameters) {
+    EmailMessage eMessage;
+    eMessage.subject = "Aquarium Alert";
+    eMessage.body = "Water Sensors have detected water.";
     while (true) {
       aqController.waterSensor.readSensor();
       Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
+      Serial.printf("Free Heap: %lu\n", ESP.getFreeHeap());
       while (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
         Serial.printf("****** Water Sensor Alarm ******\nShutting off water.\n");
         if (aqController.waterSensorAlarm.getAlarmOverride() == false) {
@@ -124,8 +130,8 @@ void setup() {
           }
         }
         //xTaskCreate(&smtp_client_task, "smtp_client_task", TASK_STACK_SIZE, NULL, 5, NULL);
-        char* message = "Water Sensor Alarm is in an active alarm state.";
-        xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void *)message, tskIDLE_PRIORITY, NULL);
+        //char* message = "Water Sensor Alarm is in an active alarm state.";
+        xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*)&eMessage, tskIDLE_PRIORITY, NULL);
         const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
         vTaskDelay(xDelay);
         aqController.waterSensor.readSensor();
@@ -136,7 +142,7 @@ void setup() {
       vTaskDelay(xDelay);
     }
   },"WS_READ", 2500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
-  configASSERT(xHandle);
+  //configASSERT(xHandle);
   //Serial.printf("*************End Setup()*************\n");
   //Serial.printf("\nTotal heap: %lu\n", ESP.getHeapSize());
   //Serial.printf("Free heap: %lu\n", ESP.getFreeHeap());
@@ -148,7 +154,7 @@ void setup() {
 void loop() {
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
   printLocalTime();
-
+  /*
   portENTER_CRITICAL(&timerMux);
     while (taskInterruptCounter > 0) {
     taskInterruptCounter--;
@@ -162,6 +168,7 @@ void loop() {
     aqController.nextTaskWithEvent->doTask();
   }    
   aqController.scheduleNextTask();
+  */
 }
 void taskTimerInterrupt() {
     taskInterruptCounter++;
@@ -206,9 +213,9 @@ void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
       rtc.setTime(0, 0, 0, 1, 1, 2023);
     }
     //portENTER_CRITICAL(&timerMux);
-      aqController.determineTaskRunTimes();
-      aqController.initSchedDeviceTasks();
-      aqController.scheduleNextTask();
+      //aqController.determineTaskRunTimes();
+      //aqController.initSchedDeviceTasks();
+      //aqController.scheduleNextTask();
     //portEXIT_CRITICAL(&timerMux);
   }
   if (WiFi.getMode() == WIFI_AP_STA) {

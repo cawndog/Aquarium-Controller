@@ -67,9 +67,15 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   aqTemperature.init("Aquarium Temperature", &hardwareInterface, [this](Sensor* sensor) {
     float valAsFloat = sensor->getValue().toFloat();
     if (valAsFloat < (this->thermostat.getValue() - 0.5)) {
+      if (valAsFloat < (this->thermostat.getValue() - 2.0)) {
+          heater.reset();
+      }
       heater.setStateOn();
     }
     else if (valAsFloat > (this->thermostat.getValue() + 0.5)) {
+      if (valAsFloat > (this->thermostat.getValue() + 2.0)) {
+        heater.reset();
+      }
       heater.setStateOff();
     }
     if (sensor->prevValue != sensor->value) {
@@ -177,6 +183,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
+  initSchedDeviceTasks();
 }
 
 Task* AqController::getTaskByName(String name) {

@@ -361,7 +361,7 @@ bool AqWebServer::processAqControllerMessage(JsonVariant &json) {
                 task->updateSettings(body["settings"]["tasks"][i]["enabled"], body["settings"]["tasks"][i]["time"]);
               }
             }
-            aqController.scheduleNextTask();
+            //aqController.scheduleNextTask();
           }
         }
   return true;

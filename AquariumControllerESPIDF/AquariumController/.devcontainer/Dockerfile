@@ -1,8 +1,8 @@
-FROM espressif/idf
+FROM espressif/idf:v5.1.4
 
 ARG DEBIAN_FRONTEND=nointeractive
 ARG CONTAINER_USER=esp
-ARG USER_UID=1000
+ARG USER_UID=1050
 ARG USER_GID=$USER_UID
 
 RUN apt-get update \

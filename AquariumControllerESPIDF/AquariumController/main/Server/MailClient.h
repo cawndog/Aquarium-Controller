@@ -69,4 +69,10 @@ static volatile SemaphoreHandle_t sendEmailSemaphore = NULL;
 void initMailClient();
 void sendEmailTask (void *pvParameters);
 
+struct EmailMessage {
+  public: 
+    String subject;
+    String body;
+} typedef EmailMessage;
+
 #endif

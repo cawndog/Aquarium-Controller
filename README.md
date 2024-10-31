@@ -7,10 +7,7 @@ A system for managing and automating aquarium settings, built to monitor and con
 - [Features](#features)
 - [Technologies Used](#technologies-used)
 - [Setup and Installation](#setup-and-installation)
-- [Usage](#usage)
 - [Configuration](#configuration)
-- [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -44,3 +41,9 @@ The Aquarium Controller automates aquarium management tasks, using sensors and a
 ```bash
 git clone https://github.com/cawndog/Aquarium-Controller.git
 cd Aquarium-Controller
+```
+For the iOS application, find the AquariumControllerClient.xcodeproj file inside the AquariumControllerClient directory and open it in Xcode.
+For the ESP32 project, open the AquariumControllerESP32 directory in Visual Studio Code.
+## Configuration
+- The iOS application contains a file named MyEnvironment.h, which holds values like the API key. Modify this file as needed.
+- The ESP32 project contains an Environment.h file, which will also need to be modified as needed.

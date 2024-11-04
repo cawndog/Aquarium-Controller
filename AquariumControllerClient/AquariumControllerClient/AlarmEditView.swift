@@ -39,6 +39,20 @@ struct AlarmEditView: View {
 
             }
             Section {
+                Toggle(isOn: Binding(
+                    get:{alarm.alarmOverride},
+                    set:{v in
+                        alarm.setAlarmOverride(override: v)
+                        Task {
+                            await aqController.network.setAlarmOverride(alarm: alarm)
+                        }
+                    })) {
+                        Text("Alarm Override")
+                    }
+            } footer: {
+                Text("When this is enabled, the aquarium controller sends alerts during an active alarm but won't take corrective actions.").textCase(nil).bold()
+            }
+            Section {
                 Button("Reset Alarm", action: {
                     Task{
                         alarm.setAlarmState(newState: 0)

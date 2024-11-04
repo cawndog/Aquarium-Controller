@@ -32,10 +32,7 @@ struct TaskSummaryView: View {
                 
             }
             label: {
-                VStack {
-                    Label(task.name, systemImage: "clock")
-                }
-            
+                Label(task.name, systemImage: "clock")
             }
         } else {
             LabeledContent {
@@ -44,11 +41,7 @@ struct TaskSummaryView: View {
                 }
             }
             label: {
-                VStack {
-                    Label(task.name, systemImage: "timer")
-                    
-                }
-                
+                Label(task.name, systemImage: "timer")
             }
         }
     }

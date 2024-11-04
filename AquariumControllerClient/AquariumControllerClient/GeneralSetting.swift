@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+
 class GeneralSetting: HashableClass, Identifiable, ObservableObject {
     var id: String
     var name: String

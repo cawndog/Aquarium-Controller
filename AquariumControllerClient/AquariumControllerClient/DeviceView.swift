@@ -56,7 +56,8 @@ struct DeviceView: View {
                     Task {
                         await aqController.network.deviceToggleChange(device: device)
                     }
-                })) {
+                }
+            )) {
                     Label(device.getName(), systemImage: labelLookup(deviceName: device.getName()))
                 }
         }

@@ -381,6 +381,34 @@ class Network: ObservableObject {
         }
         
     }
+    func setAlarmOverride (alarm: Alarm) async {
+        guard let controllerState = self.controllerState else { return }
+        let newMessage = AqControllerMessage()
+        let newSettings = AqControllerMessage.Settings()
+        let newAlarm = AqControllerMessage.Settings.Alarm()
+        newAlarm.name = alarm.name
+        newAlarm.alarmOverride = alarm.alarmOverride
+        newSettings.addAlarm(newAlarm)
+        newMessage.addSettings(newSettings)
+        guard let encoded = try? JSONEncoder().encode(newMessage) else {
+            print("Failed to encode JSON")
+            return
+        }
+        let jsonString = NSString(data: encoded, encoding: String.Encoding.utf8.rawValue)
+        let urlString: String = "http://\(aqConnectionString)/setSettingsState"
+        let url = URL(string: urlString)!
+        var request = URLRequest(url: url)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        do {
+            let (data, _) = try await URLSession.shared.upload(for: request, from: encoded)
+            // handle the result
+        } catch {
+            print("setAlarmOverride(alarm) failed.")
+        }
+        
+    }
     func getCurrentState() {
         guard let controllerState = self.controllerState else { return }
         guard let url = URL(string: "http://\(aqConnectionString)/getCurrentState") else { fatalError("Missing URL") }

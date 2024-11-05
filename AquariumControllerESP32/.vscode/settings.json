@@ -1,23 +1,23 @@
 {
-  "idf.adapterTargetName": "esp32",
-  "idf.espIdfPath": "/Users/connorwilliams/esp/v5.1.4/esp-idf",
-  "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
-  "idf.toolsPath": "/Users/connorwilliams/.espressif",
-  "idf.customExtraPaths": "/Users/connorwilliams/esp/v5.1.4/esp-idf/components/espcoredump:/Users/connorwilliams/esp/v5.1.4/esp-idf/components/partition_table:/Users/connorwilliams/esp/v5.1.4/esp-idf/components/app_update:/Users/connorwilliams/.espressif/tools/xtensa-esp-elf-gdb/12.1_20231023/xtensa-esp-elf-gdb/bin:/Users/connorwilliams/.espressif/tools/riscv32-esp-elf-gdb/12.1_20231023/riscv32-esp-elf-gdb/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32s2-elf/esp-12.2.0_20230208/xtensa-esp32s2-elf/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32s3-elf/esp-12.2.0_20230208/xtensa-esp32s3-elf/bin:/Users/connorwilliams/.espressif/tools/esp-clang/15.0.0-23786128ae/esp-clang/bin:/Users/connorwilliams/.espressif/tools/riscv32-esp-elf/esp-12.2.0_20230208/riscv32-esp-elf/bin:/Users/connorwilliams/.espressif/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/Users/connorwilliams/.espressif/tools/cmake/3.24.0/CMake.app/Contents/bin:/Users/connorwilliams/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230921/openocd-esp32/bin:/Users/connorwilliams/.espressif/tools/ninja/1.10.2/:/Users/connorwilliams/.espressif/tools/qemu-xtensa/esp_develop_8.1.3_20231206/qemu/bin:/Users/connorwilliams/.espressif/tools/qemu-riscv32/esp_develop_8.1.3_20231206/qemu/bin:/Users/connorwilliams/esp/v5.1.4/esp-idf/components/espcoredump:/Users/connorwilliams/esp/v5.1.4/esp-idf/components/partition_table:/Users/connorwilliams/.espressif/tools/xtensa-esp-elf-gdb/12.1_20231023/xtensa-esp-elf-gdb/bin:/Users/connorwilliams/.espressif/tools/riscv32-esp-elf-gdb/12.1_20231023/riscv32-esp-elf-gdb/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32s2-elf/esp-12.2.0_20230208/xtensa-esp32s2-elf/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32s3-elf/esp-12.2.0_20230208/xtensa-esp32s3-elf/bin:/Users/connorwilliams/.espressif/tools/riscv32-esp-elf/esp-12.2.0_20230208/riscv32-esp-elf/bin:/Users/connorwilliams/.espressif/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/Users/connorwilliams/.espressif/tools/cmake/3.24.0/CMake.app/Contents/bin:/Users/connorwilliams/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230921/openocd-esp32/bin:/Users/connorwilliams/.espressif/tools/ninja/1.10.2:/Users/connorwilliams/.espressif/tools/esp-rom-elfs/20230320:/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin:/Users/connorwilliams/esp/v5.1.4/esp-idf/tools:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin",
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.adapterTargetName": "esp32s3",
+  "idf.customExtraPaths": "/Users/connorwilliams/.espressif/tools/xtensa-esp-elf-gdb/12.1_20231023/xtensa-esp-elf-gdb/bin:/Users/connorwilliams/.espressif/tools/riscv32-esp-elf-gdb/12.1_20231023/riscv32-esp-elf-gdb/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32s2-elf/esp-12.2.0_20230208/xtensa-esp32s2-elf/bin:/Users/connorwilliams/.espressif/tools/xtensa-esp32s3-elf/esp-12.2.0_20230208/xtensa-esp32s3-elf/bin:/Users/connorwilliams/.espressif/tools/riscv32-esp-elf/esp-12.2.0_20230208/riscv32-esp-elf/bin:/Users/connorwilliams/.espressif/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/Users/connorwilliams/.espressif/tools/cmake/3.24.0/CMake.app/Contents/bin:/Users/connorwilliams/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230921/openocd-esp32/bin:/Users/connorwilliams/.espressif/tools/ninja/1.10.2:/Users/connorwilliams/.espressif/tools/esp-rom-elfs/20230320",
   "idf.customExtraVars": {
     "OPENOCD_SCRIPTS": "/Users/connorwilliams/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230921/openocd-esp32/share/openocd/scripts",
     "ESP_ROM_ELF_DIR": "/Users/connorwilliams/.espressif/tools/esp-rom-elfs/20230320/"
   },
-  "idf.gitPath": "git",
-  "idf.port": "/dev/tty.usbserial-0001",
-  "idf.flashType": "UART",
+  "idf.espIdfPath": "/Users/connorwilliams/esp/v5.1.4/esp-idf",
   "idf.openOcdConfigs": [
-    "interface/ftdi/esp32_devkitj_v1.cfg",
-    "target/esp32.cfg"
+    "board/esp32s3-builtin.cfg"
   ],
-  "idf.qemuTcpPort": 1234,
-  "terminal.integrated.defaultProfile.osx": "zsh",
-  "idf.customTerminalExecutableArgs": [
-
-  ]
+  "idf.port": "/dev/tty.usbmodem101",
+  "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
+  "idf.toolsPath": "/Users/connorwilliams/.espressif",
+  "idf.openOcdDebugLevel": 2,
+  "idf.flashType": "UART",
+  "trace.poll_period": "1",
+  "trace.trace_size": "2048",
+  "trace.stop_tmo": "5",
+  "trace.wait4halt": "0",
+  "trace.skip_size": "0"
 }

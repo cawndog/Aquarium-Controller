@@ -126,23 +126,16 @@ iOSInjectionProject/
 *.out
 *.app
 
-AquariumControllerESP32/AquariumController/managed_components/
-managed_components/
-*GitCleanupCommands.txt
-*.xcuserstate
-AquariumControllerClient/AquariumControllerClient.xcodeproj/xcshareddata/xcschemes/AquariumControllerClient.xcscheme
-*/Environment.h
-*/MyEnvironment.swift
-*/acct.txt
-AquariumControllerESP32/AquariumController/main/Environment.h
-AquariumControllerClient/AquariumControllerClient/MyEnvironment.swift
-AquariumControllerClient/AquariumControllerClient/.DS_Store
-AquariumControllerClient/.DS_Store
-*/.DS_Store
-AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcschemes/xcschememanagement.plist
-AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 
-AquariumControllerClient/.DS_Store
-AquariumControllerClient/AquariumControllerClient.xcodeproj/xcuserdata/connorwilliams.xcuserdatad/xcschemes/xcschememanagement.plist
-AquariumControllerClient/AquariumControllerClient/.DS_Store
-AquariumControllerClient/AquariumControllerClient/Assets.xcassets/.DS_Store
+
+**/GitCleanupCommands.txt
+*.DS_Store
+
+**/managed_components/
+**/trace/
+**/Environment.h
+
+**/MyEnvironment.swift
+**/xcshareddata/
+**/xcuserdata/
+*.xcuserstate

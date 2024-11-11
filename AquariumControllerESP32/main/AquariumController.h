@@ -1,6 +1,7 @@
 #ifndef AQUARIUMCONTROLLER_H
 #define AQUARIUMCONTROLLER_H
 #define useSerial
+#define SIMULATE_SENSOR_VALS
 //#define useSerialBT
 //Pins
 /*

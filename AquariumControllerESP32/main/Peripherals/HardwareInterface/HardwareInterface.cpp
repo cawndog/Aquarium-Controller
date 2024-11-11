@@ -166,7 +166,11 @@ float HardwareInterface::readTdsSensor(float temperature) {
   float compensationVoltage=averageVoltage/compensationCoefficient;
   //convert voltage value to tds value
 
-  return ((133.42*compensationVoltage*compensationVoltage*compensationVoltage - 255.86*compensationVoltage*compensationVoltage + 857.39*compensationVoltage)*0.5); 
+  #ifdef SIMULATE_SENSOR_VALS
+    return 232.3;
+  #else
+    return ((133.42*compensationVoltage*compensationVoltage*compensationVoltage - 255.86*compensationVoltage*compensationVoltage + 857.39*compensationVoltage)*0.5); 
+  #endif
 }
 // median filtering algorithm
 int HardwareInterface::getMedianNum(int bArray[], int iFilterLen){
@@ -193,6 +197,10 @@ int HardwareInterface::getMedianNum(int bArray[], int iFilterLen){
 }
 float HardwareInterface::readAquariumTemperatureSensor() {
   this->tempSensors->requestTemperaturesByIndex(0);
-  return this->tempSensors->getTempFByIndex(0);
+  #ifdef SIMULATE_SENSOR_VALS
+    return 80.6;
+  #else 
+    return this->tempSensors->getTempFByIndex(0);
+  #endif
 }
 

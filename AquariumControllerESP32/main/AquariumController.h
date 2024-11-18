@@ -1,10 +1,9 @@
 #ifndef AQUARIUMCONTROLLER_H
 #define AQUARIUMCONTROLLER_H
 #define useSerial
-#define SIMULATE_SENSOR_VALS
-//#define useSerialBT
-//Pins
+//#define SIMULATE_SENSOR_VALS
 
+//Board Pin Configuration
 
 #if CONFIG_IDF_TARGET_ESP32
 //ESP32

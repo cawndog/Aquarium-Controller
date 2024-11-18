@@ -140,19 +140,20 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
       this->aqWebServerInterface->alarmUpdate(alarm);
       return;
     }
-    
     if (alarm->getAlarmState() > 0) {
-      this->heater.setStateOff(true);
-      this->filter.setStateOff(true);
-      this->airPump.setStateOn(true);
-      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      //vTaskDelay(xDelay);
-      this->waterValve.setStateOff(true);
+      if (alarm->getAlarmOverride() == false) {
+        this->heater.setStateOff(true);
+        this->filter.setStateOff(true);
+        this->airPump.setStateOn(true);
+        this->waterValve.setStateOff(true);
+      }
+      static EmailMessage eMessage;
+      eMessage.subject = "Aquarium Alert";
+      eMessage.body = "Water Sensors have detected water.";
+      xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*)&eMessage, tskIDLE_PRIORITY, NULL);
     } else {
       this->filter.setStateOn(true);
       this->aqTemperature.readSensor();
-      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      //vTaskDelay(xDelay);
       this->waterValve.setStateOn(true);
     }
     this->aqWebServerInterface->alarmUpdate(alarm);

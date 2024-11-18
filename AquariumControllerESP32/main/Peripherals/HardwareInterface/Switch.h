@@ -13,11 +13,16 @@
 #include "unity.h"
 #include "sdkconfig.h"
 
-#define SERVO_CH0_PIN 33 //Heater Servo, Servo #3
-#define SERVO_CH1_PIN 25 //Air Servo, Servo #1
-#define SERVO_CH2_PIN 26 //Filter Servo, Servo #4
-#define SERVO_CH3_PIN 27 //Light Servo, Servo #2
+#if SOC_LEDC_SUPPORT_HS_MODE
+  #define SRVO_LEDC_SPEED_MODE LEDC_HIGH_SPEED_MODE
+#else
+  #define SRVO_LEDC_SPEED_MODE LEDC_LOW_SPEED_MODE
+#endif
 
+#define SERVO_CH0_PIN HEATER_SRVO_PIN //Heater Servo, Servo #3
+#define SERVO_CH1_PIN AIR_SRVO_PIN //Air Servo, Servo #1
+#define SERVO_CH2_PIN FILTER_SRVO_PIN //Filter Servo, Servo #4
+#define SERVO_CH3_PIN LIGHT_SRVO_PIN //Light Servo, Servo #2
 
 //--Servo Motor Positions--
 #define OFF_POS 90

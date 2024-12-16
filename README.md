@@ -71,7 +71,7 @@ For the ESP32 project, open the AquariumControllerESP32 directory in Visual Stud
 
 | ESP32 Microcontroller      | 120v Switch Box            | Water Valve                |
 |----------------------------|----------------------------|----------------------------|
-| <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Controller%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Switch%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Water%20Valve.png" width="300"/> |
+| <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Controller%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Switch%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Water%20Valve.jpg" width="300"/> |
 
 </div>
 

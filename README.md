@@ -8,6 +8,7 @@ A system for managing and automating aquarium settings, built to monitor and con
 - [Technologies Used](#technologies-used)
 - [Setup and Installation](#setup-and-installation)
 - [Configuration](#configuration)
+- [Screenshots and Images](#screenshots-and-images)
 
 ---
 
@@ -47,3 +48,33 @@ For the ESP32 project, open the AquariumControllerESP32 directory in Visual Stud
 ## Configuration
 - The iOS application contains a file named MyEnvironment.h, which holds values like the API key. Modify this file as needed.
 - The ESP32 project contains an Environment.h file, which will also need to be modified as needed.
+
+## Screenshots and Images
+### Client Application
+<div align="center">
+
+| Home Screen                | Settings Screen            |
+|----------------------------|----------------------------|
+| <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/iOS%20App/Home.PNG" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/iOS%20App/Settings.PNG" width="300"/> |
+
+</div>
+<div align="center">
+
+| Email Alerts for Alarms    |
+|----------------------------|
+| <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/iOS%20App/Email_Alerts_for_Alarms.gif" width="400"/> |
+
+</div>
+
+### Controller
+<div align="center">
+
+| ESP32 Microcontroller      | 120v Switch Box            | Water Valve                |
+|----------------------------|----------------------------|----------------------------|
+| <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Controller%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Switch%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Water%20Valve.png" width="300"/> |
+
+</div>
+
+
+
+

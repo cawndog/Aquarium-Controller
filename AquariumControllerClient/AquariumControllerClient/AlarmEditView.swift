@@ -17,7 +17,7 @@ struct AlarmEditView: View {
     init(alarm: Alarm) {
         self.alarm = alarm
         //dateFormatter.dateFormat = "MM-dd HH:mm:ss"
-        dateFormatter.dateFormat = "MM/dd HH:mm"
+        dateFormatter.dateFormat = "MM/dd/yyyy hh:mm a"
         alarmDateTime = Date(timeIntervalSince1970: Double(alarm.alarmState))
         
     }

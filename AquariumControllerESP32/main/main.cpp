@@ -101,7 +101,7 @@ void setup() {
   savedState.begin("aqController", false);
   aqWebServer.init();
   aqController.init(&aqWebServer);
-  aqWebServer.updateDynamicIP();
+  //aqWebServer.updateDynamicIP();
   initMailClient();
   syncSemaphore = xSemaphoreCreateBinary();
   //taskTimer = timerBegin(2000); //counter will increment 2,000 times/second
@@ -115,7 +115,7 @@ void setup() {
       aqController.waterSensor.readSensor();
       Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
       Serial.printf("Free Heap: %lu\n", ESP.getFreeHeap());
-      while (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
+      while (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD || aqController.waterSensorAlarm.getAlarmState() > 0) {
         Serial.printf("****** Water Sensor Alarm ******\nWater detected.\n");
         if (aqController.waterSensorAlarm.getAlarmState() > 0) {
           //If we are already in an active alarm, set alarm state to its same value.

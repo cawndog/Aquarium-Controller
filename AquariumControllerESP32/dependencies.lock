@@ -50,20 +50,6 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 0.0.11
-  espressif/esp-sr:
-    component_hash: 4670bffcdd31f3b7cdc124fd26eb9a6f564e7fe5a112e6aa0b30e4bd30a990fd
-    dependencies:
-    - name: espressif/esp-dsp
-      registry_url: https://components.espressif.com/
-      require: private
-      version: <=1.5.0
-    - name: idf
-      require: private
-      version: '>=5.0'
-    source:
-      registry_url: https://components.espressif.com/
-      type: service
-    version: 1.9.4
   espressif/esp-zboss-lib:
     component_hash: 5a97b85339c49541c70332de19a210b86abd72f2614f3e8e521e72a358697cac
     dependencies:
@@ -279,27 +265,25 @@ dependencies:
       type: service
     version: 1.0.20~1
   espressif/mdns:
-    component_hash: af6306fe65d637a3683d1cf671508fcedd6b05f9ca029a8815abeab64001fb8d
+    component_hash: f5267872ed0c810d1b281c41a567cace7b3a3695c0df9dff89f631e9ba426ed0
     dependencies:
     - name: idf
-      registry_url: https://components.espressif.com
       require: private
       version: '>=5.0'
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 1.4.0
+    version: 1.4.2
   espressif/network_provisioning:
-    component_hash: ef2e10182fd1861e68b821491916327c25416ca7ae70e5a6e43313dbc71fe993
+    component_hash: 1c0f76f4a37c3f2101ae9735e9da901ef4469a07af9cc075fc8f08fee43281e4
     dependencies:
     - name: idf
-      registry_url: https://components.espressif.com
       require: private
       version: '>=5.1'
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 1.0.2
+    version: 1.0.3
   espressif/qrcode:
     component_hash: 3b493771bc5d6ad30cbf87c25bf784aada8a08c941504355b55d6b75518ed7bc
     dependencies: []
@@ -333,7 +317,6 @@ direct_dependencies:
 - chmorgan/esp-libhelix-mp3
 - espressif/esp-dsp
 - espressif/esp-modbus
-- espressif/esp-sr
 - espressif/esp-zboss-lib
 - espressif/esp-zigbee-lib
 - espressif/esp_insights
@@ -346,5 +329,5 @@ direct_dependencies:
 - idf
 - joltwallet/littlefs
 manifest_hash: 20ed83bd7b00beac5599ab5505df317e0d5d57f7845a73db0fbc6e4427931b42
-target: esp32s3
+target: esp32
 version: 2.0.0

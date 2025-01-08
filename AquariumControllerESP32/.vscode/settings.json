@@ -8,9 +8,10 @@
   },
   "idf.espIdfPath": "/Users/connorwilliams/esp/v5.1.4/esp-idf",
   "idf.openOcdConfigs": [
-    "board/esp32s3-builtin.cfg"
+    "interface/ftdi/esp32_devkitj_v1.cfg",
+    "target/esp32.cfg"
   ],
-  "idf.port": "/dev/tty.usbserial-210",
+  "idf.port": "/dev/tty.usbserial-0001",
   "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
   "idf.toolsPath": "/Users/connorwilliams/.espressif",
   "idf.openOcdDebugLevel": 2,

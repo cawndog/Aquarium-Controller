@@ -14,7 +14,7 @@ struct TaskSummaryView: View {
     init(task: AqTask) {
         self.task = task
         if (task.taskType == .SCHEDULED_DEVICE_TASK || task.taskType == .SCHEDULED_TASK) {
-            dateFormatter.dateFormat = "HH:mm"
+            dateFormatter.dateFormat = "hh:mm a"
         } else {
             dateFormatter.dateFormat = "HH:mm:ss"
         }

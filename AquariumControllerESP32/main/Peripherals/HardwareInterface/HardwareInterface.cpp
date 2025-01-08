@@ -198,7 +198,7 @@ int HardwareInterface::getMedianNum(int bArray[], int iFilterLen){
 float HardwareInterface::readAquariumTemperatureSensor() {
   this->tempSensors->requestTemperaturesByIndex(0);
   #ifdef SIMULATE_SENSOR_VALS
-    return 80.6;
+    return 82.4;
   #else 
     return this->tempSensors->getTempFByIndex(0);
   #endif

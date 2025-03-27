@@ -17,6 +17,10 @@
   #define LIGHT_SRVO_PIN 27 //Servo #2
   #define HEATER_SRVO_PIN 33//Servo #3
   #define FILTER_SRVO_PIN 26 //Servo #4
+
+  #define WATER_SENSOR_ALARM_THRESHOLD 80 //ADC reading value that will trigger an alarm state and shut off water valve. ESP32
+  #define WATER_SENSOR_READING_INTERVAL 10000 //time in ms to poll water sensor
+
 #endif
 #if CONFIG_IDF_TARGET_ESP32S3
 //ESP32 S3
@@ -30,10 +34,10 @@
   #define LIGHT_SRVO_PIN 11 //Light Servo, Servo #2
   #define HEATER_SRVO_PIN 12//Heater Servo, Servo #3
   #define FILTER_SRVO_PIN 13 //Filter Servo, Servo #4
-#endif
 
-//#define WATER_SENSOR_ALARM_THRESHOLD 150 //ADC reading value that will trigger an alarm state and shut off water valve. ESP32 S3
-#define WATER_SENSOR_ALARM_THRESHOLD 80 //ADC reading value that will trigger an alarm state and shut off water valve. ESP32
-#define WATER_SENSOR_READING_INTERVAL 10000 //time in ms to poll water sensor
+  #define WATER_SENSOR_ALARM_THRESHOLD 200 //ADC reading value that will trigger an alarm state and shut off water valve. ESP32 S3
+  #define WATER_SENSOR_READING_INTERVAL 10000 //time in ms to poll water sensor
+
+#endif
 
 #endif

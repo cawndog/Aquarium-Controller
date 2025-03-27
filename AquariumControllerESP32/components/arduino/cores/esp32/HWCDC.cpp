@@ -286,14 +286,14 @@ bool HWCDC::deinit(void *busptr) {
   running = true;
   // Setting USB D+ D- pins
   bool retCode = true;
-  retCode &= perimanClearPinBus(USB_DM_GPIO_NUM);
-  retCode &= perimanClearPinBus(USB_DP_GPIO_NUM);
+  retCode &= perimanClearPinBus(USB_INT_PHY0_DM_GPIO_NUM);
+  retCode &= perimanClearPinBus(USB_INT_PHY0_DP_GPIO_NUM);
   if (retCode) {
     // Force the host to re-enumerate (BUS_RESET)
-    pinMode(USB_DM_GPIO_NUM, OUTPUT_OPEN_DRAIN);
-    pinMode(USB_DP_GPIO_NUM, OUTPUT_OPEN_DRAIN);
-    digitalWrite(USB_DM_GPIO_NUM, LOW);
-    digitalWrite(USB_DP_GPIO_NUM, LOW);
+    pinMode(USB_INT_PHY0_DM_GPIO_NUM, OUTPUT_OPEN_DRAIN);
+    pinMode(USB_INT_PHY0_DP_GPIO_NUM, OUTPUT_OPEN_DRAIN);
+    digitalWrite(USB_INT_PHY0_DM_GPIO_NUM, LOW);
+    digitalWrite(USB_INT_PHY0_DP_GPIO_NUM, LOW);
   }
   // release the flag
   running = false;
@@ -323,11 +323,11 @@ void HWCDC::begin(unsigned long baud) {
   // delay(10);  // USB Host has to enumerate it again
 
   // Peripheral Manager setting for USB D+ D- pins
-  uint8_t pin = USB_DM_GPIO_NUM;
+  uint8_t pin = USB_INT_PHY0_DM_GPIO_NUM;
   if (!perimanSetPinBus(pin, ESP32_BUS_TYPE_USB_DM, (void *)this, -1, -1)) {
     goto err;
   }
-  pin = USB_DP_GPIO_NUM;
+  pin = USB_INT_PHY0_DP_GPIO_NUM;
   if (!perimanSetPinBus(pin, ESP32_BUS_TYPE_USB_DP, (void *)this, -1, -1)) {
     goto err;
   }
@@ -443,7 +443,7 @@ size_t HWCDC::write(const uint8_t *buffer, size_t size) {
       if (connected) {
         usb_serial_jtag_ll_ena_intr_mask(USB_SERIAL_JTAG_INTR_SERIAL_IN_EMPTY);
       }
-      // tracks CDC trasmission progress to avoid hanging if CDC is unplugged while still sending data
+      // tracks CDC transmission progress to avoid hanging if CDC is unplugged while still sending data
       size_t last_toSend = to_send;
       uint32_t tries = tx_timeout_ms;  // waits 1ms per sending data attempt, in case CDC is unplugged
       while (connected && to_send) {
@@ -479,7 +479,7 @@ size_t HWCDC::write(const uint8_t *buffer, size_t size) {
         }
       }
     }
-    // CDC was diconnected while sending data ==> flush the TX buffer keeping the last data
+    // CDC was disconnected while sending data ==> flush the TX buffer keeping the last data
     if (to_send && !usb_serial_jtag_ll_txfifo_writable()) {
       connected = false;
       flushTXBuffer(buffer + so_far, to_send);

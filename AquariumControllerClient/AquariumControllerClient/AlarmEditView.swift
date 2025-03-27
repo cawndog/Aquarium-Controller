@@ -17,7 +17,7 @@ struct AlarmEditView: View {
     init(alarm: Alarm) {
         self.alarm = alarm
         //dateFormatter.dateFormat = "MM-dd HH:mm:ss"
-        dateFormatter.dateFormat = "MM/dd HH:mm"
+        dateFormatter.dateFormat = "MM/dd/yyyy hh:mm a"
         alarmDateTime = Date(timeIntervalSince1970: Double(alarm.alarmState))
         
     }
@@ -37,6 +37,20 @@ struct AlarmEditView: View {
                     }
                 }
 
+            }
+            Section {
+                Toggle(isOn: Binding(
+                    get:{alarm.alarmOverride},
+                    set:{v in
+                        alarm.setAlarmOverride(override: v)
+                        Task {
+                            await aqController.network.setAlarmOverride(alarm: alarm)
+                        }
+                    })) {
+                        Text("Alarm Override")
+                    }
+            } footer: {
+                Text("When this is enabled, the aquarium controller sends alerts during an active alarm but won't take corrective actions.").textCase(nil).bold()
             }
             Section {
                 Button("Reset Alarm", action: {

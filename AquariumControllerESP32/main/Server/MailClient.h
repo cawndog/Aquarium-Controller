@@ -66,13 +66,14 @@ static volatile SemaphoreHandle_t sendEmailSemaphore = NULL;
 //static int write_ssl_data(mbedtls_ssl_context *ssl, unsigned char *buf, size_t len);
 //static int perform_tls_handshake(mbedtls_ssl_context *ssl);
 //static void smtp_client_task(void *pvParameters);
-void initMailClient();
-void sendEmailTask (void *pvParameters);
 
 struct EmailMessage {
   public: 
     String subject;
     String body;
 } typedef EmailMessage;
+
+void initMailClient();
+void sendEmailTask (void* pvParameters);
 
 #endif

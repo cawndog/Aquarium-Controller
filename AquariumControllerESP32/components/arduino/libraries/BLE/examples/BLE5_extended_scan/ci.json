@@ -1,6 +1,6 @@
 {
-  "targets": {
-    "esp32": false,
-    "esp32s2": false
-  }
+  "fqbn_append": "PartitionScheme=huge_app",
+  "requires": [
+    "CONFIG_SOC_BLE_50_SUPPORTED=y"
+  ]
 }

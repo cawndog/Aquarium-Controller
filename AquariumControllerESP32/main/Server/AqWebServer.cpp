@@ -177,7 +177,11 @@ String authFailResponse = "Authentication Failed";
       case WS_EVT_DATA:
         //handleWebSocketMessage(arg, data, len);
         break;
+      case WS_EVT_PING:
+        ws->text(client->id(), "Pong");
+        break;
       case WS_EVT_PONG:
+        break;
       case WS_EVT_ERROR:
         break;
     }
@@ -196,7 +200,7 @@ String authFailResponse = "Authentication Failed";
 bool AqWebServer::checkAuthorization(AsyncWebServerRequest *request) {
   bool authFailed = true;
   if (request->hasHeader("Authorization")) {
-    AsyncWebHeader *header = request->getHeader("Authorization");
+    const AsyncWebHeader* header = request->getHeader("Authorization");
     String authString = header->value();
     String requiredValue = API_KEY;
     if (authString != requiredValue) {

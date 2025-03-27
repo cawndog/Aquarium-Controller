@@ -14,7 +14,7 @@
 #include "Setting.h"
 #include "Alarm.h"
 #include "AqWebServerInterface.h"
-
+#include "MailClient.h"
 
 #define NUM_TASKS 20
 #ifdef useSerialBT

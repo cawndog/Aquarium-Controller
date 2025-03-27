@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "LittleFS.h"
+
+#ifdef CONFIG_LITTLEFS_PAGE_SIZE
 #include "vfs_api.h"
 
 extern "C" {
 #include <sys/unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
-}
-#include "sdkconfig.h"
-#include "LittleFS.h"
-
-#ifdef CONFIG_LITTLEFS_PAGE_SIZE
-extern "C" {
 #include "esp_littlefs.h"
 }
 
@@ -33,15 +30,9 @@ class LittleFSImpl : public VFSImpl {
 public:
   LittleFSImpl();
   virtual ~LittleFSImpl() {}
-  virtual bool exists(const char *path);
 };
 
 LittleFSImpl::LittleFSImpl() {}
-
-bool LittleFSImpl::exists(const char *path) {
-  File f = open(path, "r", false);
-  return (f == true);
-}
 
 LittleFSFS::LittleFSFS() : FS(FSImplPtr(new LittleFSImpl())), partitionLabel_(NULL) {}
 
@@ -104,9 +95,11 @@ void LittleFSFS::end() {
 }
 
 bool LittleFSFS::format() {
-  disableCore0WDT();
+  bool wdt_active = disableCore0WDT();
   esp_err_t err = esp_littlefs_format(partitionLabel_);
-  enableCore0WDT();
+  if (wdt_active) {
+    enableCore0WDT();
+  }
   if (err) {
     log_e("Formatting LittleFS failed! Error: %d", err);
     return false;
@@ -131,4 +124,4 @@ size_t LittleFSFS::usedBytes() {
 }
 
 LittleFSFS LittleFS;
-#endif
+#endif /* CONFIG_LITTLEFS_PAGE_SIZE */

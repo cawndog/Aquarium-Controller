@@ -53,7 +53,7 @@ struct GeneralSettingEditView: View {
             case "Thermostat":
                 return "thermometer"
             default:
-                return ""
+                return "thermometer"
         }
     }
 }

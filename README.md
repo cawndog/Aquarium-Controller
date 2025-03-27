@@ -26,15 +26,22 @@ The Aquarium Controller automates aquarium management tasks, using sensors and a
 
 
 ## Technologies Used
-- **Backend**: Server written in C++ using the ESPAsyncWebServer library for ESP32.
+- **Backend**: The ESP32 controller hosts a web server written in C++ using the ESPAsyncWebServer library. Below is the complete list of dependencies for the ESP32 project, all of which are included in this respository.
+  - <a href="https://github.com/espressif/arduino-esp32/releases/tag/3.1.3" target="_blank" rel="noopener noreferrer">Arduino Core v3.1.3</a>
+  - <a href="https://github.com/ESP32Async/ESPAsyncWebServer/releases/tag/v3.7.4" target="_blank" rel="noopener noreferrer">ESPAsyncWebServer v3.7.4</a>
+  - <a href="https://github.com/ESP32Async/AsyncTCP/releases/tag/v3.3.8" target="_blank" rel="noopener noreferrer">AsyncTCP v3.3.8</a>
+  - <a href="https://github.com/fbiego/ESP32Time/releases/tag/2.0.6" target="_blank" rel="noopener noreferrer">ESP32Time v2.0.6</a>
+  - <a href="https://github.com/milesburton/Arduino-Temperature-Control-Library" target="_blank" rel="noopener noreferrer">Dallas Temperature v3.11.0</a>
+  - <a href="https://github.com/PaulStoffregen/OneWire/releases/tag/v2.3.8" target="_blank" rel="noopener noreferrer">OneWire v2.3.8</a>
+  - <a href="https://github.com/espressif/esp-iot-solution/tree/release/v2.0/components/motor/servo" target="_blank" rel="noopener noreferrer">Servo from esp-iot-solution v2.0</a>
 - **Frontend**: SwiftUI
 - **Communication Protocols**: REST API, Websockets
 - **Other Tools**: ESP-IDF, ESP-IDF Extension for Visual Studio Code
 
 ## Setup and Installation
 ### Prerequisites
-- ESP-IDF 5.1.4 Installed
 - Visual Studio Code and the ESP-IDF Extension for Visual Studio Code Installed
+- ESP-IDF 5.3.2 Installed
 - Xcode installed (Only required for the client application)
 - Git installed
 
@@ -74,7 +81,3 @@ For the ESP32 project, open the AquariumControllerESP32 directory in Visual Stud
 | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Controller%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Switch%20Box%20Internal.jpeg" width="300"/> | <img src="https://github.com/cawndog/Aquarium-Controller/blob/main/AqController%20Images/Controller/Water%20Valve.jpg" width="300"/> |
 
 </div>
-
-
-
-

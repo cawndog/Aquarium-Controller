@@ -24,7 +24,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   filter.init("Filter", &hardwareInterface, 
     [this](bool newState){
       if (newState == true) {
-        if (this->maintenanceMode.getValue() != 0 || this->feedMode.getValue() != 0 || this->waterSensorAlarm.getAlarmState() > 0 || this->waterValve.getStateBool() ==  false) {
+        if (this->maintenanceMode.getValue() != 0 || this->feedMode.getValue() != 0 || this->waterSensorAlarm.getAlarmState() > 0) {
           return false;
         }
       }
@@ -35,10 +35,11 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   heater.init("Heater", &hardwareInterface,
     [this](bool newState){
       if (newState == true) {
-        return this->filter.getStateBool();
-      } else {
-        return true;
+        if (this->waterValve.getStateBool() ==  false || this->filter.getStateBool() == false) {
+          return false;
+        }
       }
+      return true;
     },
     [this](Device** devices, int numDevices) {
       this->aqWebServerInterface->deviceStateUpdate(devices, numDevices);
@@ -67,14 +68,18 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   aqTemperature.init("Aquarium Temperature", &hardwareInterface, [this](Sensor* sensor) {
     float valAsFloat = sensor->getValue().toFloat();
     if (valAsFloat < (this->thermostat.getValue() - 0.5)) {
-      if (valAsFloat < (this->thermostat.getValue() - 2.0)) {
-          heater.reset();
+      if (valAsFloat < (this->thermostat.getValue() - 1.5)) {
+          if (rtc.getLocalEpoch() > (this->thermostat.getLastUpdated() + 7200)) {
+            heater.reset();
+          }
       }
       heater.setStateOn();
     }
     else if (valAsFloat > (this->thermostat.getValue() + 0.5)) {
-      if (valAsFloat > (this->thermostat.getValue() + 2.0)) {
-        heater.reset();
+      if (valAsFloat > (this->thermostat.getValue() + 1.5)) {
+        if (rtc.getLocalEpoch() > (this->thermostat.getLastUpdated() + 7200)) {
+          heater.reset();
+        }
       }
       heater.setStateOff();
     }
@@ -140,19 +145,20 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
       this->aqWebServerInterface->alarmUpdate(alarm);
       return;
     }
-    
     if (alarm->getAlarmState() > 0) {
-      this->heater.setStateOff(true);
-      this->filter.setStateOff(true);
-      this->airPump.setStateOn(true);
-      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      //vTaskDelay(xDelay);
-      this->waterValve.setStateOff(true);
+      if (alarm->getAlarmOverride() == false) {
+        this->heater.setStateOff(true);
+        this->filter.setStateOff(true);
+        this->airPump.setStateOn(true);
+        this->waterValve.setStateOff(true);
+      }
+      static EmailMessage eMessage;
+      eMessage.subject = "Aquarium Alert";
+      eMessage.body = "Water Sensors have detected water. Closing water valve.";
+      xTaskCreate(sendEmailTask, "smtp_client_task", TASK_STACK_SIZE, (void*)&eMessage, tskIDLE_PRIORITY, NULL);
     } else {
       this->filter.setStateOn(true);
       this->aqTemperature.readSensor();
-      //const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      //vTaskDelay(xDelay);
       this->waterValve.setStateOn(true);
     }
     this->aqWebServerInterface->alarmUpdate(alarm);
@@ -183,7 +189,7 @@ void AqController::init(AqWebServerInterface* aqWebServerInterface) {
   });
   aqTemperature.readSensor();
   tds.readSensor();
-  initSchedDeviceTasks();
+  //initSchedDeviceTasks();
 }
 
 Task* AqController::getTaskByName(String name) {

@@ -125,6 +125,8 @@ typedef enum {
 #define SOC_RX0 (gpio_num_t)17
 #elif CONFIG_IDF_TARGET_ESP32H2
 #define SOC_RX0 (gpio_num_t)23
+#elif CONFIG_IDF_TARGET_ESP32P4
+#define SOC_RX0 (gpio_num_t)38
 #endif
 #endif
 
@@ -141,12 +143,14 @@ typedef enum {
 #define SOC_TX0 (gpio_num_t)16
 #elif CONFIG_IDF_TARGET_ESP32H2
 #define SOC_TX0 (gpio_num_t)24
+#elif CONFIG_IDF_TARGET_ESP32P4
+#define SOC_TX0 (gpio_num_t)37
 #endif
 #endif
 
 // Default pins for UART1 are arbitrary, and defined here for convenience.
 
-#if SOC_UART_NUM > 1
+#if SOC_UART_HP_NUM > 1
 #ifndef RX1
 #if CONFIG_IDF_TARGET_ESP32
 #define RX1 (gpio_num_t)26
@@ -162,6 +166,8 @@ typedef enum {
 #define RX1 (gpio_num_t)4
 #elif CONFIG_IDF_TARGET_ESP32H2
 #define RX1 (gpio_num_t)0
+#elif CONFIG_IDF_TARGET_ESP32P4
+#define RX1 (gpio_num_t)11
 #endif
 #endif
 
@@ -180,13 +186,15 @@ typedef enum {
 #define TX1 (gpio_num_t)5
 #elif CONFIG_IDF_TARGET_ESP32H2
 #define TX1 (gpio_num_t)1
+#elif CONFIG_IDF_TARGET_ESP32P4
+#define TX1 (gpio_num_t)10
 #endif
 #endif
-#endif /* SOC_UART_NUM > 1 */
+#endif /* SOC_UART_HP_NUM > 1 */
 
 // Default pins for UART2 are arbitrary, and defined here for convenience.
 
-#if SOC_UART_NUM > 2
+#if SOC_UART_HP_NUM > 2
 #ifndef RX2
 #if CONFIG_IDF_TARGET_ESP32
 #define RX2 (gpio_num_t)4
@@ -202,7 +210,7 @@ typedef enum {
 #define TX2 (gpio_num_t)20
 #endif
 #endif
-#endif /* SOC_UART_NUM > 2 */
+#endif /* SOC_UART_HP_NUM > 2 */
 
 typedef std::function<void(void)> OnReceiveCb;
 typedef std::function<void(hardwareSerial_error_t)> OnReceiveErrorCb;
@@ -228,7 +236,7 @@ public:
 
   // onReceive will setup a callback that will be called whenever an UART interruption occurs (UART_INTR_RXFIFO_FULL or UART_INTR_RXFIFO_TOUT)
   // UART_INTR_RXFIFO_FULL interrupt triggers at UART_FULL_THRESH_DEFAULT bytes received (defined as 120 bytes by default in IDF)
-  // UART_INTR_RXFIFO_TOUT interrupt triggers at UART_TOUT_THRESH_DEFAULT symbols passed without any reception (defined as 10 symbos by default in IDF)
+  // UART_INTR_RXFIFO_TOUT interrupt triggers at UART_TOUT_THRESH_DEFAULT symbols passed without any reception (defined as 10 symbols by default in IDF)
   // onlyOnTimeout parameter will define how onReceive will behave:
   // Default: true -- The callback will only be called when RX Timeout happens.
   //                  Whole stream of bytes will be ready for being read on the callback function at once.
@@ -357,11 +365,17 @@ extern void serialEventRun(void) __attribute__((weak));
 #endif  // ARDUINO_USB_CDC_ON_BOOT
 // There is always Seria0 for UART0
 extern HardwareSerial Serial0;
-#if SOC_UART_NUM > 1
+#if SOC_UART_HP_NUM > 1
 extern HardwareSerial Serial1;
 #endif
-#if SOC_UART_NUM > 2
+#if SOC_UART_HP_NUM > 2
 extern HardwareSerial Serial2;
+#endif
+#if SOC_UART_HP_NUM > 3
+extern HardwareSerial Serial3;
+#endif
+#if SOC_UART_HP_NUM > 4
+extern HardwareSerial Serial4;
 #endif
 #endif  //!defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_SERIAL)
 

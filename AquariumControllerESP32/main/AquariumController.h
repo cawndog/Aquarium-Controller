@@ -2,7 +2,7 @@
 #define AQUARIUMCONTROLLER_H
 #define useSerial
 #include "sdkconfig.h"
-//#define SIMULATE_SENSOR_VALS
+#define SIMULATE_SENSOR_VALS
 
 //Board Pin Configuration
 #if CONFIG_IDF_TARGET_ESP32

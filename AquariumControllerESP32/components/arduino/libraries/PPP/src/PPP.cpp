@@ -1,12 +1,13 @@
 #define ARDUINO_CORE_BUILD
 #include "PPP.h"
-#if CONFIG_LWIP_PPP_SUPPORT
+#if CONFIG_LWIP_PPP_SUPPORT && ARDUINO_HAS_ESP_MODEM
 #include "esp32-hal-periman.h"
 #include "esp_netif.h"
 #include "esp_netif_ppp.h"
 #include <string>
 #include "driver/uart.h"
 #include "hal/uart_ll.h"
+#include "esp_private/uart_share_hw_ctrl.h"
 
 #define PPP_CMD_MODE_CHECK(x)                                    \
   if (_dce == NULL) {                                            \
@@ -226,7 +227,7 @@ bool PPPClass::setPins(int8_t tx, int8_t rx, int8_t rts, int8_t cts, esp_modem_f
 bool PPPClass::begin(ppp_modem_model_t model, uint8_t uart_num, int baud_rate) {
   esp_err_t ret = ESP_OK;
   bool pin_ok = false;
-  int trys = 0;
+  int tries = 0;
 
   if (_esp_netif != NULL || _dce != NULL) {
     log_w("PPP Already Started");
@@ -279,7 +280,7 @@ bool PPPClass::begin(ppp_modem_model_t model, uint8_t uart_num, int baud_rate) {
   dte_config.uart_config.flow_control = _flow_ctrl;
   dte_config.uart_config.rx_buffer_size = _rx_buffer_size;
   dte_config.uart_config.tx_buffer_size = _tx_buffer_size;
-  dte_config.uart_config.port_num = _uart_num;
+  dte_config.uart_config.port_num = (uart_port_t)_uart_num;
   dte_config.uart_config.baud_rate = baud_rate;
 
   /* Configure the DCE */
@@ -313,19 +314,28 @@ bool PPPClass::begin(ppp_modem_model_t model, uint8_t uart_num, int baud_rate) {
   if (_pin_rst >= 0) {
     // wait to be able to talk to the modem
     log_v("Waiting for response from the modem");
-    while (esp_modem_sync(_dce) != ESP_OK && trys < 100) {
-      trys++;
+    while (esp_modem_sync(_dce) != ESP_OK && tries < 100) {
+      tries++;
       delay(500);
     }
-    if (trys >= 100) {
+    if (tries >= 100) {
       log_e("Failed to wait for communication");
       goto err;
     }
   } else {
     // try to communicate with the modem
     if (esp_modem_sync(_dce) != ESP_OK) {
-      log_v("Modem does not respond to AT, maybe in DATA mode? ...exiting network mode");
+      log_v("Modem does not respond to AT! Switching to COMMAND mode.");
       esp_modem_set_mode(_dce, ESP_MODEM_MODE_COMMAND);
+      if (esp_modem_sync(_dce) != ESP_OK) {
+        log_v("Modem does not respond to AT! Switching to CMUX mode.");
+        if (esp_modem_set_mode(_dce, ESP_MODEM_MODE_CMUX) != ESP_OK) {
+          log_v("Modem failed to switch to CMUX mode!");
+        } else {
+          log_v("Switching back to COMMAND mode");
+          esp_modem_set_mode(_dce, ESP_MODEM_MODE_COMMAND);
+        }
+      }
       if (esp_modem_sync(_dce) != ESP_OK) {
         log_e("Modem failed to respond to AT!");
         goto err;
@@ -644,7 +654,10 @@ bool PPPClass::setBaudrate(int baudrate) {
     log_e("uart_get_sclk_freq failed with %d %s", err, esp_err_to_name(err));
     return false;
   }
-  uart_ll_set_baudrate(UART_LL_GET_HW(_uart_num), (uint32_t)baudrate, sclk_freq);
+
+  HP_UART_SRC_CLK_ATOMIC() {
+    uart_ll_set_baudrate(UART_LL_GET_HW(_uart_num), (uint32_t)baudrate, sclk_freq);
+  }
 
   return true;
 }

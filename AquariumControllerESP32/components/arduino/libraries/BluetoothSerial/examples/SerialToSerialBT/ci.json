@@ -1,9 +1,6 @@
 {
-  "targets": {
-    "esp32c3": false,
-    "esp32c6": false,
-    "esp32h2": false,
-    "esp32s2": false,
-    "esp32s3": false
-  }
+  "fqbn_append": "PartitionScheme=huge_app",
+  "requires": [
+    "CONFIG_BT_SPP_ENABLED=y"
+  ]
 }

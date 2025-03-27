@@ -133,7 +133,7 @@ void setup() {
       const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
       vTaskDelay(xDelay);
     }
-  },"WS_READ", 2500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+  },"WS_READ", 4500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
   //configASSERT(xHandle);
   //Serial.printf("*************End Setup()*************\n");
   //Serial.printf("\nTotal heap: %lu\n", ESP.getHeapSize());

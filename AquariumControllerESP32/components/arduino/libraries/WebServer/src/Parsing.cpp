@@ -78,8 +78,14 @@ bool WebServer::_parseRequest(NetworkClient &client) {
   String req = client.readStringUntil('\r');
   client.readStringUntil('\n');
   //reset header value
-  for (int i = 0; i < _headerKeysCount; ++i) {
-    _currentHeaders[i].value = String();
+  if (_collectAllHeaders) {
+    // clear previous headers
+    collectAllHeaders();
+  } else {
+    // clear previous headers
+    for (RequestArgument *header = _currentHeaders; header; header = header->next) {
+      header->value = String();
+    }
   }
 
   // First line of HTTP request looks like "GET /path HTTP/1.1"
@@ -154,9 +160,6 @@ bool WebServer::_parseRequest(NetworkClient &client) {
       headerValue.trim();
       _collectHeader(headerName.c_str(), headerValue.c_str());
 
-      log_v("headerName: %s", headerName.c_str());
-      log_v("headerValue: %s", headerValue.c_str());
-
       if (headerName.equalsIgnoreCase(FPSTR(Content_Type))) {
         using namespace mime;
         if (headerValue.startsWith(FPSTR(mimeTable[txt].mimeType))) {
@@ -187,7 +190,8 @@ bool WebServer::_parseRequest(NetworkClient &client) {
       _currentRaw->status = RAW_WRITE;
 
       while (_currentRaw->totalSize < _clientContentLength) {
-        _currentRaw->currentSize = client.readBytes(_currentRaw->buf, HTTP_RAW_BUFLEN);
+        size_t read_len = std::min(_clientContentLength - _currentRaw->totalSize, (size_t)HTTP_RAW_BUFLEN);
+        _currentRaw->currentSize = client.readBytes(_currentRaw->buf, read_len);
         _currentRaw->totalSize += _currentRaw->currentSize;
         if (_currentRaw->currentSize == 0) {
           _currentRaw->status = RAW_ABORTED;
@@ -253,16 +257,13 @@ bool WebServer::_parseRequest(NetworkClient &client) {
       headerValue = req.substring(headerDiv + 2);
       _collectHeader(headerName.c_str(), headerValue.c_str());
 
-      log_v("headerName: %s", headerName.c_str());
-      log_v("headerValue: %s", headerValue.c_str());
-
       if (headerName.equalsIgnoreCase("Host")) {
         _hostHeader = headerValue;
       }
     }
     _parseArguments(searchStr);
   }
-  client.flush();
+  client.clear();
 
   log_v("Request: %s", url.c_str());
   log_v(" Arguments: %s", searchStr.c_str());
@@ -271,16 +272,33 @@ bool WebServer::_parseRequest(NetworkClient &client) {
 }
 
 bool WebServer::_collectHeader(const char *headerName, const char *headerValue) {
-  for (int i = 0; i < _headerKeysCount; i++) {
-    if (_currentHeaders[i].key.equalsIgnoreCase(headerName)) {
-      _currentHeaders[i].value = headerValue;
+  RequestArgument *last = nullptr;
+  for (RequestArgument *header = _currentHeaders; header; header = header->next) {
+    if (header->next == nullptr) {
+      last = header;
+    }
+    if (header->key.equalsIgnoreCase(headerName)) {
+      header->value = headerValue;
+      log_v("header collected: %s: %s", headerName, headerValue);
       return true;
     }
   }
+  assert(last);
+  if (_collectAllHeaders) {
+    last->next = new RequestArgument();
+    last->next->key = headerName;
+    last->next->value = headerValue;
+    _headerKeysCount++;
+    log_v("header collected: %s: %s", headerName, headerValue);
+    return true;
+  }
+
+  log_v("header skipped: %s: %s", headerName, headerValue);
+
   return false;
 }
 
-void WebServer::_parseArguments(String data) {
+void WebServer::_parseArguments(const String &data) {
   log_v("args: %s", data.c_str());
   if (_currentArgs) {
     delete[] _currentArgs;
@@ -387,7 +405,7 @@ int WebServer::_uploadReadByte(NetworkClient &client) {
   return res;
 }
 
-bool WebServer::_parseForm(NetworkClient &client, String boundary, uint32_t len) {
+bool WebServer::_parseForm(NetworkClient &client, const String &boundary, uint32_t len) {
   (void)len;
   log_v("Parse Form: Boundary: %s Length: %d", boundary.c_str(), len);
   String line;

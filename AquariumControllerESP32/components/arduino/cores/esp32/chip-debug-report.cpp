@@ -64,6 +64,9 @@ static void printPkgVersion(void) {
 #elif CONFIG_IDF_TARGET_ESP32H2
   uint32_t pkg_ver = REG_GET_FIELD(EFUSE_RD_MAC_SYS_4_REG, EFUSE_PKG_VERSION);
   chip_report_printf("%lu", pkg_ver);
+#elif CONFIG_IDF_TARGET_ESP32P4
+  uint32_t pkg_ver = REG_GET_FIELD(EFUSE_RD_MAC_SYS_2_REG, EFUSE_PKG_VERSION);
+  chip_report_printf("%lu", pkg_ver);
 #else
   chip_report_printf("Unknown");
 #endif
@@ -84,15 +87,11 @@ static void printChipInfo(void) {
     case CHIP_ESP32C3: chip_report_printf("ESP32-C3\n"); break;
     case CHIP_ESP32C6: chip_report_printf("ESP32-C6\n"); break;
     case CHIP_ESP32H2: chip_report_printf("ESP32-H2\n"); break;
+    case CHIP_ESP32P4: chip_report_printf("ESP32-P4\n"); break;
     default:           chip_report_printf("Unknown %d\n", info.model); break;
   }
   printPkgVersion();
-  chip_report_printf("  Revision          : ");
-  if (info.revision > 0xFF) {
-    chip_report_printf("%d.%d\n", info.revision >> 8, info.revision & 0xFF);
-  } else {
-    chip_report_printf("%d\n", info.revision);
-  }
+  chip_report_printf("  Revision          : %.2f\n", (float)(info.revision) / 100.0);
   chip_report_printf("  Cores             : %d\n", info.cores);
   rtc_cpu_freq_config_t conf;
   rtc_clk_cpu_freq_get_config(&conf);
@@ -110,6 +109,8 @@ static void printChipInfo(void) {
 static void printFlashInfo(void) {
 #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
 #define ESP_FLASH_IMAGE_BASE 0x1000
+#elif CONFIG_IDF_TARGET_ESP32P4
+#define ESP_FLASH_IMAGE_BASE 0x2000
 #else
 #define ESP_FLASH_IMAGE_BASE 0x0000
 #endif

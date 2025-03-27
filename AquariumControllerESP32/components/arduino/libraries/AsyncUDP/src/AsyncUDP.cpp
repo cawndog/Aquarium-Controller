@@ -15,6 +15,21 @@ extern "C" {
 
 #include "lwip/priv/tcpip_priv.h"
 
+#ifdef CONFIG_LWIP_TCPIP_CORE_LOCKING
+#define UDP_MUTEX_LOCK()                                \
+  if (!sys_thread_tcpip(LWIP_CORE_LOCK_QUERY_HOLDER)) { \
+    LOCK_TCPIP_CORE();                                  \
+  }
+
+#define UDP_MUTEX_UNLOCK()                             \
+  if (sys_thread_tcpip(LWIP_CORE_LOCK_QUERY_HOLDER)) { \
+    UNLOCK_TCPIP_CORE();                               \
+  }
+#else  // CONFIG_LWIP_TCPIP_CORE_LOCKING
+#define UDP_MUTEX_LOCK()
+#define UDP_MUTEX_UNLOCK()
+#endif  // CONFIG_LWIP_TCPIP_CORE_LOCKING
+
 static const char *netif_ifkeys[TCPIP_ADAPTER_IF_MAX] = {"WIFI_STA_DEF", "WIFI_AP_DEF", "ETH_DEF", "PPP_DEF"};
 
 static esp_err_t tcpip_adapter_get_netif(tcpip_adapter_if_t tcpip_if, void **netif) {
@@ -28,7 +43,9 @@ static esp_err_t tcpip_adapter_get_netif(tcpip_adapter_if_t tcpip_if, void **net
     if (netif_index < 0) {
       return ESP_FAIL;
     }
+    UDP_MUTEX_LOCK();
     *netif = (void *)netif_get_by_index(netif_index);
+    UDP_MUTEX_UNLOCK();
   } else {
     *netif = netif_default;
   }
@@ -232,9 +249,6 @@ static bool _udp_task_stop(){
 }
 */
 
-#define UDP_MUTEX_LOCK()    //xSemaphoreTake(_lock, portMAX_DELAY)
-#define UDP_MUTEX_UNLOCK()  //xSemaphoreGive(_lock)
-
 AsyncUDPMessage::AsyncUDPMessage(size_t size) {
   _index = 0;
   if (size > CONFIG_TCP_MSS) {
@@ -314,25 +328,36 @@ AsyncUDPPacket::AsyncUDPPacket(AsyncUDP *udp, pbuf *pb, const ip_addr_t *raddr, 
   pbuf_ref(_pb);
 
   //memcpy(&_remoteIp, raddr, sizeof(ip_addr_t));
+#if CONFIG_LWIP_IPV6
   _remoteIp.type = raddr->type;
   _localIp.type = _remoteIp.type;
+#endif
 
   eth_hdr *eth = NULL;
   udp_hdr *udphdr = (udp_hdr *)(_data - UDP_HLEN);
   _localPort = ntohs(udphdr->dest);
   _remotePort = ntohs(udphdr->src);
 
+#if CONFIG_LWIP_IPV6
   if (_remoteIp.type == IPADDR_TYPE_V4) {
+#endif
     eth = (eth_hdr *)(_data - UDP_HLEN - IP_HLEN - SIZEOF_ETH_HDR);
     struct ip_hdr *iphdr = (struct ip_hdr *)(_data - UDP_HLEN - IP_HLEN);
+#if CONFIG_LWIP_IPV6
     _localIp.u_addr.ip4.addr = iphdr->dest.addr;
     _remoteIp.u_addr.ip4.addr = iphdr->src.addr;
+#else
+  _localIp.addr = iphdr->dest.addr;
+  _remoteIp.addr = iphdr->src.addr;
+#endif
+#if CONFIG_LWIP_IPV6
   } else {
     eth = (eth_hdr *)(_data - UDP_HLEN - IP6_HLEN - SIZEOF_ETH_HDR);
     struct ip6_hdr *ip6hdr = (struct ip6_hdr *)(_data - UDP_HLEN - IP6_HLEN);
     memcpy(&_localIp.u_addr.ip6.addr, (uint8_t *)ip6hdr->dest.addr, 16);
     memcpy(&_remoteIp.u_addr.ip6.addr, (uint8_t *)ip6hdr->src.addr, 16);
   }
+#endif
   memcpy(_remoteMac, eth->src.addr, 6);
 
   struct netif *netif = NULL;
@@ -399,36 +424,48 @@ tcpip_adapter_if_t AsyncUDPPacket::interface() {
 }
 
 IPAddress AsyncUDPPacket::localIP() {
+#if CONFIG_LWIP_IPV6
   if (_localIp.type != IPADDR_TYPE_V4) {
     return IPAddress();
   }
   return IPAddress(_localIp.u_addr.ip4.addr);
+#else
+  return IPAddress(_localIp.addr);
+#endif
 }
 
+#if CONFIG_LWIP_IPV6
 IPAddress AsyncUDPPacket::localIPv6() {
   if (_localIp.type != IPADDR_TYPE_V6) {
     return IPAddress(IPv6);
   }
   return IPAddress(IPv6, (const uint8_t *)_localIp.u_addr.ip6.addr, _localIp.u_addr.ip6.zone);
 }
+#endif
 
 uint16_t AsyncUDPPacket::localPort() {
   return _localPort;
 }
 
 IPAddress AsyncUDPPacket::remoteIP() {
+#if CONFIG_LWIP_IPV6
   if (_remoteIp.type != IPADDR_TYPE_V4) {
     return IPAddress();
   }
   return IPAddress(_remoteIp.u_addr.ip4.addr);
+#else
+  return IPAddress(_remoteIp.addr);
+#endif
 }
 
+#if CONFIG_LWIP_IPV6
 IPAddress AsyncUDPPacket::remoteIPv6() {
   if (_remoteIp.type != IPADDR_TYPE_V6) {
     return IPAddress(IPv6);
   }
   return IPAddress(IPv6, (const uint8_t *)_remoteIp.u_addr.ip6.addr, _remoteIp.u_addr.ip6.zone);
 }
+#endif
 
 uint16_t AsyncUDPPacket::remotePort() {
   return _remotePort;
@@ -439,14 +476,22 @@ void AsyncUDPPacket::remoteMac(uint8_t *mac) {
 }
 
 bool AsyncUDPPacket::isIPv6() {
+#if CONFIG_LWIP_IPV6
   return _localIp.type == IPADDR_TYPE_V6;
+#else
+  return false;
+#endif
 }
 
 bool AsyncUDPPacket::isBroadcast() {
+#if CONFIG_LWIP_IPV6
   if (_localIp.type == IPADDR_TYPE_V6) {
     return false;
   }
   uint32_t ip = _localIp.u_addr.ip4.addr;
+#else
+  uint32_t ip = _localIp.addr;
+#endif
   return ip == 0xFFFFFFFF || ip == 0 || (ip & 0xFF000000) == 0xFF000000;
 }
 
@@ -473,12 +518,14 @@ bool AsyncUDP::_init() {
   if (_pcb) {
     return true;
   }
+  UDP_MUTEX_LOCK();
   _pcb = udp_new();
   if (!_pcb) {
+    UDP_MUTEX_UNLOCK();
     return false;
   }
-  //_lock = xSemaphoreCreateMutex();
   udp_recv(_pcb, &_udp_recv, (void *)this);
+  UDP_MUTEX_UNLOCK();
   return true;
 }
 
@@ -493,14 +540,12 @@ AsyncUDP::~AsyncUDP() {
   close();
   UDP_MUTEX_LOCK();
   udp_recv(_pcb, NULL, NULL);
+  UDP_MUTEX_UNLOCK();
   _udp_remove(_pcb);
   _pcb = NULL;
-  UDP_MUTEX_UNLOCK();
-  //vSemaphoreDelete(_lock);
 }
 
 void AsyncUDP::close() {
-  UDP_MUTEX_LOCK();
   if (_pcb != NULL) {
     if (_connected) {
       _udp_disconnect(_pcb);
@@ -508,7 +553,6 @@ void AsyncUDP::close() {
     _connected = false;
     //todo: unjoin multicast group
   }
-  UDP_MUTEX_UNLOCK();
 }
 
 bool AsyncUDP::connect(const ip_addr_t *addr, uint16_t port) {
@@ -520,14 +564,11 @@ bool AsyncUDP::connect(const ip_addr_t *addr, uint16_t port) {
     return false;
   }
   close();
-  UDP_MUTEX_LOCK();
   _lastErr = _udp_connect(_pcb, addr, port);
   if (_lastErr != ERR_OK) {
-    UDP_MUTEX_UNLOCK();
     return false;
   }
   _connected = true;
-  UDP_MUTEX_UNLOCK();
   return true;
 }
 
@@ -544,13 +585,10 @@ bool AsyncUDP::listen(const ip_addr_t *addr, uint16_t port) {
     IP_SET_TYPE_VAL(_pcb->local_ip, addr->type);
     IP_SET_TYPE_VAL(_pcb->remote_ip, addr->type);
   }
-  UDP_MUTEX_LOCK();
   if (_udp_bind(_pcb, addr, port) != ERR_OK) {
-    UDP_MUTEX_UNLOCK();
     return false;
   }
   _connected = true;
-  UDP_MUTEX_UNLOCK();
   return true;
 }
 
@@ -563,52 +601,84 @@ static esp_err_t joinMulticastGroup(const ip_addr_t *addr, bool join, tcpip_adap
       return ESP_ERR_INVALID_ARG;
     }
     netif = (struct netif *)nif;
+    UDP_MUTEX_LOCK();
 
+#if CONFIG_LWIP_IPV6
     if (addr->type == IPADDR_TYPE_V4) {
       if (join) {
         if (igmp_joingroup_netif(netif, (const ip4_addr *)&(addr->u_addr.ip4))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       } else {
         if (igmp_leavegroup_netif(netif, (const ip4_addr *)&(addr->u_addr.ip4))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       }
     } else {
       if (join) {
         if (mld6_joingroup_netif(netif, &(addr->u_addr.ip6))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       } else {
         if (mld6_leavegroup_netif(netif, &(addr->u_addr.ip6))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       }
     }
+#else
+    if (join) {
+      if (igmp_joingroup_netif(netif, (const ip4_addr *)(addr))) {
+        goto igmp_fail;
+      }
+    } else {
+      if (igmp_leavegroup_netif(netif, (const ip4_addr *)(addr))) {
+        goto igmp_fail;
+      }
+    }
+#endif
+    UDP_MUTEX_UNLOCK();
   } else {
+    UDP_MUTEX_LOCK();
+#if CONFIG_LWIP_IPV6
     if (addr->type == IPADDR_TYPE_V4) {
       if (join) {
         if (igmp_joingroup((const ip4_addr *)IP4_ADDR_ANY, (const ip4_addr *)&(addr->u_addr.ip4))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       } else {
         if (igmp_leavegroup((const ip4_addr *)IP4_ADDR_ANY, (const ip4_addr *)&(addr->u_addr.ip4))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       }
     } else {
       if (join) {
         if (mld6_joingroup((const ip6_addr *)IP6_ADDR_ANY, &(addr->u_addr.ip6))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       } else {
         if (mld6_leavegroup((const ip6_addr *)IP6_ADDR_ANY, &(addr->u_addr.ip6))) {
-          return ESP_ERR_INVALID_STATE;
+          goto igmp_fail;
         }
       }
     }
+#else
+    if (join) {
+      if (igmp_joingroup((const ip4_addr *)IP4_ADDR_ANY, (const ip4_addr *)(addr))) {
+        goto igmp_fail;
+      }
+    } else {
+      if (igmp_leavegroup((const ip4_addr *)IP4_ADDR_ANY, (const ip4_addr *)(addr))) {
+        goto igmp_fail;
+      }
+    }
+#endif
+    UDP_MUTEX_UNLOCK();
   }
   return ESP_OK;
+
+igmp_fail:
+  UDP_MUTEX_UNLOCK();
+  return ESP_ERR_INVALID_STATE;
 }
 
 bool AsyncUDP::listenMulticast(const ip_addr_t *addr, uint16_t port, uint8_t ttl, tcpip_adapter_if_t tcpip_if) {
@@ -624,12 +694,10 @@ bool AsyncUDP::listenMulticast(const ip_addr_t *addr, uint16_t port, uint8_t ttl
     return false;
   }
 
-  UDP_MUTEX_LOCK();
   _pcb->mcast_ttl = ttl;
   _pcb->remote_port = port;
   ip_addr_copy(_pcb->remote_ip, *addr);
   //ip_addr_copy(_pcb->remote_ip, ip_addr_any_type);
-  UDP_MUTEX_UNLOCK();
 
   return true;
 }
@@ -651,7 +719,6 @@ size_t AsyncUDP::writeTo(const uint8_t *data, size_t len, const ip_addr_t *addr,
   if (pbt != NULL) {
     uint8_t *dst = reinterpret_cast<uint8_t *>(pbt->payload);
     memcpy(dst, data, len);
-    UDP_MUTEX_LOCK();
     if (tcpip_if < TCPIP_ADAPTER_IF_MAX) {
       void *nif = NULL;
       tcpip_adapter_get_netif((tcpip_adapter_if_t)tcpip_if, &nif);
@@ -663,7 +730,6 @@ size_t AsyncUDP::writeTo(const uint8_t *data, size_t len, const ip_addr_t *addr,
     } else {
       _lastErr = _udp_sendto(_pcb, pbt, addr, port);
     }
-    UDP_MUTEX_UNLOCK();
     pbuf_free(pbt);
     if (_lastErr < ERR_OK) {
       return 0;
@@ -719,18 +785,24 @@ size_t AsyncUDP::writeTo(const uint8_t *data, size_t len, const IPAddress addr, 
 }
 
 IPAddress AsyncUDP::listenIP() {
+#if CONFIG_LWIP_IPV6
   if (!_pcb || _pcb->remote_ip.type != IPADDR_TYPE_V4) {
     return IPAddress();
   }
   return IPAddress(_pcb->remote_ip.u_addr.ip4.addr);
+#else
+  return IPAddress(_pcb->remote_ip.addr);
+#endif
 }
 
+#if CONFIG_LWIP_IPV6
 IPAddress AsyncUDP::listenIPv6() {
   if (!_pcb || _pcb->remote_ip.type != IPADDR_TYPE_V6) {
     return IPAddress(IPv6);
   }
   return IPAddress(IPv6, (const uint8_t *)_pcb->remote_ip.u_addr.ip6.addr, _pcb->remote_ip.u_addr.ip6.zone);
 }
+#endif
 
 size_t AsyncUDP::write(const uint8_t *data, size_t len) {
   return writeTo(data, len, &(_pcb->remote_ip), _pcb->remote_port);

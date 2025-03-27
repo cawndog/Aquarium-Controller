@@ -5,8 +5,8 @@
 #   export ARDUINO_SKIP_IDF_VERSION_CHECK=1
 #   idf.py build
 
-set(min_supported_idf_version "5.1.0")
-set(max_supported_idf_version "5.1.99")
+set(min_supported_idf_version "5.3.0")
+set(max_supported_idf_version "5.3.99")
 set(idf_version "${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}.${IDF_VERSION_PATCH}")
 
 if ("${idf_version}" AND NOT "$ENV{ARDUINO_SKIP_IDF_VERSION_CHECK}")
@@ -25,6 +25,7 @@ endif()
 set(CORE_SRCS
   cores/esp32/base64.cpp
   cores/esp32/cbuf.cpp
+  cores/esp32/ColorFormat.c
   cores/esp32/chip-debug-report.cpp
   cores/esp32/esp32-hal-adc.c
   cores/esp32/esp32-hal-bt.c
@@ -45,9 +46,11 @@ set(CORE_SRCS
   cores/esp32/esp32-hal-timer.c
   cores/esp32/esp32-hal-tinyusb.c
   cores/esp32/esp32-hal-touch.c
+  cores/esp32/esp32-hal-touch-ng.c
   cores/esp32/esp32-hal-uart.c
   cores/esp32/esp32-hal-rmt.c
   cores/esp32/Esp.cpp
+  cores/esp32/freertos_stats.cpp
   cores/esp32/FunctionalInterrupt.cpp
   cores/esp32/HardwareSerial.cpp
   cores/esp32/HEXBuilder.cpp
@@ -93,6 +96,7 @@ set(ARDUINO_ALL_LIBRARIES
   HTTPUpdate
   Insights
   LittleFS
+  Matter
   NetBIOS
   Network
   OpenThread
@@ -112,10 +116,10 @@ set(ARDUINO_ALL_LIBRARIES
   WiFi
   WiFiProv
   Wire
+  Zigbee
   )
 
 set(ARDUINO_LIBRARY_ArduinoOTA_SRCS libraries/ArduinoOTA/src/ArduinoOTA.cpp)
-set(ARDUINO_LIBRARY_ArduinoOTA_REQUIRES esp_https_ota)
 
 set(ARDUINO_LIBRARY_AsyncUDP_SRCS libraries/AsyncUDP/src/AsyncUDP.cpp)
 
@@ -163,6 +167,23 @@ set(ARDUINO_LIBRARY_OpenThread_SRCS
   libraries/OpenThread/src/OThreadCLI.cpp
   libraries/OpenThread/src/OThreadCLI_Util.cpp)
 
+set(ARDUINO_LIBRARY_Matter_SRCS
+  libraries/Matter/src/MatterEndpoints/MatterGenericSwitch.cpp
+  libraries/Matter/src/MatterEndpoints/MatterOnOffLight.cpp
+  libraries/Matter/src/MatterEndpoints/MatterDimmableLight.cpp
+  libraries/Matter/src/MatterEndpoints/MatterColorTemperatureLight.cpp
+  libraries/Matter/src/MatterEndpoints/MatterColorLight.cpp
+  libraries/Matter/src/MatterEndpoints/MatterEnhancedColorLight.cpp
+  libraries/Matter/src/MatterEndpoints/MatterFan.cpp
+  libraries/Matter/src/MatterEndpoints/MatterTemperatureSensor.cpp
+  libraries/Matter/src/MatterEndpoints/MatterHumiditySensor.cpp
+  libraries/Matter/src/MatterEndpoints/MatterContactSensor.cpp
+  libraries/Matter/src/MatterEndpoints/MatterPressureSensor.cpp
+  libraries/Matter/src/MatterEndpoints/MatterOccupancySensor.cpp
+  libraries/Matter/src/MatterEndpoints/MatterOnOffPlugin.cpp
+  libraries/Matter/src/MatterEndpoints/MatterThermostat.cpp
+  libraries/Matter/src/Matter.cpp)
+
 set(ARDUINO_LIBRARY_PPP_SRCS
   libraries/PPP/src/PPP.cpp
   libraries/PPP/src/ppp.c)
@@ -203,6 +224,16 @@ set(ARDUINO_LIBRARY_USB_SRCS
   libraries/USB/src/USBMIDI.cpp
   libraries/USB/src/USBHIDMouse.cpp
   libraries/USB/src/USBHIDKeyboard.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_da_DK.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_de_DE.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_en_US.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_es_ES.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_fr_FR.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_hu_HU.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_it_IT.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_pt_BR.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_pt_PT.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_sv_SE.cpp
   libraries/USB/src/USBHIDGamepad.cpp
   libraries/USB/src/USBHIDConsumerControl.cpp
   libraries/USB/src/USBHIDSystemControl.cpp
@@ -212,7 +243,11 @@ set(ARDUINO_LIBRARY_USB_SRCS
 set(ARDUINO_LIBRARY_WebServer_SRCS
   libraries/WebServer/src/WebServer.cpp
   libraries/WebServer/src/Parsing.cpp
-  libraries/WebServer/src/detail/mimetable.cpp)
+  libraries/WebServer/src/detail/mimetable.cpp
+  libraries/WebServer/src/middleware/MiddlewareChain.cpp
+  libraries/WebServer/src/middleware/AuthenticationMiddleware.cpp
+  libraries/WebServer/src/middleware/CorsMiddleware.cpp
+  libraries/WebServer/src/middleware/LoggingMiddleware.cpp)
 
 set(ARDUINO_LIBRARY_NetworkClientSecure_SRCS
   libraries/NetworkClientSecure/src/ssl_client.cpp
@@ -239,6 +274,27 @@ set(ARDUINO_LIBRARY_WiFi_SRCS
 set(ARDUINO_LIBRARY_WiFiProv_SRCS libraries/WiFiProv/src/WiFiProv.cpp)
 
 set(ARDUINO_LIBRARY_Wire_SRCS libraries/Wire/src/Wire.cpp)
+
+set(ARDUINO_LIBRARY_Zigbee_SRCS
+  libraries/Zigbee/src/ZigbeeCore.cpp
+  libraries/Zigbee/src/ZigbeeEP.cpp
+  libraries/Zigbee/src/ZigbeeHandlers.cpp
+  libraries/Zigbee/src/ep/ZigbeeColorDimmableLight.cpp
+  libraries/Zigbee/src/ep/ZigbeeColorDimmerSwitch.cpp
+  libraries/Zigbee/src/ep/ZigbeeDimmableLight.cpp
+  libraries/Zigbee/src/ep/ZigbeeLight.cpp
+  libraries/Zigbee/src/ep/ZigbeeSwitch.cpp
+  libraries/Zigbee/src/ep/ZigbeeTempSensor.cpp
+  libraries/Zigbee/src/ep/ZigbeeThermostat.cpp
+  libraries/Zigbee/src/ep/ZigbeeFlowSensor.cpp
+  libraries/Zigbee/src/ep/ZigbeePressureSensor.cpp
+  libraries/Zigbee/src/ep/ZigbeeOccupancySensor.cpp
+  libraries/Zigbee/src/ep/ZigbeeCarbonDioxideSensor.cpp
+  libraries/Zigbee/src/ep/ZigbeeContactSwitch.cpp
+  libraries/Zigbee/src/ep/ZigbeeDoorWindowHandle.cpp
+  libraries/Zigbee/src/ep/ZigbeeWindowCovering.cpp
+  libraries/Zigbee/src/ep/ZigbeeVibrationSensor.cpp
+  )
 
 set(ARDUINO_LIBRARY_BLE_SRCS
   libraries/BLE/src/BLE2901.cpp
@@ -293,7 +349,7 @@ endforeach()
 set(includedirs variants/${CONFIG_ARDUINO_VARIANT}/ cores/esp32/ ${ARDUINO_LIBRARIES_INCLUDEDIRS})
 set(srcs ${CORE_SRCS} ${ARDUINO_LIBRARIES_SRCS})
 set(priv_includes cores/esp32/libb64)
-set(requires spi_flash esp_partition mbedtls wifi_provisioning wpa_supplicant esp_adc esp_eth http_parser)
+set(requires spi_flash esp_partition mbedtls wpa_supplicant esp_adc esp_eth http_parser esp_ringbuf esp_driver_gptimer esp_driver_usb_serial_jtag driver)
 set(priv_requires fatfs nvs_flash app_update spiffs bootloader_support bt esp_hid usb esp_psram ${ARDUINO_LIBRARIES_REQUIRES})
 
 if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_OpenThread)
@@ -304,13 +360,17 @@ if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_OpenThre
   endif()
 endif()
 
+if(IDF_TARGET STREQUAL "esp32p4")
+  list(APPEND requires esp_driver_touch_sens)
+endif()
+
 idf_component_register(INCLUDE_DIRS ${includedirs} PRIV_INCLUDE_DIRS ${priv_includes} SRCS ${srcs} REQUIRES ${requires} PRIV_REQUIRES ${priv_requires})
 
-#if(NOT CONFIG_FREERTOS_HZ EQUAL 1000 AND NOT "$ENV{ARDUINO_SKIP_TICK_CHECK}")
+if(NOT CONFIG_FREERTOS_HZ EQUAL 1000 AND NOT "$ENV{ARDUINO_SKIP_TICK_CHECK}")
     # See delay() in cores/esp32/esp32-hal-misc.c.
-#    message(FATAL_ERROR "esp32-arduino requires CONFIG_FREERTOS_HZ=1000 "
-#                       "(currently ${CONFIG_FREERTOS_HZ})")
-#endif()
+    message(FATAL_ERROR "esp32-arduino requires CONFIG_FREERTOS_HZ=1000 "
+                        "(currently ${CONFIG_FREERTOS_HZ})")
+endif()
 
 string(TOUPPER ${CONFIG_ARDUINO_VARIANT} idf_target_caps)
 string(REPLACE "-" "_" idf_target_for_macro "${idf_target_caps}")
@@ -320,7 +380,7 @@ target_compile_options(${COMPONENT_TARGET} PUBLIC
     -DARDUINO_ARCH_ESP32
     -DARDUINO_BOARD="${idf_target_caps}_DEV"
     -DARDUINO_VARIANT="${CONFIG_ARDUINO_VARIANT}"
-    -DESP32)
+    -DESP32=ESP32)
 
 if(CONFIG_AUTOSTART_ARDUINO)
     # in autostart mode, arduino-esp32 contains app_main() function and needs to
@@ -343,9 +403,21 @@ function(maybe_add_component component_name)
     endif()
 endfunction()
 
-if(IDF_TARGET MATCHES "esp32s2|esp32s3" AND CONFIG_TINYUSB_ENABLED)
+if(IDF_TARGET MATCHES "esp32s2|esp32s3|esp32p4" AND CONFIG_TINYUSB_ENABLED)
     maybe_add_component(arduino_tinyusb)
 endif()
 if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_ArduinoOTA)
     maybe_add_component(esp_https_ota)
+endif()
+if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_ESP_SR)
+    maybe_add_component(espressif__esp_sr)
+endif()
+if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_Matter)
+    maybe_add_component(espressif__esp_matter)
+endif()
+if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_LittleFS)
+    maybe_add_component(joltwallet__littlefs)
+endif()
+if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_WiFiProv)
+    maybe_add_component(espressif__network_provisioning)
 endif()

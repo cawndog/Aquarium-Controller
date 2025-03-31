@@ -276,7 +276,7 @@ dependencies:
       type: service
     version: 1.0.1
   espressif/esp_modem:
-    component_hash: 681d7c8417ce0f2a11a562c6998b7b379a4847be41d84673c11c0c7a6b00e918
+    component_hash: b541c3f5765d3ba062c0d004b9ca6da6d0af908293421c2dbe046c537fb2a011
     dependencies:
     - name: idf
       require: private
@@ -284,7 +284,7 @@ dependencies:
     source:
       registry_url: https://components.espressif.com/
       type: service
-    version: 1.3.0
+    version: 1.4.0
   espressif/esp_rainmaker:
     component_hash: f89a4759347f3909417fb33059452f36c86befae9d10bda78b5417b7a5d19d11
     dependencies:

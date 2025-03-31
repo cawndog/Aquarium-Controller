@@ -29,7 +29,9 @@ void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStaConnectedToSoftAP(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info);
 void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info);
-
+void onOTAStart();
+void onOTAProgress(size_t current, size_t final);
+void onOTAEnd(bool success);
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
@@ -43,6 +45,8 @@ tm timeinfo;
 Preferences savedState;
 AqController aqController;
 AqWebServer aqWebServer;
+AsyncWebServer OTAserver(80);
+unsigned long ota_progress_millis = 0;
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char* softApSsid = SOFT_AP_SSID;
@@ -140,11 +144,23 @@ void setup() {
   //Serial.printf("Free heap: %lu\n", ESP.getFreeHeap());
   //Serial.printf("Total PSRAM: %lu\n", ESP.getPsramSize());
   //Serial.printf("Free PSRAM: %lu\n", ESP.getFreePsram());
+  OTAserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "Hi! This is ElegantOTA AsyncDemo.");
+  });
+  ElegantOTA.begin(&OTAserver);    // Start ElegantOTA
+  // ElegantOTA callbacks
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
+  ElegantOTA.setAuth("admin", "esPadmin25");
+  OTAserver.begin();
+  Serial.println("OTA server started");
   inSetup = false;
 }
 
 void loop() {
   xSemaphoreTake(syncSemaphore, portMAX_DELAY);
+  //ElegantOTA.loop();
   /*
   printLocalTime();
   portENTER_CRITICAL(&timerMux);
@@ -277,4 +293,36 @@ void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info) {
   WiFi.scanDelete();
   vTaskDelay(xDelay);
   WiFi.scanNetworks(true);
+}
+
+void onOTAStart() {
+  // Log when OTA has started
+  Serial.println("OTA update started!");
+  // <Add your own code here>
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if (millis() - ota_progress_millis > 1000) {
+    ota_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if (success) {
+    Serial.println("OTA update finished successfully!");
+    Serial.println("Rebooting in 5 seconds...");
+    TaskHandle_t xHandle = NULL;
+    xTaskCreate([](void* pvParameters) {
+      const TickType_t xDelay = 5000 / portTICK_PERIOD_MS;
+      vTaskDelay(xDelay);
+      ESP.restart();
+    },"Post_OTA_Reboot", 3500, (void *) NULL, tskIDLE_PRIORITY, &xHandle);
+
+  } else {
+    Serial.println("There was an error during OTA update!");
+  }
+  // <Add your own code here>
 }

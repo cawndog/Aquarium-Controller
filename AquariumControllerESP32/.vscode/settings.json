@@ -11,7 +11,7 @@
   "idf.openOcdConfigs": [
     "board/esp32s3-builtin.cfg"
   ],
-  "idf.port": "/dev/tty.usbserial-110",
+  "idf.port": "/dev/tty.usbserial-210",
   "idf.pythonBinPath": "/Users/connorwilliams/.espressif/python_env/idf5.1_py3.12_env/bin/python",
   "idf.toolsPath": "/Users/connorwilliams/.espressif",
   "idf.openOcdDebugLevel": 2,

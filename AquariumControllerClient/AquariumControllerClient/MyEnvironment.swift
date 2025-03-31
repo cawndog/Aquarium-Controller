@@ -1,7 +1,21 @@
-//Example MyEnvironment.swift file. 
-
-struct env {
-    static let bearerToken: String = "YbgRZ2i1jehAMGXXMXT4ek2TuG71k5ds7rlYRHGpbJbAfe7OqRoe806iID1dl0M4"
-    static let publicDNS: String = "myPublicDNS.com:8008"
+#if PRODUCTION
+//Environment: Prod
+ struct env {
+    static let bearerToken: String = "ayAkxuh5A1JFLmDkpO8iEFiq1RYhQztX"
+    static let publicDNS: String = "aquariumcontroller.tplinkdns.com:8008"
     static let privateIP: String = "192.168.0.2:8008"
 }
+#elseif DEVELOPMENT
+//Environment: Dev
+struct env {
+    static let bearerToken: String = "ayAkxuh5A1JFLmDkpO8iEFiq1RYhQztX"
+    static let publicDNS: String = "192.168.0.109:8008"
+    static let privateIP: String = "192.168.0.109:8008"
+}
+#else
+struct env {
+    static let bearerToken: String = "ayAkxuh5A1JFLmDkpO8iEFiq1RYhQztX"
+    static let publicDNS: String = "MyDNS.com:8008"
+    static let privateIP: String = "192.168.0.10:8008"
+}
+#endif

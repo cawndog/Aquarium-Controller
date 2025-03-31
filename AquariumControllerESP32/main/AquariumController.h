@@ -2,7 +2,6 @@
 #define AQUARIUMCONTROLLER_H
 #define useSerial
 #include "sdkconfig.h"
-#define SIMULATE_SENSOR_VALS
 
 //Board Pin Configuration
 #if CONFIG_IDF_TARGET_ESP32
@@ -35,8 +34,9 @@
   #define HEATER_SRVO_PIN 12//Heater Servo, Servo #3
   #define FILTER_SRVO_PIN 13 //Filter Servo, Servo #4
 
-  #define WATER_SENSOR_ALARM_THRESHOLD 200 //ADC reading value that will trigger an alarm state and shut off water valve. ESP32 S3
+  #define WATER_SENSOR_ALARM_THRESHOLD 300 //ADC reading value that will trigger an alarm state and shut off water valve. ESP32 S3
   #define WATER_SENSOR_READING_INTERVAL 10000 //time in ms to poll water sensor
+  #define SIMULATE_SENSOR_VALS
 
 #endif
 

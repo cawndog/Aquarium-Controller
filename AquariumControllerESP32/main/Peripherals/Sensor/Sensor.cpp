@@ -71,6 +71,9 @@ void AquariumTemperatureSensor::readSensor() {
 }
 void WaterSensor::readSensor() {
   this->value = analogRead(WATER_SENSOR_PIN);
+  #ifdef SIMULATE_SENSOR_VALS
+    this->value = 0;
+  #endif
 }
 
 

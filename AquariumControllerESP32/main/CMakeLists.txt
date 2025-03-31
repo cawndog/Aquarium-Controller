@@ -10,7 +10,7 @@ set(COMPONENT_ADD_INCLUDEDIRS
 "./" "./Peripherals/Device" "./Peripherals/Sensor" "./Peripherals/HardwareInterface" "./Server" "./Task" "./Settings"
 )
 set(COMPONENT_REQUIRES
-"arduino" "ArduinoJson" "AsyncTCP" "DallasTemperature" "OneWire" "ESP32Time" "ESPAsyncWebServer" "unity" "servo" "nvs_flash" "protocol_examples_common"
+"arduino" "ArduinoJson" "AsyncTCP" "DallasTemperature" "OneWire" "ESP32Time" "ESPAsyncWebServer" "unity" "servo" "nvs_flash" "protocol_examples_common" "ElegantOTA"
 )
 set(COMPONENT_EMBED_TXTFILES
 "./server_root_cert.pem" "./green_fish.png"
@@ -18,5 +18,5 @@ set(COMPONENT_EMBED_TXTFILES
 
 register_component()
 
-target_compile_definitions(${COMPONENT_TARGET} PUBLIC -DESP32)
-target_compile_options(${COMPONENT_TARGET} PRIVATE -fno-rtti)  
+#target_compile_definitions(${COMPONENT_TARGET} PUBLIC -DESP32)
+#target_compile_options(${COMPONENT_TARGET} PRIVATE -fno-rtti)  

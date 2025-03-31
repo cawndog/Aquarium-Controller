@@ -6,12 +6,12 @@
 #include <Arduino.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-//#include <AsyncElegantOTA.h>
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
 #include <cstring>
 #include "AqWebServerInterface.h"
+#include <ElegantOTA.h>
 
 #ifdef useSerial
 

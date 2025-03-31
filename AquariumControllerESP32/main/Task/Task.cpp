@@ -18,7 +18,7 @@ void Task::scheduleTaskToRun() {
         Serial.printf("TASK_SCHEDULER high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
       }
       vTaskDelete(NULL);
-    },"TASK_SCHEDULER", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+    },this->shortName.c_str(), 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
   }
 }
 void Task::unscheduleTask() {

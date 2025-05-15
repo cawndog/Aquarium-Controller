@@ -147,7 +147,7 @@ void setup() {
   //Serial.printf("Total PSRAM: %lu\n", ESP.getPsramSize());
   //Serial.printf("Free PSRAM: %lu\n", ESP.getFreePsram());
   OTAserver.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Hi! This is ElegantOTA AsyncDemo.");
+    request->send(200, "text/plain", "Hi! This is the OTA server. Use the /update endpoint to upload firmware.");
   });
   ElegantOTA.begin(&OTAserver);    // Start ElegantOTA
   // ElegantOTA callbacks
@@ -222,11 +222,6 @@ void WiFiStationHasIP(WiFiEvent_t event, WiFiEventInfo_t info) {
     } else {
       rtc.setTime(0, 0, 0, 1, 1, 2023);
     }
-    //portENTER_CRITICAL(&timerMux);
-      //aqController.determineTaskRunTimes();
-      //aqController.initSchedDeviceTasks();
-      //aqController.scheduleNextTask();
-    //portEXIT_CRITICAL(&timerMux);
   }
   if (WiFi.getMode() == WIFI_AP_STA) {
     WiFi.softAPdisconnect();
@@ -247,36 +242,24 @@ void WiFiStationDisconnect(WiFiEvent_t event, WiFiEventInfo_t info) {
     Serial.printf("wifiReconnectAttempts < wifiReconnectMaxAttempt\n");
     #endif
     wifiReconnectAttempts++;
-    //WiFi.begin(ssid, password);
     WiFi.reconnect();
   } 
   else {
     Serial.printf("wifiReconnectAttempts NOT < wifiReconnectMaxAttempt. Will not attempt to reconnect.\n");
-    //WiFi.mode(WIFI_AP);
     if (WiFi.getMode() != WIFI_AP_STA) {
       Serial.printf("Setting WIFI mode to WIFI_MODE_APSTA\n");
       WiFi.mode(WIFI_AP_STA);
       WiFi.softAPConfig(IP, gateway, NMask);
       WiFi.softAP(softApSsid, softApPassword);
     }
-    //WiFi.scanNetworks(async, show_hidden)
-    //WiFi.disconnect();
     const TickType_t xDelay = RECONNECT_DELAY / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
     Serial.printf("Scanning networks\n");
     WiFi.scanNetworks(true);
-    //WiFi.scanNetworks(true, false, true, 300, 0, nullptr, nullptr);
   }
-  /*if (inSetup) {
-    WiFi.begin(ssid, password);
-  } else {
-    WiFi.begin(ssid, password);
-  }*/
 }
 void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.printf("DEBUG: in WiFiScanComplete.\n");
-  //const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
-  
   int n = WiFi.scanComplete();
   if (n > 0) {
     Serial.printf("Networks found: %d. Searching for ssid %s.\n", n, ssid);
@@ -298,9 +281,7 @@ void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info) {
 }
 
 void onOTAStart() {
-  // Log when OTA has started
   Serial.println("OTA update started!");
-  // <Add your own code here>
 }
 
 void onOTAProgress(size_t current, size_t final) {
@@ -326,5 +307,4 @@ void onOTAEnd(bool success) {
   } else {
     Serial.println("There was an error during OTA update!");
   }
-  // <Add your own code here>
 }

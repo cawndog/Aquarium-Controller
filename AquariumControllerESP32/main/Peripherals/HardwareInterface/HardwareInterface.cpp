@@ -104,7 +104,7 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
           xSemaphoreGive(waterValveSemaphore);
           Serial.printf("WV_On high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
           vTaskDelete(NULL);
-        },"WV_On", 2000, (void *) this, tskIDLE_PRIORITY, &xHandle);
+        },"WV_On_Pin_Dly", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
       xSemaphoreGive(waterValveSemaphore);
       //configASSERT(xHandle);
     }
@@ -128,7 +128,7 @@ void HardwareInterface::powerControl(String deviceName, uint8_t state) {
           xSemaphoreGive(waterValveSemaphore);
           Serial.printf("WV_Off high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
           vTaskDelete(NULL);
-        },"WV_Off", 2000, (void *) this, tskIDLE_PRIORITY, &xHandle);
+        },"WV_Off_Pin_Dly", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
       xSemaphoreGive(waterValveSemaphore);
       //configASSERT(xHandle);
     }

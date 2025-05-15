@@ -15,10 +15,10 @@ void Task::scheduleTaskToRun() {
         unsigned long secsUntilRunTime = thisTask->nextRunTime - rtc.getLocalEpoch();
         thisTask->sleepUntil(&xLastWakeTime, secsUntilRunTime);
         thisTask->doTask();
-        Serial.printf("TASK_SCHEDULER high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+        Serial.printf("%s high water mark %d\n",thisTask->shortName.c_str(), uxTaskGetStackHighWaterMark(NULL));
       }
       vTaskDelete(NULL);
-    },this->shortName.c_str(), 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+    },this->shortName.c_str(), 3000, (void *) this, tskIDLE_PRIORITY, &xHandle);
   }
 }
 void Task::unscheduleTask() {

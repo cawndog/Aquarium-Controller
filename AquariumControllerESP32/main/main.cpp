@@ -13,6 +13,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    
     setup();
     static EmailMessage eMessage;
     eMessage.subject = "AQ Controller Notification.";
@@ -80,6 +81,7 @@ void setup() {
   #ifdef useSerialBT
       SerialBT.printf("Connecting to %s ", WIFI_SSID);
   #endif
+
   WiFi.onEvent(WiFiStationHasIP, ARDUINO_EVENT_WIFI_STA_GOT_IP);
   WiFi.onEvent(WiFiStationDisconnect, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
   WiFi.onEvent(WiFiScanComplete, ARDUINO_EVENT_WIFI_SCAN_DONE);

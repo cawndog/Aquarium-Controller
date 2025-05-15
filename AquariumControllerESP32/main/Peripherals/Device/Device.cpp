@@ -49,7 +49,7 @@ void Device::setStateOn(bool overrideOkToExe) {
         }
         device->hardwareInterface->powerControl(device->name, deviceStateToInt(device->state));
         xSemaphoreGive(device->stateChangeSemaphore);
-        Serial.printf("DEVICE_ON high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+        Serial.printf("DEVICE_ON (%s) high water mark %d\n", device->name.c_str(), uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
       },"DEVICE_ON", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
       //configASSERT(xHandle);
@@ -77,7 +77,7 @@ void Device::setStateOff(bool overrideOkToExe) {
         device->postExeFunction(devicesUpdated, 1);
         device->hardwareInterface->powerControl(device->name, deviceStateToInt(device->state));
         xSemaphoreGive(device->stateChangeSemaphore);
-        Serial.printf("DEVICE_OFF high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
+        Serial.printf("DEVICE_OFF (%s) high water mark %d\n",device->name.c_str(), uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
       },"DEVICE_OFF", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
       //configASSERT(xHandle);

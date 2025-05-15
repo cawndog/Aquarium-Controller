@@ -106,65 +106,49 @@ class Network: ObservableObject {
     func processStringMessage(WebSocketMessage:String) {
         guard let controllerState = controllerState else { return }
         let jsonMessage = WebSocketMessage.data(using: .utf8)!
-        let decodedMessage = try! JSONDecoder().decode(AqControllerMessage.self, from: jsonMessage)
-        DispatchQueue.main.async {
-            if let sensors = decodedMessage.sensors {
-                for sensor in sensors {
-                    var s = controllerState.getSensorByName(sensor.name)
-                    s.value = sensor.value
-                }
-            }
-            if let devices = decodedMessage.devices {
-                for device in devices {
-                    let d = controllerState.getDeviceByName(device.name)
-                    d.setState(newState: device.state)
-                    //d.stateUpdatedByController = true
-                }
-            }
-            if let settings = decodedMessage.settings {
-                if let generalSettings = settings.generalSettings {
-                    for setting in generalSettings {
-                        let s = controllerState.getGeneralSettingByName(setting.name)
-                        s.setValue(newValue: setting.value)
+        do {
+            let decodedMessage = try JSONDecoder().decode(AqControllerMessage.self, from: jsonMessage)
+            DispatchQueue.main.async {
+                if let sensors = decodedMessage.sensors {
+                    for sensor in sensors {
+                        var s = controllerState.getSensorByName(sensor.name)
+                        s.value = sensor.value
                     }
                 }
-                if let alarms = settings.alarms{
-                    for alarm in alarms {
-                        let a = controllerState.getAlarmByName(alarm.name)
-                        if let alarmState = alarm.alarmState {
-                            a.setAlarmState(newState: alarmState)
-                        }
-                        if let alarmOverride = alarm.alarmOverride {
-                            a.setAlarmOverride(override: alarmOverride)
-                        }
+                if let devices = decodedMessage.devices {
+                    for device in devices {
+                        let d = controllerState.getDeviceByName(device.name)
+                        d.setState(newState: device.state)
+                        //d.stateUpdatedByController = true
                     }
                 }
-                if let tasks = settings.tasks {
-                    var dateComps = DateComponents()
-                    var hours: Int
-                    var minutes: Int
-                    var seconds: Int
-                    var taskTime: Int
-                    for task in tasks {
-                        let t = controllerState.getTaskByName(task.name)
-                        taskTime = task.time
-                        seconds = taskTime%60
-                        taskTime -= seconds
-                        minutes = (taskTime%3600)/60
-                        taskTime -= (minutes*60)
-                        hours = taskTime/3600
-                        dateComps.hour = hours
-                        dateComps.minute = minutes
-                        dateComps.second = seconds
-                        t.time = Calendar.current.date(from: dateComps)!
-                        t.timeInSeconds = task.time
-                        t.setTaskTypeWithString(task.taskType.rawValue)
-                        t.enabled = task.enabled
-                        if let connectedTask = task.connectedTask {
-                            if (t.connectedTask == nil) {
-                                t.connectedTask = AqTask(connectedTask.name)
+                if let settings = decodedMessage.settings {
+                    if let generalSettings = settings.generalSettings {
+                        for setting in generalSettings {
+                            let s = controllerState.getGeneralSettingByName(setting.name)
+                            s.setValue(newValue: setting.value)
+                        }
+                    }
+                    if let alarms = settings.alarms{
+                        for alarm in alarms {
+                            let a = controllerState.getAlarmByName(alarm.name)
+                            if let alarmState = alarm.alarmState {
+                                a.setAlarmState(newState: alarmState)
                             }
-                            taskTime = connectedTask.time
+                            if let alarmOverride = alarm.alarmOverride {
+                                a.setAlarmOverride(override: alarmOverride)
+                            }
+                        }
+                    }
+                    if let tasks = settings.tasks {
+                        var dateComps = DateComponents()
+                        var hours: Int
+                        var minutes: Int
+                        var seconds: Int
+                        var taskTime: Int
+                        for task in tasks {
+                            let t = controllerState.getTaskByName(task.name)
+                            taskTime = task.time
                             seconds = taskTime%60
                             taskTime -= seconds
                             minutes = (taskTime%3600)/60
@@ -173,14 +157,36 @@ class Network: ObservableObject {
                             dateComps.hour = hours
                             dateComps.minute = minutes
                             dateComps.second = seconds
-                            t.connectedTask.time = Calendar.current.date(from: dateComps)!
-                            t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
-                            t.connectedTask.enabled = connectedTask.enabled
+                            t.time = Calendar.current.date(from: dateComps)!
+                            t.timeInSeconds = task.time
+                            t.setTaskTypeWithString(task.taskType.rawValue)
+                            t.enabled = task.enabled
+                            if let connectedTask = task.connectedTask {
+                                if (t.connectedTask == nil) {
+                                    t.connectedTask = AqTask(connectedTask.name)
+                                }
+                                taskTime = connectedTask.time
+                                seconds = taskTime%60
+                                taskTime -= seconds
+                                minutes = (taskTime%3600)/60
+                                taskTime -= (minutes*60)
+                                hours = taskTime/3600
+                                dateComps.hour = hours
+                                dateComps.minute = minutes
+                                dateComps.second = seconds
+                                t.connectedTask.time = Calendar.current.date(from: dateComps)!
+                                t.connectedTask.setTaskTypeWithString(connectedTask.taskType.rawValue)
+                                t.connectedTask.enabled = connectedTask.enabled
+                            }
                         }
                     }
                 }
             }
+        } catch {
+            print("Failed to decode JSON: \(error)")
         }
+
+        
     }
     func sendMessage(_ message: String) {
         guard let data = message.data(using: .utf8) else { return }

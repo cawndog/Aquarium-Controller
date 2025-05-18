@@ -25,7 +25,10 @@
 #define SERVO_CH3_PIN LIGHT_SRVO_PIN //Light Servo, Servo #2
 
 //--Servo Motor Positions--
-#define OFF_POS 90
+//#define OFF_POS 90
+//#define POS1 70
+//#define POS2 110
+#define OFF_POS 91
 #define POS1 70
 #define POS2 110
 static volatile SemaphoreHandle_t switchSemaphore = NULL;

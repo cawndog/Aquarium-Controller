@@ -33,6 +33,8 @@ void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info);
 void onOTAStart();
 void onOTAProgress(size_t current, size_t final);
 void onOTAEnd(bool success);
+void onClientData(void *arg, AsyncClient *c, void *data, size_t len);
+void onClientConnect(void *arg, AsyncClient *c);
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
@@ -48,6 +50,8 @@ AqController aqController;
 AqWebServer aqWebServer;
 AsyncWebServer OTAserver(80);
 unsigned long ota_progress_millis = 0;
+AsyncServer serialTcpServer(8888); // TCP server on port 8888. For Serial-over-TCP Bridge.
+AsyncClient* serialTcpClient = nullptr;
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char* softApSsid = SOFT_AP_SSID;
@@ -95,14 +99,33 @@ void setup() {
   WiFi.begin(ssid, password);
   xSemaphoreTake(wifiEventSemaphore, portMAX_DELAY);
   if (WiFi.status() == WL_CONNECTED) {
-      configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-      if (getLocalTime(&timeinfo, 10000)) {
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+    if (getLocalTime(&timeinfo, 10000)) {
       rtc.setTimeStruct(timeinfo);
-      } else {
+    } else {
       rtc.setTime(0, 0, 0, 1, 1, 2024);
+    }
+    serialTcpServer.onClient(&onClientConnect, nullptr);
+    serialTcpServer.begin();
+    xTaskCreate([](void* pvParameters) {
+      while (true) {
+        if (serialTcpClient) {
+          if (Serial.available()) {
+            uint8_t data = static_cast<uint8_t>(Serial.read());
+            serialTcpClient->write(reinterpret_cast<const char*>(&data), 1); // Serial → TCP
+            //Serial.printf("Forwarded data: %c\n", data); // Debug log
+          } else {
+            //Serial.println("No data available on Serial."); // Debug log
+          }
+        } else {
+          //Serial.println("No TCP client connected."); // Debug log
+        }
+        vTaskDelay(200 / portTICK_PERIOD_MS); // Add a small delay to avoid busy looping
       }
+    },"Serial_TCP", 10000, (void *) NULL, tskIDLE_PRIORITY, NULL);
+    Serial.println("Serial-over-TCP Bridge ready.");
   } else {
-      rtc.setTime(0, 0, 0, 1, 1, 2024);
+    rtc.setTime(0, 0, 0, 1, 1, 2024);
   }
   savedState.begin("aqController", false);
   aqWebServer.init();
@@ -307,4 +330,14 @@ void onOTAEnd(bool success) {
   } else {
     Serial.println("There was an error during OTA update!");
   }
+}
+
+void onClientData(void *arg, AsyncClient *c, void *data, size_t len) {
+  Serial.write((uint8_t*)data, len); // TCP → Serial
+}
+
+void onClientConnect(void *arg, AsyncClient *c) {
+  serialTcpClient = c;
+  serialTcpClient->onData(&onClientData, nullptr);
+  Serial.println("Client connected");
 }

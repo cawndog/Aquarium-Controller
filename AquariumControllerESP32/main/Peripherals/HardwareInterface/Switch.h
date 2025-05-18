@@ -15,9 +15,7 @@
 
 extern Preferences savedState;
 //extern volatile SemaphoreHandle_t switchSemaphore;
-//extern volatile uint8_t activeServoTasks;
 static volatile SemaphoreHandle_t switchSemaphore = NULL;
-static volatile uint8_t activeServoTasks = 0;
 
 // Switch states
 enum SwitchState {

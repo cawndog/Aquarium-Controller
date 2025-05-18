@@ -1,34 +1,12 @@
+#include <ESP32Servo.h>
 #include "WString.h"
 #include "Switch.h"
 
-/*static void _set_angle(ledc_mode_t speed_mode, float angle)
-{
-    for (size_t i = 0; i < 8; i++) {
-        iot_servo_write_angle(speed_mode, i, angle);
-    }
-}*/
-servo_config_t servo_cfg = {
-    .max_angle = 180,
-    .min_width_us = 544,
-    .max_width_us = 2400,
-    .freq = 50,
-    .timer_number = LEDC_TIMER_0,
-    .channels = {
-        .servo_pin = {
-            gpio_num_t(SERVO_CH0_PIN),
-            gpio_num_t(SERVO_CH1_PIN),
-            gpio_num_t(SERVO_CH2_PIN),
-            gpio_num_t(SERVO_CH3_PIN)
-        },
-        .ch = {
-            LEDC_CHANNEL_0,
-            LEDC_CHANNEL_1,
-            LEDC_CHANNEL_2,
-            LEDC_CHANNEL_3,
-        },
-    },
-    .channel_number = 4,
-} ;
+// Define servo objects for each channel
+Servo servoSwitch1; //Air Servo, Servo #1
+Servo servoSwitch2; //Light Servo, Servo #2
+Servo servoSwitch3; //Heater Servo, Servo #3
+Servo servoSwitch4; //Filter Servo, Servo #4
 
 void Switch::init(String name) {
   if (switchSemaphore == NULL) {
@@ -76,171 +54,130 @@ void Switch1::powerControl(SwitchState newState) { //air control switch
   //AUXON POS is 110 (POS2)
   //ON POS = Air Pump on
   //AUXON POS = CO2 on
+
+  //Motor calibration
   #define OFF_OFFSET_1 -8
   #define ON_OFFSET_1 0
   #define AUXON_OFFSET_1 -9
 
   if (this->state != newState) {
-    this->setSwitchState(newState);
     xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    if (activeServoTasks == 0) {
-      iot_servo_init(SRVO_LEDC_SPEED_MODE, &servo_cfg);
-    }
-    activeServoTasks = activeServoTasks + 1;
-    xSemaphoreGive(switchSemaphore);
-    if (newState == OFF) {
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_1, OFF_POS + OFF_OFFSET_1);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
-    else if (newState == ON) { //Air Pump
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_1, POS1 + ON_OFFSET_1);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
-    else if (newState == AUXON) { //CO2
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_1, POS2 + AUXON_OFFSET_1);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
 
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    activeServoTasks--;
-    if (activeServoTasks == 0) {
-      iot_servo_deinit(SRVO_LEDC_SPEED_MODE);
-      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
+    servoSwitch1.attach(AIR_SRVO_PIN);
+    this->setSwitchState(newState);
+    
+    if (newState == OFF) {
+      servoSwitch1.write(OFF_POS + OFF_OFFSET_1);
+    } else if (newState == ON) {
+      servoSwitch1.write(POS1 + ON_OFFSET_1);
+    } else if (newState == AUXON) {
+      servoSwitch1.write(POS2 + AUXON_OFFSET_1);
     }
+    vTaskDelay(200 / portTICK_PERIOD_MS);
+    
+    servoSwitch1.detach();
     xSemaphoreGive(switchSemaphore);
   }
   return;
 }
-void Switch2::powerControl(SwitchState newState) { //light control switch
+
+void Switch2::powerControl(SwitchState newState) { // Light control switch
   //ON POS is 110 (POS2) 
   //AUXON POS is 70 (POS1)
   //On POS = Lights on
   //AUXON POS = Not Configured
+
+  //Motor calibration
   #define OFF_OFFSET_2 1
   #define ON_OFFSET_2 -2
   #define AUXON_OFFSET_2 3
-  
+
   if (this->state != newState) {
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+
     this->setSwitchState(newState);
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    if (activeServoTasks == 0) {
-      iot_servo_init(SRVO_LEDC_SPEED_MODE, &servo_cfg);
-    }
-    activeServoTasks = activeServoTasks + 1;
-    xSemaphoreGive(switchSemaphore);
+    servoSwitch2.attach(LIGHT_SRVO_PIN);
+
     if (newState == OFF) {
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_3, OFF_POS + OFF_OFFSET_2);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-      
+      servoSwitch2.write(OFF_POS + OFF_OFFSET_2);
+    } else if (newState == ON) {
+      servoSwitch2.write(POS2 + ON_OFFSET_2);
     }
-    else if (newState == ON) { 
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_3, POS2 + ON_OFFSET_2);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-      
-    }
-    /*else if (newState == AUXON) { 
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_3, POS1 + AUXON_OFFSET_2);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-      
-    }*/
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    activeServoTasks--;
-    if (activeServoTasks == 0) {
-      iot_servo_deinit(SRVO_LEDC_SPEED_MODE);
-      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
+    // Uncomment if AUXON is needed
+    // else if (newState == AUXON) {
+    //   servoSwitch2.write(POS1 + AUXON_OFFSET_2);
+    // }
+    vTaskDelay(200 / portTICK_PERIOD_MS);
+
+    servoSwitch2.detach();
     xSemaphoreGive(switchSemaphore);
   }
   return;
 }
-void Switch3::powerControl(SwitchState newState) { //heater control switch
+
+void Switch3::powerControl(SwitchState newState) { // Heater control switch
   //ON POS is 70 (POS1)
   //AUXON POS is 110 (POS2)
   //On POS = Heater on
   //AUXON POS = Not Configured
+
+  //Motor calibration
   #define OFF_OFFSET_3 0
   #define ON_OFFSET_3 0
   #define AUXON_OFFSET_3 -2
+
   if (this->state != newState) {
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+
     this->setSwitchState(newState);
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    if (activeServoTasks == 0) {
-      iot_servo_init(SRVO_LEDC_SPEED_MODE, &servo_cfg);
-    }
-    activeServoTasks = activeServoTasks + 1;
-    xSemaphoreGive(switchSemaphore);
+    servoSwitch3.attach(HEATER_SRVO_PIN);
+
     if (newState == OFF) {
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_0, OFF_POS + OFF_OFFSET_3);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
+      servoSwitch3.write(OFF_POS + OFF_OFFSET_3);
+    } else if (newState == ON) {
+      servoSwitch3.write(POS1 + ON_OFFSET_3);
     }
-    else if (newState == ON) { 
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_0, POS1 + ON_OFFSET_3);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
-    /*else if (newState == AUXON) { 
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_0, POS2 + AUXON_OFFSET_3);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }*/
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    activeServoTasks--;
-    if (activeServoTasks == 0) {
-      iot_servo_deinit(SRVO_LEDC_SPEED_MODE);
-      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
+    // Uncomment if AUXON is needed
+    //else if (newState == AUXON) {
+    //  servoSwitch3.write(POS2 + AUXON_OFFSET_3);
+    //}
+    vTaskDelay(200 / portTICK_PERIOD_MS);
+
+    servoSwitch3.detach();
     xSemaphoreGive(switchSemaphore);
   }
   return;
 }
-void Switch4::powerControl(SwitchState newState) { //filter control switch
+
+void Switch4::powerControl(SwitchState newState) { // Filter control switch
   //ON POS is 110 (POS2) 
   //AUXON POS is 70 (POS1)
   //On POS = Filter on
   //AUXON POS = Not Configured
+
+  //Motor calibration
   #define OFF_OFFSET_4 10
   #define ON_OFFSET_4 10
   #define AUXON_OFFSET_4 10
+
   if (this->state != newState) {
+    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
+
     this->setSwitchState(newState);
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    if (activeServoTasks == 0) {
-      iot_servo_init(SRVO_LEDC_SPEED_MODE, &servo_cfg);
-    }
-    activeServoTasks = activeServoTasks + 1;
-    xSemaphoreGive(switchSemaphore);
+    servoSwitch4.attach(FILTER_SRVO_PIN);
+
     if (newState == OFF) {
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_2, OFF_POS + OFF_OFFSET_4);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
+      servoSwitch4.write(OFF_POS + OFF_OFFSET_4);
+    } else if (newState == ON) {
+      servoSwitch4.write(POS2 + ON_OFFSET_4);
     }
-    else if (newState == ON) {
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_2, POS2 + ON_OFFSET_4);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
-    /*else if (newState == AUXON) { 
-      iot_servo_write_angle(SRVO_LEDC_SPEED_MODE, LEDC_CHANNEL_2, POS1 + AUXON_OFFSET_4);
-      const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }*/
-    xSemaphoreTake(switchSemaphore, portMAX_DELAY);
-    activeServoTasks--;
-    if (activeServoTasks == 0) {
-      iot_servo_deinit(SRVO_LEDC_SPEED_MODE);
-      const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-      vTaskDelay(xDelay);
-    }
+    // Uncomment if AUXON is needed
+    //else if (newState == AUXON) {
+    //  servoSwitch4.write(POS1 + AUXON_OFFSET_4);
+    //}
+    vTaskDelay(200 / portTICK_PERIOD_MS);
+
+    servoSwitch4.detach();
     xSemaphoreGive(switchSemaphore);
   }
   return;

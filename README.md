@@ -33,7 +33,7 @@ The Aquarium Controller automates aquarium management tasks, using sensors and a
   - <a href="https://github.com/fbiego/ESP32Time/releases/tag/2.0.6" target="_blank" rel="noopener noreferrer">ESP32Time v2.0.6</a>
   - <a href="https://github.com/milesburton/Arduino-Temperature-Control-Library" target="_blank" rel="noopener noreferrer">Dallas Temperature v3.11.0</a>
   - <a href="https://github.com/PaulStoffregen/OneWire/releases/tag/v2.3.8" target="_blank" rel="noopener noreferrer">OneWire v2.3.8</a>
-  - <a href="https://github.com/espressif/esp-iot-solution/tree/release/v2.0/components/motor/servo" target="_blank" rel="noopener noreferrer">Servo from esp-iot-solution v2.0</a>
+  - <a href="https://github.com/madhephaestus/ESP32Servo/releases/tag/3.0.6" target="_blank" rel="noopener noreferrer">ESP32Servo v3.0.6</a>
 - **Frontend**: SwiftUI
 - **Communication Protocols**: REST API, Websockets
 - **Other Tools**: ESP-IDF, ESP-IDF Extension for Visual Studio Code

@@ -51,7 +51,7 @@ void Device::setStateOn(bool overrideOkToExe) {
         xSemaphoreGive(device->stateChangeSemaphore);
         Serial.printf("DEVICE_ON (%s) high water mark %d\n", device->name.c_str(), uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
-      },"DEVICE_ON", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+      },"DEVICE_ON", 3000, (void *) this, tskIDLE_PRIORITY, &xHandle);
       //configASSERT(xHandle);
     } else {
       xSemaphoreGive(this->stateChangeSemaphore);
@@ -79,7 +79,7 @@ void Device::setStateOff(bool overrideOkToExe) {
         xSemaphoreGive(device->stateChangeSemaphore);
         Serial.printf("DEVICE_OFF (%s) high water mark %d\n",device->name.c_str(), uxTaskGetStackHighWaterMark(NULL));
         vTaskDelete(NULL);
-      },"DEVICE_OFF", 2500, (void *) this, tskIDLE_PRIORITY, &xHandle);
+      },"DEVICE_OFF", 3000, (void *) this, tskIDLE_PRIORITY, &xHandle);
       //configASSERT(xHandle);
     } else {
       xSemaphoreGive(this->stateChangeSemaphore);
@@ -90,7 +90,7 @@ void Device::setStateOff(bool overrideOkToExe) {
 }
 void Device::reset() {
   Serial.println("Resetting device.");
-  const TickType_t xDelay = 100/ portTICK_PERIOD_MS;
+  const TickType_t xDelay = 500/ portTICK_PERIOD_MS;
   this->setStateOff(true);
   vTaskDelay(xDelay);
   this->setStateOn(true);

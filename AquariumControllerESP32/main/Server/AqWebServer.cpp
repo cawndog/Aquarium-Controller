@@ -37,7 +37,8 @@ String authFailResponse = "Authentication Failed";
       return;
     }
     request->send(200, "text/plain", "Restarting...");
-    delay(15);
+    const TickType_t xDelay = 1000/ portTICK_PERIOD_MS;
+    vTaskDelay(xDelay);
     ESP.restart();
   });
   server->on("/esp_alv", HTTP_GET, [&](AsyncWebServerRequest *request) {

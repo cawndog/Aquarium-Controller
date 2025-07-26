@@ -33,8 +33,8 @@ void WiFiScanComplete(WiFiEvent_t event, WiFiEventInfo_t info);
 void onOTAStart();
 void onOTAProgress(size_t current, size_t final);
 void onOTAEnd(bool success);
-void onClientData(void *arg, AsyncClient *c, void *data, size_t len);
-void onClientConnect(void *arg, AsyncClient *c);
+//void onClientData(void *arg, AsyncClient *c, void *data, size_t len);
+//void onClientConnect(void *arg, AsyncClient *c);
 //-------------------------------Global Variables-------------------------------
 
 volatile SemaphoreHandle_t syncSemaphore;
@@ -50,8 +50,8 @@ AqController aqController;
 AqWebServer aqWebServer;
 AsyncWebServer OTAserver(80);
 unsigned long ota_progress_millis = 0;
-AsyncServer serialTcpServer(8888); // TCP server on port 8888. For Serial-over-TCP Bridge.
-AsyncClient* serialTcpClient = nullptr;
+//AsyncServer serialTcpServer(8888); // TCP server on port 8888. For Serial-over-TCP Bridge.
+//AsyncClient* serialTcpClient = nullptr;
 const char* ssid = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 const char* softApSsid = SOFT_AP_SSID;
@@ -105,7 +105,7 @@ void setup() {
     } else {
       rtc.setTime(0, 0, 0, 1, 1, 2024);
     }
-    serialTcpServer.onClient(&onClientConnect, nullptr);
+    /*serialTcpServer.onClient(&onClientConnect, nullptr);
     serialTcpServer.begin();
     xTaskCreate([](void* pvParameters) {
       while (true) {
@@ -123,7 +123,7 @@ void setup() {
         vTaskDelay(200 / portTICK_PERIOD_MS); // Add a small delay to avoid busy looping
       }
     },"Serial_TCP", 10000, (void *) NULL, tskIDLE_PRIORITY, NULL);
-    Serial.println("Serial-over-TCP Bridge ready.");
+    Serial.println("Serial-over-TCP Bridge ready.");*/
   } else {
     rtc.setTime(0, 0, 0, 1, 1, 2024);
   }
@@ -141,22 +141,22 @@ void setup() {
   TaskHandle_t xHandle = NULL;
   xTaskCreate([](void* pvParameters) {
     while (true) {
-      aqController.waterSensor.readSensor();
-      Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
-      Serial.printf("Free Heap: %lu\n", ESP.getFreeHeap());
-      while (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD || aqController.waterSensorAlarm.getAlarmState() > 0) {
-        Serial.printf("****** Water Sensor Alarm ******\nWater detected.\n");
-        if (aqController.waterSensorAlarm.getAlarmState() > 0) {
-          //If we are already in an active alarm, set alarm state to its same value.
-          aqController.waterSensorAlarm.setAlarmState(aqController.waterSensorAlarm.getAlarmState());
-        } else {
-          //Set alarm state to current Epoch time to record the time the alarm occured.
-          aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch());
-        }
-        const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
-        vTaskDelay(xDelay);
+      while (aqController.waterSensorAlarm.getAlarmState() > 0) {
+        Serial.printf("****** Water Sensor Alarm ******\nIn existing alarm state.\n");
+        aqController.waterSensorAlarm.setAlarmState(aqController.waterSensorAlarm.getAlarmState()); //If we are already in an active alarm, keep alarm state as its same value. This repeatedly sends alerts.
         aqController.waterSensor.readSensor();
         Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
+        const TickType_t xDelay = 60000 / portTICK_PERIOD_MS;
+        vTaskDelay(xDelay);
+
+      }
+      aqController.waterSensor.readSensor();
+      Serial.printf("Water Sensor Value: %d\n", aqController.waterSensor.getValueInt());
+      if (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) {
+        aqController.waterSensor.readSensor(); //Read sensor again to confirm value is still over threshold.
+        if (aqController.waterSensor.getValueInt() > WATER_SENSOR_ALARM_THRESHOLD) { 
+          aqController.waterSensorAlarm.setAlarmState(rtc.getLocalEpoch()); //New active alarm. Set alarm state to current Epoch time to record the time the alarm occured. 
+        }
       }
       Serial.printf("WS_READ high water mark %d\n", uxTaskGetStackHighWaterMark(NULL));
       const TickType_t xDelay = WATER_SENSOR_READING_INTERVAL / portTICK_PERIOD_MS;
@@ -331,7 +331,7 @@ void onOTAEnd(bool success) {
     Serial.println("There was an error during OTA update!");
   }
 }
-
+/*
 void onClientData(void *arg, AsyncClient *c, void *data, size_t len) {
   Serial.write((uint8_t*)data, len); // TCP → Serial
 }
@@ -340,4 +340,4 @@ void onClientConnect(void *arg, AsyncClient *c) {
   serialTcpClient = c;
   serialTcpClient->onData(&onClientData, nullptr);
   Serial.println("Client connected");
-}
+}*/

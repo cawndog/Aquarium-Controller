@@ -50,7 +50,7 @@
   #define FILTER_SRVO_PIN 16 //Filter Servo, Servo #4
   #define TEMP_SENSOR_PIN 13
 
-  #define WATER_SENSOR_ALARM_THRESHOLD 100 //ADC reading value that will trigger an alarm state and shut off water valve.
+  #define WATER_SENSOR_ALARM_THRESHOLD 130 //ADC reading value that will trigger an alarm state and shut off water valve.
   #define WATER_SENSOR_READING_INTERVAL 10000 //time in ms to poll water sensor
 #endif
 #endif
